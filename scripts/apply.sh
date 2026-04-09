@@ -21,8 +21,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(dirname "$SCRIPT_DIR")"
-SDK_DIR="$REPO_DIR/sdk-sources"
-PATCH="$REPO_DIR/kernel-patch/003-ask-kernel-hooks.patch"
+SDK_DIR="$REPO_DIR/patches/kernel/sdk-sources"
+PATCH="$REPO_DIR/patches/kernel/003-ask-kernel-hooks.patch"
 CONFIG="$REPO_DIR/config/ask.config"
 
 # --- Argument handling ---

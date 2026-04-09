@@ -1,217 +1,174 @@
-# ASK Kernel Patch for Linux 6.6.x LTS
+# ASK for Linux 6.6 LTS
 
-NXP Application Solutions Kit (ASK) hardware packet offload for **NXP LS1046A** (and compatible QorIQ Layerscape SoCs with FMAN silicon). Ported to mainline Linux 6.6 LTS.
+NXP Application Solutions Kit (ASK) — hardware-accelerated packet processing for **NXP LS1046A** (and LS1043A) Layerscape processors. Ported to **mainline Linux 6.6 LTS**.
 
-ASK offloads established network flows (TCP/UDP/ESP/PPPoE/L2 bridge) to the FMAN hardware classifier — **zero CPU cost** for matched flows, wire-rate forwarding on 10G ports.
+This repository is a complete, self-contained fork of [ASK](https://github.com/we-are-mono/ASK) with kernel patches adapted for Linux 6.6.x. It includes kernel modules, userspace daemons, build patches, and configuration files needed to enable DPAA fast-path offloading.
 
 ## Quick Start
 
 ```bash
-# Clone this repo
-git clone https://github.com/we-are-mono/ask_6.6.git
+# 1. Apply kernel patches
+./scripts/apply.sh /path/to/linux-6.6.x
 
-# Get a Linux 6.6.x kernel source tree
-wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.75.tar.xz
-tar xf linux-6.6.75.tar.xz
+# 2. Build kernel
+cd /path/to/linux-6.6.x
+make olddefconfig && make -j$(nproc)
 
-# Test (dry-run — no files modified)
-./ask_6.6/scripts/apply.sh linux-6.6.75 --dry-run
+# 3. Build out-of-tree modules (against patched kernel)
+cd /path/to/ask_6.6/cdx && make KERNEL_DIR=/path/to/linux-6.6.x
+cd /path/to/ask_6.6/fci && make KERNEL_DIR=/path/to/linux-6.6.x
+cd /path/to/ask_6.6/auto_bridge && make KERNEL_DIR=/path/to/linux-6.6.x
 
-# Apply
-./ask_6.6/scripts/apply.sh linux-6.6.75
-
-# Build
-cd linux-6.6.75
-make olddefconfig
-make -j$(nproc)
+# 4. Build userspace (cmm, dpa_app)
+cd /path/to/ask_6.6/cmm && ./configure && make
+cd /path/to/ask_6.6/dpa_app && make
 ```
-
-## What This Does
-
-The ASK kernel modification is split into two parts:
-
-### 1. NXP SDK Sources (67 files — injected)
-
-NXP SDK driver sources that **do not exist in mainline Linux**. These are copied directly into the kernel tree:
-
-| Directory | Files | Description |
-|-----------|-------|-------------|
-| `drivers/net/ethernet/freescale/sdk_dpaa/` | 11 | SDK DPAA Ethernet driver (fast-path TX/RX, buffer pools, offline port) |
-| `drivers/net/ethernet/freescale/sdk_fman/` | 48 | SDK Frame Manager driver (PCD classifier, enhanced hash tables, port/MAC control) |
-| `drivers/staging/fsl_qbman/` | 4 | QBMan portal NAPI, QMan enqueue, USDPAA updates |
-| `include/linux/fsl_oh_port.h` | 1 | Offline port header |
-| `include/uapi/linux/fmd/` | 3 | FMD UAPI headers |
-
-These files are **static** — they come from the NXP SDK kernel and do not change between 6.6.x point releases.
-
-### 2. Kernel Hooks Patch (75 files — patched)
-
-A `patch -p1` format patch that modifies standard kernel subsystems to add ASK fast-path hooks:
-
-| Subsystem | Files | What's Added |
-|-----------|-------|-------------|
-| **Netfilter** | 8 (3 new) | `comcerto_fp_netfilter.c` fast-path engine, `xt_qosmark.c`/`xt_qosconnmark.c` QoS extensions, conntrack flow-info hooks |
-| **Bridge** | 7 | L2 fast-path notifications on FDB learn/age, STP state, VLAN changes |
-| **net/core** | 4 | `cpe_fp_tx()` hook in `__dev_queue_xmit`, SKB recycling, rtnetlink notifications |
-| **XFRM/IPsec** | 8 (2 new) | `ipsec_flow.c/.h` SA/SP lifecycle tracking for hardware IPsec offload |
-| **IPv4** | 3 | Fast-path forwarding, IPsec output offload, tunnel hooks |
-| **IPv6** | 7 | Fast-path, SIT/IP6 tunnel support, ESP6, UDP extensions |
-| **Kernel headers** | 9 | `fp_info` struct in `sk_buff`, `net_device`, `nf_conn` for flow metadata |
-| **UAPI headers** | 17 (4 new) | QoS mark structs, fast-path conntrack attributes, tunnel extensions |
-| **Drivers** | 3 | CAAM `pdb.h` IPsec structures, PPP/PPPoE fast-path hooks, USB net hook |
-| **Build system** | 4 | Root Makefile SUBDIRS compat, Kconfig additions in net/ |
-| **Other** | 5 | Wireless Kconfig, `tools/perf/.gitignore` |
-
-This patch was tested against **mainline Linux v6.6** (kernel.org) with **0 failures**.
 
 ## Repository Structure
 
 ```
 ask_6.6/
-├── README.md                  — This file
-├── config/
-│   └── ask.config             — Kernel config fragment (append to defconfig)
-├── kernel-patch/
-│   └── 003-ask-kernel-hooks.patch  — 75-file mainline-compatible patch (172KB)
-├── sdk-sources/               — 67 NXP SDK source files (681KB)
-│   ├── drivers/
-│   │   ├── net/ethernet/freescale/
-│   │   │   ├── sdk_dpaa/      — SDK DPAA Ethernet driver
-│   │   │   └── sdk_fman/      — SDK Frame Manager driver
-│   │   └── staging/fsl_qbman/ — QBMan portal/USDPAA
-│   └── include/
-│       ├── linux/fsl_oh_port.h
-│       └── uapi/linux/fmd/    — FMD UAPI headers
-└── scripts/
-    └── apply.sh               — Apply everything to a kernel tree
+├── patches/                          — All patches
+│   ├── kernel/
+│   │   ├── 003-ask-kernel-hooks.patch   — Mainline 6.6 kernel hooks (75 files)
+│   │   └── sdk-sources/                 — NXP SDK driver sources (67 files)
+│   │       ├── drivers/net/ethernet/freescale/sdk_dpaa/   (11 files)
+│   │       ├── drivers/net/ethernet/freescale/sdk_fman/   (48 files)
+│   │       ├── drivers/staging/fsl_qbman/                 (4 files)
+│   │       └── include/                                   (4 files)
+│   ├── fmlib/                        — fmlib ASK extensions patch
+│   ├── fmc/                          — fmc ASK extensions patch
+│   ├── iptables/                     — QOSMARK xtables extensions
+│   ├── libnetfilter-conntrack/       — Fast-path conntrack attributes
+│   ├── libnfnetlink/                 — Non-blocking heap buffer fix
+│   ├── iproute2/                     — EtherIP/4RD tunnel support
+│   ├── ppp/                          — PPP ifindex support
+│   └── rp-pppoe/                     — CMM relay support
+│
+├── cdx/                              — CDX kernel module (184 files)
+│                                       Core driver: /dev/cdx_ctrl, FMAN hash table mgmt
+├── fci/                              — FCI kernel module (32 files)
+│                                       Fast-path Classification Interface
+├── auto_bridge/                      — Auto-bridge kernel module (5 files)
+│                                       L2 bridge flow auto-offload
+├── cmm/                              — CMM daemon (251 files)
+│                                       Conntrack monitoring, flow offload to FMAN
+├── dpa_app/                          — DPA application (14 files)
+│                                       One-shot FMAN PCD programmer (reads cdx_pcd.xml)
+│
+├── config/                           — Configuration files
+│   ├── ask.config                    — Kernel config fragment
+│   ├── ask-modules.conf              — Module load order (systemd-modules-load)
+│   ├── cmm.service                   — CMM systemd unit
+│   ├── fastforward                   — Traffic exclusion rules (FTP/SIP/PPTP)
+│   ├── gateway-dk/cdx_cfg.xml        — Port-to-policy mapping (5 ports + 2 offline)
+│   └── kernel/defconfig              — Reference ASK kernel defconfig
+│
+├── scripts/
+│   └── apply.sh                      — Apply kernel patches to a kernel tree
+│
+└── README.md                         — This file
 ```
+
+## What Changed from ASK
+
+| Component | ASK (upstream) | ask_6.6 (this repo) |
+|-----------|---------------|---------------------|
+| Kernel patch target | Linux 6.12 (NXP SDK kernel) | **Linux 6.6 LTS (mainline)** |
+| Kernel patch | `002-mono-gateway-ask-kernel_linux_6_12.patch` | `003-ask-kernel-hooks.patch` + `sdk-sources/` |
+| SDK sources | Embedded in NXP kernel tree | **Extracted as separate files** (67 files in `patches/kernel/sdk-sources/`) |
+| Userspace (cdx, fci, cmm, etc.) | Same | **Identical** — copied unchanged |
+| Userspace patches | Same | **Identical** — copied unchanged |
+| Config files | Same | **Identical** — copied unchanged |
+
+The kernel patch is **split into two parts** for maintainability:
+- **SDK sources** (67 files) — NXP SDK drivers that don't exist in mainline. Static, never change.
+- **Hooks patch** (75 files) — Modifications to standard kernel subsystems. Tested against mainline v6.6 with **0 failures**.
+
+## Kernel Patch Details
+
+### SDK Sources (67 files — injected into kernel tree)
+
+| Directory | Files | Description |
+|-----------|-------|-------------|
+| `sdk_dpaa/` | 11 | SDK DPAA Ethernet: fast-path TX/RX, buffer pools, offline port, CEETM |
+| `sdk_fman/` | 48 | SDK Frame Manager: PCD classifier, enhanced hash tables (ehash), port/MAC |
+| `fsl_qbman/` | 4 | QBMan portal NAPI, QMan enqueue, USDPAA |
+| `include/` | 4 | `fsl_oh_port.h`, `fsl_qman.h`, FMD UAPI headers |
+
+### Hooks Patch (75 files — applied via `patch -p1`)
+
+| Subsystem | Files | What's Added |
+|-----------|-------|-------------|
+| Netfilter | 8 (3 new) | `comcerto_fp_netfilter.c`, QoS mark/connmark extensions |
+| Bridge | 7 | L2 fast-path notifications (FDB, STP, VLAN) |
+| net/core | 4 | `cpe_fp_tx()` in `__dev_queue_xmit`, SKB recycling |
+| XFRM/IPsec | 8 (2 new) | `ipsec_flow.c/.h`, SA/SP hardware offload lifecycle |
+| IPv4/IPv6 | 10 | Fast-path forwarding, tunnel hooks, ESP6 |
+| Headers | 26 | `fp_info` in `sk_buff`/`net_device`/`nf_conn`, UAPI extensions |
+| Drivers | 3 | CAAM IPsec, PPP/PPPoE hooks, USB net |
+| Build | 9 | Kconfig, Makefile additions |
+
+## How ASK Works
+
+1. **First packet** goes through Linux kernel (slow path, conntrack)
+2. **CMM daemon** monitors conntrack for established flows
+3. CMM programs **FMAN hardware hash tables** via CDX kernel module
+4. **Subsequent packets** forwarded entirely in hardware — zero CPU
+5. Flow expires in conntrack → CMM removes hardware entry
+
+Supported: TCP/UDP/ESP/PPPoE/L2 bridge/multicast/NAT flows.
+
+## Hardware Requirements
+
+- **SoC:** NXP LS1046A (or LS1043A with FMAN)
+- **FMAN Microcode:** ASK version **v210.10.1** (enhanced hash table instructions)
+- Standard FMAN microcode will NOT work — degrades gracefully to software forwarding
 
 ## Kernel Config
 
 The `config/ask.config` fragment enables:
 
-| Symbol | Purpose |
-|--------|---------|
-| `CONFIG_CPE_FAST_PATH=y` | Core ASK fast-path engine |
-| `CONFIG_FSL_SDK_DPA=y` | NXP SDK DPAA platform driver |
-| `CONFIG_FSL_SDK_DPAA_ETH=y` | NXP SDK DPAA Ethernet (replaces mainline `FSL_DPAA_ETH`) |
-| `CONFIG_FSL_DPAA_1588=y` | IEEE 1588 timestamping |
-| `CONFIG_NETFILTER_XT_QOSMARK=y` | iptables QOSMARK target |
-| `CONFIG_NETFILTER_XT_QOSCONNMARK=y` | iptables QOSCONNMARK target |
-| `CONFIG_INET_IPSEC_OFFLOAD=y` | IPsec hardware offload hooks |
-| `CONFIG_MODVERSIONS=y` | Module versioning for out-of-tree modules |
-
-**Important:** `CONFIG_FSL_SDK_DPAA_ETH` and mainline `CONFIG_FSL_DPAA_ETH` are mutually exclusive. The apply script automatically disables the mainline driver.
-
-## How ASK Works
-
 ```
-                    ┌─────────────────────────────────┐
-                    │         FMAN Silicon             │
-                    │  ┌─────────────────────────┐    │
-  Packet  ──────►   │  │  PCD Hash Classifier    │    │
-  arrives           │  │  (16 tables, 5-tuple)   │    │
-                    │  └────────┬────────────────┘    │
-                    │           │                      │
-                    │     ┌─────▼─────┐                │
-                    │     │ Match?    │                │
-                    │     └─┬───────┬─┘                │
-                    │   Yes │       │ No               │
-                    │       ▼       ▼                  │
-                    │  ┌────────┐ ┌──────────┐        │
-                    │  │Hardware│ │Linux slow │        │
-                    │  │forward │ │  path     │        │
-                    │  │(0 CPU) │ │(conntrack)│        │
-                    │  └────────┘ └─────┬────┘        │
-                    └───────────────────┼──────────────┘
-                                        │
-                                   ┌────▼────┐
-                                   │  CMM    │  Monitors conntrack,
-                                   │ daemon  │  programs FMAN hash
-                                   └─────────┘  tables for new flows
+CONFIG_CPE_FAST_PATH=y          # Core fast-path engine
+CONFIG_FSL_SDK_DPA=y            # NXP SDK DPAA driver
+CONFIG_FSL_SDK_DPAA_ETH=y       # SDK DPAA Ethernet (replaces mainline)
+CONFIG_FSL_DPAA_1588=y          # IEEE 1588 timestamping
+CONFIG_NETFILTER_XT_QOSMARK=y   # iptables QOSMARK target
+CONFIG_NETFILTER_XT_QOSCONNMARK=y
+CONFIG_INET_IPSEC_OFFLOAD=y    # IPsec offload hooks
+CONFIG_MODVERSIONS=y            # Module versioning
+# CONFIG_FSL_DPAA_ETH is not set  # Disable conflicting mainline driver
 ```
 
-1. **First packet** of a flow goes through the Linux kernel (slow path)
-2. **CMM daemon** monitors conntrack for established flows
-3. CMM programs the **FMAN hardware hash tables** via the CDX kernel module
-4. **Subsequent packets** are forwarded entirely in hardware — zero CPU involvement
-5. When the flow expires in conntrack, CMM removes the hardware entry
+## External Dependencies
 
-## Supported Flow Types
+These are cloned and patched during the userspace build:
 
-| Flow Type | Hash Table | Key Size | Max Entries |
-|-----------|-----------|----------|-------------|
-| IPv4 TCP/UDP | 5-tuple | 14 bytes | 128 |
-| IPv6 TCP/UDP | 5-tuple | 38 bytes | 128 |
-| ESP/IPsec | SPI + address | Variable | 32 |
-| L2 Bridge | MAC + VLAN | 15 bytes | 32 |
-| PPPoE | Session ID + address | Variable | 32 |
-| Multicast | Group + source | Variable | 32 |
-| NAT 3-tuple | IP + port + proto | Variable | 32 |
-
-## Hardware Requirements
-
-- **SoC:** NXP LS1046A (or compatible QorIQ with FMAN)
-- **FMAN Microcode:** ASK-specific version **v210.10.1** (programs enhanced hash tables)
-- **Standard FMAN microcode will NOT work** — the enhanced hash table instructions are ASK-specific
-
-Without ASK microcode, the system boots normally and operates as a standard Linux router with software forwarding. ASK degrades gracefully.
-
-## Out-of-Tree Modules
-
-This repo provides the **kernel patches only**. The ASK userspace components are built separately from the [ASK repository](https://github.com/we-are-mono/ASK):
-
-| Module | Source | Purpose |
-|--------|--------|---------|
-| `cdx.ko` | `ASK/cdx/` | Core CDX driver — creates `/dev/cdx_ctrl`, manages FMAN hash tables |
-| `fci.ko` | `ASK/fci/` | Fast-path Classification Interface — flow programming API |
-| `auto_bridge.ko` | `ASK/auto_bridge/` | L2 bridge flow auto-offload |
-| `dpa_app` | `ASK/dpa_app/` | One-shot FMAN PCD programmer (reads `cdx_pcd.xml`) |
-| `cmm` | `ASK/cmm/` | Conntrack monitoring daemon — offloads established flows |
-
-These modules are built against the patched kernel headers using standard out-of-tree kbuild (`make -C /lib/modules/$(uname -r)/build M=$PWD`).
+| Component | Repository | Patch |
+|-----------|-----------|-------|
+| fmlib | `github.com/nxp-qoriq/fmlib` | `patches/fmlib/` |
+| fmc | `github.com/nxp-qoriq/fmc` | `patches/fmc/` |
+| libcli | `github.com/dparrish/libcli` | None |
+| iptables | `apt-get source iptables` | `patches/iptables/` |
+| libnetfilter-conntrack | `apt-get source` | `patches/libnetfilter-conntrack/` |
+| libnfnetlink | `apt-get source` | `patches/libnfnetlink/` |
+| iproute2 | `apt-get source` | `patches/iproute2/` |
+| ppp | `apt-get source` | `patches/ppp/` |
+| rp-pppoe | `apt-get source` | `patches/rp-pppoe/` |
 
 ## Compatibility
 
 | Kernel | Status |
 |--------|--------|
-| Linux 6.6.0 (v6.6) | ✅ Tested — all hunks apply cleanly |
-| Linux 6.6.x (any point release) | ✅ Expected to work — point releases have minimal changes |
-| Linux 6.1.x, 5.15.x | ❌ Not tested — context lines will differ |
-| Linux 6.12.x | Use the [6.12 patch](https://github.com/we-are-mono/ASK/tree/main/patches/kernel) instead |
-
-## Distro Integration
-
-### VyOS
-
-```bash
-# In your VyOS build system:
-tar xzf ask-nxp-sdk-sources.tar.gz -C vyos-build/packages/linux-kernel/linux/
-patch --no-backup-if-mismatch -p1 -d vyos-build/packages/linux-kernel/linux/ \
-    < 003-ask-kernel-hooks.patch
-cat config/ask.config >> vyos-build/.../vyos_defconfig
-```
-
-### Debian/Ubuntu
-
-```bash
-apt-get source linux-image-$(uname -r)
-cd linux-6.6.*/
-/path/to/ask_6.6/scripts/apply.sh .
-make olddefconfig
-make -j$(nproc) bindeb-pkg
-```
-
-### Yocto/OpenEmbedded
-
-Add the SDK sources and patch to your kernel recipe's `SRC_URI` and `do_patch` steps.
-
-## Origin
-
-This patch was ported from the ASK kernel patch for Linux 6.12, originally developed by [Mindspeed Technologies / NXP](https://github.com/we-are-mono/ASK). The 6.12 patch targets the NXP SDK kernel (`nxp-qoriq/linux`). This 6.6 port was adapted for **mainline Linux** — no NXP kernel fork required.
-
-The NXP SDK driver sources (`sdk_dpaa/`, `sdk_fman/`, `fsl_qbman/`) are extracted from the NXP kernel tree at tag `lf-6.6.52-2.2.0` with ASK modifications applied.
+| Linux 6.6.x (any point release) | ✅ Tested against v6.6 with 0 failures |
+| Linux 6.1.x, 5.15.x | ❌ Not tested — use ASK patches for those versions |
+| Linux 6.12.x | Use upstream [ASK](https://github.com/we-are-mono/ASK) directly |
 
 ## License
 
-The kernel patches and NXP SDK sources are licensed under **GPL-2.0**, consistent with the Linux kernel licensing. See individual source files for specific copyright notices.
+GPL-2.0, consistent with Linux kernel licensing. See individual source files for copyright notices.
+
+## Origin
+
+Ported from [ASK](https://github.com/we-are-mono/ASK) (kernel 6.12) to mainline Linux 6.6 LTS. NXP SDK sources extracted from `nxp-qoriq/linux` tag `lf-6.6.52-2.2.0`. Userspace sources, patches, and configs are unchanged from upstream ASK.

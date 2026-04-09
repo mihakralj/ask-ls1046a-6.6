@@ -1,0 +1,2 @@
+module_wifi.o: module_wifi.c /usr/aarch64-linux-gnu/include/stdc-predef.h
+/usr/aarch64-linux-gnu/include/stdc-predef.h:
