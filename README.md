@@ -1,4 +1,4 @@
-# ASK for Linux 6.6 LTS
+# ASK for NXP LS1046A — Linux 6.6 LTS
 
 NXP Application Solutions Kit (ASK) — hardware-accelerated packet processing for **NXP LS1046A** (and LS1043A) Layerscape processors. Ported to **mainline Linux 6.6 LTS**.
 
@@ -15,19 +15,19 @@ cd /path/to/linux-6.6.x
 make olddefconfig && make -j$(nproc)
 
 # 3. Build out-of-tree modules (against patched kernel)
-cd /path/to/ask_6.6/cdx && make KERNEL_DIR=/path/to/linux-6.6.x
-cd /path/to/ask_6.6/fci && make KERNEL_DIR=/path/to/linux-6.6.x
-cd /path/to/ask_6.6/auto_bridge && make KERNEL_DIR=/path/to/linux-6.6.x
+cd /path/to/ask-ls1046a-6.6/cdx && make KERNEL_DIR=/path/to/linux-6.6.x
+cd /path/to/ask-ls1046a-6.6/fci && make KERNEL_DIR=/path/to/linux-6.6.x
+cd /path/to/ask-ls1046a-6.6/auto_bridge && make KERNEL_DIR=/path/to/linux-6.6.x
 
 # 4. Build userspace (cmm, dpa_app)
-cd /path/to/ask_6.6/cmm && ./configure && make
-cd /path/to/ask_6.6/dpa_app && make
+cd /path/to/ask-ls1046a-6.6/cmm && ./configure && make
+cd /path/to/ask-ls1046a-6.6/dpa_app && make
 ```
 
 ## Repository Structure
 
 ```
-ask_6.6/
+ask-ls1046a-6.6/
 ├── patches/                          — All patches
 │   ├── kernel/
 │   │   ├── 003-ask-kernel-hooks.patch   — Mainline 6.6 kernel hooks (75 files)
@@ -72,7 +72,7 @@ ask_6.6/
 
 ## What Changed from ASK
 
-| Component | ASK (upstream) | ask_6.6 (this repo) |
+| Component | ASK (upstream) | ask-ls1046a-6.6 (this repo) |
 |-----------|---------------|---------------------|
 | Kernel patch target | Linux 6.12 (NXP SDK kernel) | **Linux 6.6 LTS (mainline)** |
 | Kernel patch | `002-mono-gateway-ask-kernel_linux_6_12.patch` | `003-ask-kernel-hooks.patch` + `sdk-sources/` |
