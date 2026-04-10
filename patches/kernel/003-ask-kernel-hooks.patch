@@ -478,18 +478,6 @@ index 423b52eca908..5fe99a087d1b 100644
  	struct hlist_head	__rcu *state_byseq;
  	unsigned int		state_hmask;
  	unsigned int		state_num;
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index a6def0aab3ed..0fca0b2a734c 100644
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -139,6 +139,7 @@ void tcp_time_wait(struct sock *sk, int state, int timeo);
- #define TCP_DELACK_MIN	4U
- #define TCP_ATO_MIN	4U
- #endif
-+#endif
- #define TCP_RTO_MAX	((unsigned)(120*HZ))
- #define TCP_RTO_MIN	((unsigned)(HZ/5))
- #define TCP_TIMEOUT_MIN	(2U) /* Min timeout for TCP timers in jiffies */
 diff --git a/include/net/xfrm.h b/include/net/xfrm.h
 index 892fb8c31c32..e8158b178ac5 100644
 --- a/include/net/xfrm.h
