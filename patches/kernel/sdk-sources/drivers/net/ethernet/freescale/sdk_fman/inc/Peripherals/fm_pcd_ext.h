@@ -529,6 +529,22 @@ uint16_t     FmPcdPlcrProfileGetAbsoluteId(t_Handle h_Profile);
 
 
 /**************************************************************************//**
+ @Function      FmPcdPlcrProfileGetAbsoluteId
+
+ @Description   Returns absolute profile Id by profile handle.
+
+
+ @Param[in]     h_Profile       A handle to the profile.
+
+ @Return        Absolute profile ID.
+
+ @Cautions      Allowed only following FM_PCD_Init().
+*//***************************************************************************/
+
+uint16_t     FmPcdPlcrProfileGetAbsoluteId(t_Handle h_Profile);
+
+
+/**************************************************************************//**
 @Function       FM_PCD_PrsLoadSw
 
 @Description    This routine may be called in order to load software parsing code.
@@ -3541,6 +3557,7 @@ t_Error FM_PCD_MatchTableGetKeyStatistics(t_Handle                  h_CcNode,
 t_Error FM_PCD_MatchTableGetMissStatistics(t_Handle                  h_CcNode,
                                            t_FmPcdCcKeyStatistics    *p_MissStatistics);
 
+#ifndef USE_ENHANCED_EHASH
 /**************************************************************************//**
  @Function      FM_PCD_MatchTableFindNGetKeyStatistics
 
@@ -3624,6 +3641,21 @@ t_Error FM_PCD_MatchTableGetIndexedHashBucket(t_Handle    h_CcNode,
                                               uint8_t     *p_BucketIndex,
                                               uint16_t    *p_LastIndex);
 
+/**************************************************************************//*
+ @Function      FM_PCD_HashTableModifyMissMonitorAddr
+
+ @Description   Modifies the miss monitor address.
+
+ @Param[in]     h_HashTbl                   A handle to a hash table
+ @Param[out]    monitorAddr   				Miss monitor address to be modified
+
+ @Return        E_OK on success; Error code otherwise.
+
+ @Cautions      Allowed only following FM_PCD_HashTableSet().
+*//***************************************************************************/
+t_Error FM_PCD_HashTableModifyMissMonitorAddr(t_Handle h_HashTbl,
+        									  uintptr_t monitorAddr);
+
 /**************************************************************************//**
  @Function      FM_PCD_HashTableSet
 
@@ -3664,6 +3696,75 @@ t_Handle FM_PCD_HashTableSet(t_Handle h_FmPcd, t_FmPcdHashTableParams *p_Param);
  @Cautions      Allowed only following FM_PCD_HashTableSet().
 *//***************************************************************************/
 t_Error FM_PCD_HashTableDelete(t_Handle h_HashTbl);
+
+/**************************************************************************//**
+@Function      FM_PCD_HashTableGetKeyAging
+
+@Description   This routine may be used to retrieve the aging status for the
+               provided key.
+
+@Param[in]     h_HashTbl       A handle to a hash table
+@Param[in]     p_Key           Pointer to a key
+@Param[in]     keySize         Size of provided key
+@Param[in]     reset           TRUE if the user wishes to reset the aging
+                               status of this key to 1 after reading it;
+                               FALSE otherwise (key aging status will be
+                               read and not changed);
+@Param[out]    p_KeyAging      FALSE if the provided key was accessed since
+                               it's status was last set, TRUE otherwise.
+
+@Return        E_OK on success; Error code otherwise.
+
+@Cautions      Allowed only following FM_PCD_HashTableSet() with aging support
+               enabled.
+*//***************************************************************************/
+t_Error FM_PCD_HashTableGetKeyAging(t_Handle h_HashTbl,
+                                    uint8_t *p_Key,
+                                    uint8_t keySize,
+                                    bool reset,
+                                    bool *p_KeyAging);
+
+/**************************************************************************//**
+@Function      FM_PCD_HashTableGetBucketAging
+
+@Description   This routine may be used to retrieve the aging status for the
+               hash table bucket.
+
+@Param[in]     h_HashTbl            A handle to a hash table
+@Param[in]     bucketId             Id of the requested bucket
+@Param[in]     reset                TRUE if the user wishes to reset the aging
+                                    status of this bucket to all 1-s after reading;
+                                    FALSE otherwise (aging mask will be read
+                                    and not changed)
+@Param[out]    p_BucketAgingMask    Aging mask of the requested bucket;
+                                    A zero bit in the mask means that the key
+                                    represented by that bit was accessed since the
+                                    bit was last set, otherwise the bit remains
+                                    set to 1;
+                                    The MSB bit represents the first key in the
+                                    bucket, the 2nd MSB bit represents the second
+                                    key, etc..
+@Param[out]    agedKeysArray        If the user will provide a handle to a
+                                    preallocated array, this routine will copy
+                                    into that array all the keys from the requested
+                                    bucket for which the aging status is non-zero,
+                                    meaning all the keys that were not accessed since
+                                    their aging mask was last set;
+                                    The user may set this parameters to NULL to
+                                    disable this option
+
+@Return        E_OK on success; Error code otherwise
+
+@Cautions      Allowed only following FM_PCD_HashTableSet() with aging support
+               Enabled;
+               If 'agedKeysArray' is provided, it must have 31 entries large enough
+               to hold the entire keys
+*//***************************************************************************/
+t_Error FM_PCD_HashTableGetBucketAging(t_Handle h_HashTbl,
+                                       uint16_t bucketId,
+                                       bool reset,
+                                       uint32_t *p_BucketAgingMask,
+                                       uint8_t *agedKeysArray[31]);
 
 /**************************************************************************//**
  @Function      FM_PCD_HashTableAddKey

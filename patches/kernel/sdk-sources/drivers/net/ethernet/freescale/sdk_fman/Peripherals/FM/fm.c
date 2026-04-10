@@ -3420,6 +3420,7 @@ t_Handle FM_Config(t_FmParams *p_FmParam)
     p_Fm->p_FmDriverParam->qmi_deq_option_support = TRUE;
 #endif /* !FM_QMI_NO_DEQ_OPTIONS_SUPPORT */
 
+#ifndef AUTO_FIRMWARE_LOAD
     p_Fm->p_FmStateStruct->ramsEccEnable        = FALSE;
     p_Fm->p_FmStateStruct->extraFifoPoolSize    = 0;
     p_Fm->p_FmStateStruct->exceptions           = DEFAULT_exceptions;
@@ -3444,16 +3445,6 @@ t_Handle FM_Config(t_FmParams *p_FmParam)
         }
         memcpy(p_Fm->firmware.p_Code, p_FmParam->firmware.p_Code ,p_Fm->firmware.size);
     }
-#else
-    p_Fm->firmware.size                        = 0;
-    {
-        p_Fm->firmware.size = sizeof(fman_firmware);
-        p_Fm->firmware.p_Code = fman_firmware;
-    }
-    printk("%s(%d) FMAN version extracted from ls1043_r2.h: (%d.%d.%d) (0x%x) \n",
-		 __FUNCTION__,__LINE__, (fman_firmware[1] & 0xffff0000) >> 16, (fman_firmware[1] & 0x0000ff00) >> 8,
-		fman_firmware[1] & 0x000000ff, fman_firmware[1]);
-#endif //AUTO_FIRMWARE_LOAD
     printk("***************************************************************\n");
     printk("%s(%d) FMan-Controller code (ver %d.%d.%d) (0x%x)\n", __FUNCTION__,__LINE__,
                ((p_Fm->firmware.p_Code)[1] & 0xffff0000) >> 16 ,
@@ -3461,6 +3452,9 @@ t_Handle FM_Config(t_FmParams *p_FmParam)
                (p_Fm->firmware.p_Code)[1] & 0x000000ff, (p_Fm->firmware.p_Code)[1]);
      printk("&*&*^&^&^^&*^&*^&*^&*^&*^&^&*^&*^&*^&*^&*^&*^&*^&*^&*^&*^&*^&*^&*\n");
 
+#ifdef AUTO_FIRMWARE_LOAD
+uint32_t fman_firmware[] = LS1043_R1_0_UC_IMG;
+#endif //AUTO_FIRMWARE_LOAD
 
     if (p_Fm->guestId != NCSW_MASTER_ID)
         return p_Fm;
@@ -3608,6 +3602,23 @@ t_Error FM_Init(t_Handle h_Fm)
         }
 #endif /* not FM_UCODE_NOT_RESET_ERRATA_BUGZILLA6173 */
     }
+#else
+    p_Fm->firmware.size                        = 0;
+    {
+        p_Fm->firmware.size = sizeof(fman_firmware);
+        p_Fm->firmware.p_Code = fman_firmware;
+    }
+    printk("%s(%d) FMAN version extracted from ls1043_r2.h: (%d.%d.%d) (0x%x) \n",
+		 __FUNCTION__,__LINE__, (fman_firmware[1] & 0xffff0000) >> 16, (fman_firmware[1] & 0x0000ff00) >> 8,
+		fman_firmware[1] & 0x000000ff, fman_firmware[1]);
+#endif //AUTO_FIRMWARE_LOAD
+    printk("***************************************************************\n");
+    printk("%s(%d) FMan-Controller code (ver %d.%d.%d) (0x%x)\n", __FUNCTION__,__LINE__,
+               ((p_Fm->firmware.p_Code)[1] & 0xffff0000) >> 16 ,
+               ((p_Fm->firmware.p_Code)[1] & 0x0000ff00) >> 8,
+               (p_Fm->firmware.p_Code)[1] & 0x000000ff, (p_Fm->firmware.p_Code)[1]);
+     printk("&*&*^&^&^^&*^&*^&*^&*^&*^&^&*^&*^&*^&*^&*^&*^&*^&*^&*^&*^&*^&*^&*\n");
+
 
 #ifdef FM_UCODE_NOT_RESET_ERRATA_BUGZILLA6173
     if (!p_Fm->resetOnInit) /* Skip operations done in errata workaround */
@@ -5304,11 +5315,3 @@ void FM_ChangeClock(t_Handle h_Fm, int hardwarePortId)
 	WRITE_UINT32(p_Fm->p_FmFpmRegs->fm_rcr, rcr);
 }
 #endif
-
-/* ASK: Get MURAM total size */
-uint32_t FmGetMuramSize(t_Handle h_Fm)
-{
-    t_Fm *p_Fm = (t_Fm *)h_Fm;
-    return p_Fm->p_FmStateStruct->totalFifoSize;
-}
-EXPORT_SYMBOL(FmGetMuramSize);

@@ -467,6 +467,17 @@ static __inline__ bool TRY_LOCK(t_Handle h_Spinlock, volatile bool *p_Flag)
 #define FE_HM_CONTEXT_OFFSET(i)         (FE_HM_CONTEXT_OFFSET_START + i*FM_HM_CONTEXT_SIZE)
 #endif /* (DPAA_VERSION >= 11) */
 
+#if (DPAA_VERSION >= 11)
+#define FE_MAX_CONTEXT_SIZE             256
+#define FE_MUX_CONTEXT_OFFSET           0
+#define FE_TRANSITION_CONTEXT_OFFSET    4
+#define FE_ENQUEUE_CONTEXT_OFFSET       8
+#define FE_HM_CONTEXT_OFFSET_START      16
+#define FM_MAX_HM_CONTEXTS              3
+#define FM_HM_CONTEXT_SIZE              ((FE_MAX_CONTEXT_SIZE-FE_HM_CONTEXT_OFFSET_START)/FM_MAX_HM_CONTEXTS)
+#define FE_HM_CONTEXT_OFFSET(i)         (FE_HM_CONTEXT_OFFSET_START + i*FM_HM_CONTEXT_SIZE)
+#endif /* (DPAA_VERSION >= 11) */
+
 #if defined(FM_OP_NO_VSP_NO_RELEASE_ERRATA_FMAN_A006675) || defined(FM_ERROR_VSP_NO_MATCH_SW006)
 #define GET_NIA_BMI_AC_ENQ_FRAME(h_FmPcd)   \
     (uint32_t)((FmPcdIsAdvancedOffloadSupported(h_FmPcd)) ? \
@@ -688,10 +699,6 @@ typedef struct t_FmPcdLock {
 } t_FmPcdLock;
 #define FM_PCD_LOCK_OBJ(ptr)  LIST_OBJECT(ptr, t_FmPcdLock, node)
 
-
-typedef t_Error (t_FmPortGetSetCcParamsCallback) (t_Handle                  h_FmPort,
-                                                  t_FmPortGetSetCcParams    *p_FmPortGetSetCcParams);
-
 #if (DPAA_VERSION >= 11)
 #define FM_PCD_FE_ALIGN                     8
 #define FM_PCD_FE_T_EXT_HASH_SIZE           (4*7)
@@ -762,6 +769,9 @@ typedef struct
     } u;
 } t_FmPcdFEContextParams;
 #endif /* DPAA_VERSION >= 11) */
+
+typedef t_Error (t_FmPortGetSetCcParamsCallback) (t_Handle                  h_FmPort,
+                                                  t_FmPortGetSetCcParams    *p_FmPortGetSetCcParams);
 
 /***********************************************************************/
 /*          Common API for FM-PCD module                               */
@@ -910,6 +920,8 @@ typedef enum e_FmPortGprFuncType
     e_FM_PORT_GPR_MURAM_PAGE
 } e_FmPortGprFuncType;
 
+t_Error     FmPortSetFESupport(t_Handle h_FmPort);
+t_Error     FmPortDeleteFESupport(t_Handle h_FmPort);
 t_Error     FmPortSetGprFunc(t_Handle h_FmPort, e_FmPortGprFuncType gprFunc, void **p_Value);
 #endif /* DPAA_VERSION >= 11) */
 t_Error     FmGetSetParams(t_Handle h_Fm, t_FmGetSetParams *p_FmGetSetParams);
@@ -1323,6 +1335,4 @@ uintptr_t   FmGetVSPBaseAddr(t_Handle h_Fm);
 #endif /* (DPAA_VERSION >= 11) */
 
 
-/* ASK: MURAM size query */
-uint32_t FmGetMuramSize(t_Handle h_Fm);
 #endif /* __FM_COMMON_H */
