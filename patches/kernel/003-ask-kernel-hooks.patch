@@ -235,10 +235,21 @@ index c5fe3b2a53e8..13f4363917da 100644
  int br_multicast_list_adjacent(struct net_device *dev,
  			       struct list_head *br_ip_list);
 diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index 202e557496fb..045afaabb618 100644
+index 202e557496fb..34092cceec20 100644
 --- a/include/linux/netdevice.h
 +++ b/include/linux/netdevice.h
-@@ -3108,10 +3108,27 @@ u16 dev_pick_tx_cpu_id(struct net_device *dev, struct sk_buff *skb,
+@@ -2417,6 +2417,10 @@ struct net_device {
+ 	struct rtnl_hw_stats64	*offload_xstats_l3;
+ 
+ 	struct devlink_port	*devlink_port;
++
++#if defined(CONFIG_CPE_FAST_PATH)
++	bool				wifi_offload_dev;
++#endif
+ };
+ #define to_net_dev(d) container_of(d, struct net_device, dev)
+ 
+@@ -3108,10 +3112,27 @@ u16 dev_pick_tx_cpu_id(struct net_device *dev, struct sk_buff *skb,
  int __dev_queue_xmit(struct sk_buff *skb, struct net_device *sb_dev);
  int __dev_direct_xmit(struct sk_buff *skb, u16 queue_id);
  
@@ -266,7 +277,7 @@ index 202e557496fb..045afaabb618 100644
  
  static inline int dev_queue_xmit_accel(struct sk_buff *skb,
  				       struct net_device *sb_dev)
-@@ -5283,6 +5300,14 @@ extern struct list_head ptype_base[PTYPE_HASH_SIZE] __read_mostly;
+@@ -5283,6 +5304,14 @@ extern struct list_head ptype_base[PTYPE_HASH_SIZE] __read_mostly;
  
  extern struct net_device *blackhole_netdev;
  
@@ -479,10 +490,10 @@ index 423b52eca908..5fe99a087d1b 100644
  	unsigned int		state_hmask;
  	unsigned int		state_num;
 diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index 892fb8c31c32..e8158b178ac5 100644
+index 892fb8c31c32..8b69ea190561 100644
 --- a/include/net/xfrm.h
 +++ b/include/net/xfrm.h
-@@ -181,6 +181,12 @@ struct xfrm_state {
+@@ -181,6 +181,13 @@ struct xfrm_state {
  		struct hlist_node	bysrc;
  	};
  	struct hlist_node	byspi;
@@ -491,11 +502,12 @@ index 892fb8c31c32..e8158b178ac5 100644
 +	u16			handle;
 +	u16			in_byh_hash;
 +	u16			parent_sa_handle; /*handle of the old SA from which this SA is created using rekey*/
++	u8				offloaded;
 +#endif
  	struct hlist_node	byseq;
  
  	refcount_t		refcnt;
-@@ -264,6 +270,10 @@ struct xfrm_state {
+@@ -264,6 +271,10 @@ struct xfrm_state {
  	struct xfrm_stats	stats;
  
  	struct xfrm_lifetime_cur curlft;
@@ -506,7 +518,7 @@ index 892fb8c31c32..e8158b178ac5 100644
  	struct hrtimer		mtimer;
  
  	struct xfrm_dev_offload xso;
-@@ -310,6 +320,13 @@ enum {
+@@ -310,6 +321,13 @@ enum {
  	XFRM_STATE_EXPIRED,
  	XFRM_STATE_DEAD
  };
@@ -520,7 +532,7 @@ index 892fb8c31c32..e8158b178ac5 100644
  
  /* callback structure passed from either netlink or pfkey */
  struct km_event {
-@@ -542,6 +559,10 @@ struct xfrm_policy {
+@@ -542,6 +560,10 @@ struct xfrm_policy {
  	struct xfrm_selector	selector;
  	struct xfrm_lifetime_cfg lft;
  	struct xfrm_lifetime_cur curlft;
@@ -531,7 +543,7 @@ index 892fb8c31c32..e8158b178ac5 100644
  	struct xfrm_policy_walk_entry walk;
  	struct xfrm_policy_queue polq;
  	bool                    bydst_reinsert;
-@@ -1066,6 +1087,35 @@ struct sec_path {
+@@ -1066,6 +1088,35 @@ struct sec_path {
  
  struct sec_path *secpath_set(struct sk_buff *skb);
  
@@ -4262,20 +4274,14 @@ index 9277dd4ed541..69a3c8dc324e 100644
  	WARN_ON_ONCE(1);
  	return -EAFNOSUPPORT;
 diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-index b516dd15113e..878bb18747f2 100644
+index b516dd15113e..58add72fd448 100644
 --- a/net/xfrm/xfrm_policy.c
 +++ b/net/xfrm/xfrm_policy.c
-@@ -1,4 +1,4 @@
--// SPDX-License-Identifier: GPL-2.0-only
-+046a0// SPDX-License-Identifier: GPL-2.0-only
- /*
-  * xfrm_policy.c
-  *
 @@ -46,6 +46,11 @@
  #endif
  
  #include "xfrm_hash.h"
-+#ifdef IPSEC_FLOW_CACHE
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
 +#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
 +#include "ipsec_flow.h"
 +#endif
@@ -4287,7 +4293,7 @@ index b516dd15113e..878bb18747f2 100644
  
  static struct kmem_cache *xfrm_dst_cache __ro_after_init;
  
-+#ifdef IPSEC_FLOW_CACHE
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
 +#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
 +extern int ipsec_nlkey_flow(u16 xfrm_nr, u16 *xfrm_handle,
 +		const struct flowi *fl, u16 family, u16 dir, u16 ignore_neigh);
@@ -4344,7 +4350,7 @@ index b516dd15113e..878bb18747f2 100644
 +		goto reject;
 +	}
 +
-+#ifdef IPSEC_FLOW_CACHE
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
 +#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
 +	{
 +		struct xfrm_state *x;
@@ -4382,7 +4388,7 @@ index b516dd15113e..878bb18747f2 100644
  		goto out_policy;
  	rv = xfrm_sysctl_init(net);
 +
-+	rv = ipsec_flow_net_init(net);
++	rv = ipsec_flow_init(net);
 +	if (rv < 0)
 +		goto out_ipsec_flow;
  	if (rv < 0)
@@ -4391,7 +4397,7 @@ index b516dd15113e..878bb18747f2 100644
  	return 0;
  
 +out_ipsec_flow:
-+	ipsec_flow_net_fini(net);
++	ipsec_flow_fini(net);
 +	xfrm_sysctl_fini(net);
  out_sysctl:
  	xfrm_policy_fini(net);
@@ -4400,12 +4406,12 @@ index b516dd15113e..878bb18747f2 100644
  
  static void __net_exit xfrm_net_exit(struct net *net)
  {
-+	ipsec_flow_net_fini(net);
++	ipsec_flow_fini(net);
  	xfrm_sysctl_fini(net);
  	xfrm_policy_fini(net);
  	xfrm_state_fini(net);
 diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index 81e01cdc7a7d..0ad0eb3f7a21 100644
+index 81e01cdc7a7d..b8fa61003522 100644
 --- a/net/xfrm/xfrm_state.c
 +++ b/net/xfrm/xfrm_state.c
 @@ -17,6 +17,7 @@
@@ -4596,7 +4602,18 @@ index 81e01cdc7a7d..0ad0eb3f7a21 100644
  	hrtimer_start(&x->mtimer, ktime_set(1, 0), HRTIMER_MODE_REL_SOFT);
  	if (x->replay_maxage)
  		mod_timer(&x->rtimer, jiffies + x->replay_maxage);
-@@ -1585,8 +1672,19 @@ static void __xfrm_state_bump_genids(struct xfrm_state *xnew)
+@@ -1577,6 +1664,10 @@ static void __xfrm_state_bump_genids(struct xfrm_state *xnew)
+ 	u32 mark = xnew->mark.v & xnew->mark.m;
+ 	u32 if_id = xnew->if_id;
+ 
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++	u32 parent_sa_handle = 0;
++#endif
++
+ 	h = xfrm_dst_hash(net, &xnew->id.daddr, &xnew->props.saddr, reqid, family);
+ 	hlist_for_each_entry(x, net->xfrm.state_bydst+h, bydst) {
+ 		if (x->props.family	== family &&
+@@ -1585,8 +1676,19 @@ static void __xfrm_state_bump_genids(struct xfrm_state *xnew)
  		    (mark & x->mark.m) == x->mark.v &&
  		    xfrm_addr_equal(&x->id.daddr, &xnew->id.daddr, family) &&
  		    xfrm_addr_equal(&x->props.saddr, &xnew->props.saddr, family))
@@ -4616,7 +4633,7 @@ index 81e01cdc7a7d..0ad0eb3f7a21 100644
  }
  
  void xfrm_state_insert(struct xfrm_state *x)
-@@ -2103,6 +2201,36 @@ xfrm_state_lookup_byaddr(struct net *net, u32 mark,
+@@ -2103,6 +2205,36 @@ xfrm_state_lookup_byaddr(struct net *net, u32 mark,
  }
  EXPORT_SYMBOL(xfrm_state_lookup_byaddr);
  
@@ -4776,7 +4793,7 @@ index 000000000000..6f80bd016c40
 +
 diff --git a/net/netfilter/comcerto_fp_netfilter.c b/net/netfilter/comcerto_fp_netfilter.c
 new file mode 100644
-index 000000000000..78a025ce4423
+index 000000000000..a339458146e2
 --- /dev/null
 +++ b/net/netfilter/comcerto_fp_netfilter.c
 @@ -0,0 +1,448 @@
@@ -4960,15 +4977,15 @@ index 000000000000..78a025ce4423
 +	if (fp_info->ifindex && (fp_info->ifindex != skb->dev->ifindex))
 +		pr_debug("fp_pre: ifindex changed %d -> %d\n", fp_info->ifindex, skb->dev->ifindex);
 +
-+if (fp_info->iif_index && (fp_info->iif_index != skb->skb_iif))
-+pr_debug("fp_pre: iif changed %d -> %d\n", fp_info->iif_index, skb->skb_iif);
++if (fp_info->ifindex && (fp_info->ifindex != skb->skb_iif))
++pr_debug("fp_pre: iif changed %d -> %d\n", fp_info->ifindex, skb->skb_iif);
 +
 +fp_info->mark = skb->mark;
 +fp_info->ifindex = skb->dev->ifindex;
 +/* skb->skb_iif is set by netif_receive_skb() to the original input interface.
 + * For forwarded packets iif_index != 0; for locally generated packets it's 0 or
 + * equals the output device depending on routing, but local_out hook forces it to 0. */
-+fp_info->iif_index = skb->skb_iif;
++fp_info->ifindex = skb->skb_iif;
 +
 +done:
 +	return NF_ACCEPT;
@@ -5021,7 +5038,7 @@ index 000000000000..78a025ce4423
 +	if (update_event == 1)
 +		nf_conntrack_event_cache(IPCT_PROTOINFO, ct);
 +
-+	fp_info->iif_index = 0; /* To identify the connection as local connection */
++	fp_info->ifindex = 0; /* To identify the connection as local connection */
 +
 +#ifndef IPSEC_FLOW_CACHE
 +	/* fill xfrm info in conntrack structure */
@@ -5728,10 +5745,10 @@ index 000000000000..d982bfbb6c72
 +
 diff --git a/net/xfrm/ipsec_flow.h b/net/xfrm/ipsec_flow.h
 new file mode 100644
-index 000000000000..07eed6985154
+index 000000000000..846d995c3813
 --- /dev/null
 +++ b/net/xfrm/ipsec_flow.h
-@@ -0,0 +1,31 @@
+@@ -0,0 +1,35 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/* Maintain IPSec flow table for ASK fast path
 + *
@@ -5760,6 +5777,10 @@ index 000000000000..07eed6985154
 +
 +};
 +
++int ipsec_flow_init(struct net *net);
++void ipsec_flow_fini(struct net *net);
++static inline void ipsec_flow_cache_resolve(struct net *net, const struct flowi *fl,
++					    struct dst_entry *dst, u16 family) { }
 +int ipsec_flow_add(struct net *net, const struct flowi *flow, u16 family, u8 dir, u16 *xfrm_handle);
 +#endif
 +
