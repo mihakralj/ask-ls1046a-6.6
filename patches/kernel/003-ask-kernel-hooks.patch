@@ -1,5 +1,5 @@
 diff --git a/Makefile b/Makefile
-index 5b22e3ff440ca..900ba08229674 100644
+index 022aed903173..a910077338da 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -138,6 +138,11 @@ export KBUILD_CLIPPY
@@ -15,7 +15,7 @@ index 5b22e3ff440ca..900ba08229674 100644
    KBUILD_EXTMOD := $(M)
  endif
 diff --git a/drivers/crypto/caam/pdb.h b/drivers/crypto/caam/pdb.h
-index 4b1bcf53f7ac8..1669e0d267e35 100644
+index 4b1bcf53f7ac..1669e0d267e3 100644
 --- a/drivers/crypto/caam/pdb.h
 +++ b/drivers/crypto/caam/pdb.h
 @@ -145,7 +145,7 @@ struct ipsec_encap_pdb {
@@ -73,10 +73,10 @@ index 4b1bcf53f7ac8..1669e0d267e35 100644
  /*
   * IPSec ESP Datapath Protocol Override Register (DPOVRD)
 diff --git a/drivers/net/ppp/ppp_generic.c b/drivers/net/ppp/ppp_generic.c
-index 370c84f393759..3b3c29be9f60e 100644
+index 46ac51217114..61ef6314badd 100644
 --- a/drivers/net/ppp/ppp_generic.c
 +++ b/drivers/net/ppp/ppp_generic.c
-@@ -53,6 +53,10 @@
+@@ -54,6 +54,10 @@
  #include <net/net_namespace.h>
  #include <net/netns/generic.h>
  
@@ -87,7 +87,7 @@ index 370c84f393759..3b3c29be9f60e 100644
  #define PPP_VERSION	"2.4.2"
  
  /*
-@@ -3505,6 +3509,14 @@ ppp_connect_channel(struct channel *pch, int unit)
+@@ -3519,6 +3523,14 @@ ppp_connect_channel(struct channel *pch, int unit)
  
   outl:
  	write_unlock_bh(&pch->upl);
@@ -103,7 +103,7 @@ index 370c84f393759..3b3c29be9f60e 100644
  	mutex_unlock(&pn->all_ppp_mutex);
  	return ret;
 diff --git a/drivers/net/ppp/pppoe.c b/drivers/net/ppp/pppoe.c
-index 96cca4ee470a4..0278097a08d2a 100644
+index 96cca4ee470a..0278097a08d2 100644
 --- a/drivers/net/ppp/pppoe.c
 +++ b/drivers/net/ppp/pppoe.c
 @@ -948,6 +948,14 @@ static int __pppoe_xmit(struct sock *sk, struct sk_buff *skb)
@@ -155,7 +155,7 @@ index 96cca4ee470a4..0278097a08d2a 100644
  	return 0;
  }
 diff --git a/drivers/net/usb/usbnet.c b/drivers/net/usb/usbnet.c
-index 6cc1b56ddde2f..fb380ef3e2df6 100644
+index a26a7435d84b..f9fb7d776ec9 100644
 --- a/drivers/net/usb/usbnet.c
 +++ b/drivers/net/usb/usbnet.c
 @@ -31,6 +31,15 @@
@@ -174,7 +174,7 @@ index 6cc1b56ddde2f..fb380ef3e2df6 100644
  /*-------------------------------------------------------------------------*/
  
  /*
-@@ -488,11 +497,19 @@ static int rx_submit (struct usbnet *dev, struct urb *urb, gfp_t flags)
+@@ -504,11 +513,19 @@ static int rx_submit (struct usbnet *dev, struct urb *urb, gfp_t flags)
  		usb_free_urb(urb);
  		return -ENOLINK;
  	}
@@ -195,7 +195,7 @@ index 6cc1b56ddde2f..fb380ef3e2df6 100644
  	if (!skb) {
  		netif_dbg(dev, rx_err, dev->net, "no rx skb\n");
  		usbnet_defer_kevent (dev, EVENT_RX_MEMORY);
-@@ -500,6 +517,10 @@ static int rx_submit (struct usbnet *dev, struct urb *urb, gfp_t flags)
+@@ -516,6 +533,10 @@ static int rx_submit (struct usbnet *dev, struct urb *urb, gfp_t flags)
  		return -ENOMEM;
  	}
  
@@ -207,12 +207,12 @@ index 6cc1b56ddde2f..fb380ef3e2df6 100644
  	entry->urb = urb;
  	entry->dev = dev;
 diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
-index 3ff96ae31bf6d..c3097859102e9 100644
+index c5fe3b2a53e8..13f4363917da 100644
 --- a/include/linux/if_bridge.h
 +++ b/include/linux/if_bridge.h
-@@ -71,6 +71,23 @@ void brioctl_set(int (*hook)(struct net *net, struct net_bridge *br,
- int br_ioctl_call(struct net *net, struct net_bridge *br, unsigned int cmd,
- 		  struct ifreq *ifr, void __user *uarg);
+@@ -69,6 +69,23 @@ void brioctl_set(int (*hook)(struct net *net, unsigned int cmd,
+ 			     void __user *uarg));
+ int br_ioctl_call(struct net *net, unsigned int cmd, void __user *uarg);
  
 +#if defined(CONFIG_CPE_FAST_PATH)
 +struct brevent_fdb_update{
@@ -235,10 +235,10 @@ index 3ff96ae31bf6d..c3097859102e9 100644
  int br_multicast_list_adjacent(struct net_device *dev,
  			       struct list_head *br_ip_list);
 diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index b8e60a20416ba..23265ebc84aa1 100644
+index 202e557496fb..045afaabb618 100644
 --- a/include/linux/netdevice.h
 +++ b/include/linux/netdevice.h
-@@ -3099,10 +3099,27 @@ u16 dev_pick_tx_cpu_id(struct net_device *dev, struct sk_buff *skb,
+@@ -3108,10 +3108,27 @@ u16 dev_pick_tx_cpu_id(struct net_device *dev, struct sk_buff *skb,
  int __dev_queue_xmit(struct sk_buff *skb, struct net_device *sb_dev);
  int __dev_direct_xmit(struct sk_buff *skb, u16 queue_id);
  
@@ -266,7 +266,7 @@ index b8e60a20416ba..23265ebc84aa1 100644
  
  static inline int dev_queue_xmit_accel(struct sk_buff *skb,
  				       struct net_device *sb_dev)
-@@ -5232,6 +5249,14 @@ extern struct list_head ptype_base[PTYPE_HASH_SIZE] __read_mostly;
+@@ -5283,6 +5300,14 @@ extern struct list_head ptype_base[PTYPE_HASH_SIZE] __read_mostly;
  
  extern struct net_device *blackhole_netdev;
  
@@ -282,10 +282,10 @@ index b8e60a20416ba..23265ebc84aa1 100644
  #define DEV_STATS_INC(DEV, FIELD) atomic_long_inc(&(DEV)->stats.__##FIELD)
  #define DEV_STATS_ADD(DEV, FIELD, VAL) 	\
 diff --git a/include/linux/poll.h b/include/linux/poll.h
-index d1ea4f3714a84..c7c4a22abe2a7 100644
+index fc641b50f129..2b1f63e79be8 100644
 --- a/include/linux/poll.h
 +++ b/include/linux/poll.h
-@@ -118,7 +118,6 @@ extern int poll_select_set_timeout(struct timespec64 *to, time64_t sec,
+@@ -126,7 +126,6 @@ extern int poll_select_set_timeout(struct timespec64 *to, time64_t sec,
  
  #define __MAP(v, from, to) \
  	(from < to ? (v & from) * (to/from) : (v & from) / (from/to))
@@ -294,10 +294,10 @@ index d1ea4f3714a84..c7c4a22abe2a7 100644
  {
  	__u16 v = (__force __u16)val;
 diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index ef429b729f944..baf318a8f6f90 100644
+index 1a91645fa249..9b7ba899e2aa 100644
 --- a/include/linux/skbuff.h
 +++ b/include/linux/skbuff.h
-@@ -1000,6 +1000,13 @@ struct sk_buff {
+@@ -1003,6 +1003,13 @@ struct sk_buff {
  	};
  	__u32			priority;
  	int			skb_iif;
@@ -311,7 +311,7 @@ index ef429b729f944..baf318a8f6f90 100644
  	__u32			hash;
  	union {
  		u32		vlan_all;
-@@ -1023,6 +1030,14 @@ struct sk_buff {
+@@ -1026,6 +1033,14 @@ struct sk_buff {
  		__u32		reserved_tailroom;
  	};
  
@@ -327,10 +327,10 @@ index ef429b729f944..baf318a8f6f90 100644
  		__be16		inner_protocol;
  		__u8		inner_ipproto;
 diff --git a/include/net/ip.h b/include/net/ip.h
-index 6f1ff4846451b..6698c0698a563 100644
+index bacdb4fecc89..20c4b49481fc 100644
 --- a/include/net/ip.h
 +++ b/include/net/ip.h
-@@ -699,6 +699,9 @@ enum ip_defrag_users {
+@@ -704,6 +704,9 @@ enum ip_defrag_users {
  	IP_DEFRAG_VS_FWD,
  	IP_DEFRAG_AF_PACKET,
  	IP_DEFRAG_MACVLAN,
@@ -341,7 +341,7 @@ index 6f1ff4846451b..6698c0698a563 100644
  
  /* Return true if the value of 'user' is between 'lower_bond'
 diff --git a/include/net/ip6_tunnel.h b/include/net/ip6_tunnel.h
-index 74b369bddf49e..2296d6ebb7483 100644
+index 74b369bddf49..2296d6ebb748 100644
 --- a/include/net/ip6_tunnel.h
 +++ b/include/net/ip6_tunnel.h
 @@ -52,7 +52,12 @@ struct ip6_tnl {
@@ -359,7 +359,7 @@ index 74b369bddf49e..2296d6ebb7483 100644
  	unsigned long err_time;
  
 diff --git a/include/net/netfilter/nf_conntrack.h b/include/net/netfilter/nf_conntrack.h
-index 4085765c33705..8db72ddf7c985 100644
+index a2c987289401..3c83aef52ab1 100644
 --- a/include/net/netfilter/nf_conntrack.h
 +++ b/include/net/netfilter/nf_conntrack.h
 @@ -24,6 +24,11 @@
@@ -452,7 +452,7 @@ index 4085765c33705..8db72ddf7c985 100644
  {
  	return (__s32)(READ_ONCE(ct->timeout) - nfct_time_stamp) <= 0;
  }
-@@ -320,6 +365,11 @@ static inline void nf_ct_offload_timeout(struct nf_conn *ct)
+@@ -331,6 +376,11 @@ static inline void nf_ct_offload_timeout(struct nf_conn *ct)
  
  struct kernel_param;
  
@@ -465,7 +465,7 @@ index 4085765c33705..8db72ddf7c985 100644
  int nf_conntrack_hash_resize(unsigned int hashsize);
  
 diff --git a/include/net/netns/xfrm.h b/include/net/netns/xfrm.h
-index 423b52eca908d..5fe99a087d1b0 100644
+index 423b52eca908..5fe99a087d1b 100644
 --- a/include/net/netns/xfrm.h
 +++ b/include/net/netns/xfrm.h
 @@ -42,6 +42,9 @@ struct netns_xfrm {
@@ -479,10 +479,10 @@ index 423b52eca908d..5fe99a087d1b0 100644
  	unsigned int		state_hmask;
  	unsigned int		state_num;
 diff --git a/include/net/tcp.h b/include/net/tcp.h
-index c206ffaa8ed70..4f4378c00cb5a 100644
+index a6def0aab3ed..0fca0b2a734c 100644
 --- a/include/net/tcp.h
 +++ b/include/net/tcp.h
-@@ -138,6 +138,7 @@ void tcp_time_wait(struct sock *sk, int state, int timeo);
+@@ -139,6 +139,7 @@ void tcp_time_wait(struct sock *sk, int state, int timeo);
  #define TCP_DELACK_MIN	4U
  #define TCP_ATO_MIN	4U
  #endif
@@ -491,7 +491,7 @@ index c206ffaa8ed70..4f4378c00cb5a 100644
  #define TCP_RTO_MIN	((unsigned)(HZ/5))
  #define TCP_TIMEOUT_MIN	(2U) /* Min timeout for TCP timers in jiffies */
 diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index b280e7c460116..82b9df38612f1 100644
+index 892fb8c31c32..e8158b178ac5 100644
 --- a/include/net/xfrm.h
 +++ b/include/net/xfrm.h
 @@ -181,6 +181,12 @@ struct xfrm_state {
@@ -507,7 +507,7 @@ index b280e7c460116..82b9df38612f1 100644
  	struct hlist_node	byseq;
  
  	refcount_t		refcnt;
-@@ -265,6 +271,10 @@ struct xfrm_state {
+@@ -264,6 +270,10 @@ struct xfrm_state {
  	struct xfrm_stats	stats;
  
  	struct xfrm_lifetime_cur curlft;
@@ -518,7 +518,7 @@ index b280e7c460116..82b9df38612f1 100644
  	struct hrtimer		mtimer;
  
  	struct xfrm_dev_offload xso;
-@@ -311,6 +321,13 @@ enum {
+@@ -310,6 +320,13 @@ enum {
  	XFRM_STATE_EXPIRED,
  	XFRM_STATE_DEAD
  };
@@ -532,7 +532,7 @@ index b280e7c460116..82b9df38612f1 100644
  
  /* callback structure passed from either netlink or pfkey */
  struct km_event {
-@@ -538,6 +555,10 @@ struct xfrm_policy {
+@@ -542,6 +559,10 @@ struct xfrm_policy {
  	struct xfrm_selector	selector;
  	struct xfrm_lifetime_cfg lft;
  	struct xfrm_lifetime_cur curlft;
@@ -543,7 +543,7 @@ index b280e7c460116..82b9df38612f1 100644
  	struct xfrm_policy_walk_entry walk;
  	struct xfrm_policy_queue polq;
  	bool                    bydst_reinsert;
-@@ -1068,6 +1089,35 @@ struct sec_path {
+@@ -1066,6 +1087,35 @@ struct sec_path {
  
  struct sec_path *secpath_set(struct sk_buff *skb);
  
@@ -580,7 +580,7 @@ index b280e7c460116..82b9df38612f1 100644
  secpath_reset(struct sk_buff *skb)
  {
 diff --git a/include/uapi/linux/if.h b/include/uapi/linux/if.h
-index 797ba2c1562af..ba46e4f8b021c 100644
+index 797ba2c1562a..ba46e4f8b021 100644
 --- a/include/uapi/linux/if.h
 +++ b/include/uapi/linux/if.h
 @@ -104,6 +104,7 @@ enum net_device_flags {
@@ -601,7 +601,7 @@ index 797ba2c1562af..ba46e4f8b021c 100644
  		IFF_MASTER|IFF_SLAVE|IFF_RUNNING|IFF_LOWER_UP|IFF_DORMANT)
  
 diff --git a/include/uapi/linux/if_arp.h b/include/uapi/linux/if_arp.h
-index 4783af9fe5200..822e21ba5ebb4 100644
+index 4783af9fe520..822e21ba5ebb 100644
 --- a/include/uapi/linux/if_arp.h
 +++ b/include/uapi/linux/if_arp.h
 @@ -29,6 +29,7 @@
@@ -613,7 +613,7 @@ index 4783af9fe5200..822e21ba5ebb4 100644
  #define	ARPHRD_AX25	3		/* AX.25 Level 2		*/
  #define	ARPHRD_PRONET	4		/* PROnet token ring		*/
 diff --git a/include/uapi/linux/if_tunnel.h b/include/uapi/linux/if_tunnel.h
-index 102119628ff54..bbde64ac683cb 100644
+index 102119628ff5..bbde64ac683c 100644
 --- a/include/uapi/linux/if_tunnel.h
 +++ b/include/uapi/linux/if_tunnel.h
 @@ -22,6 +22,16 @@
@@ -656,7 +656,7 @@ index 102119628ff54..bbde64ac683cb 100644
  	IFLA_GRE_UNSPEC,
  	IFLA_GRE_LINK,
 diff --git a/include/uapi/linux/ip6_tunnel.h b/include/uapi/linux/ip6_tunnel.h
-index 0245269b037c8..3fb6f7cda3bc8 100644
+index 0245269b037c..3fb6f7cda3bc 100644
 --- a/include/uapi/linux/ip6_tunnel.h
 +++ b/include/uapi/linux/ip6_tunnel.h
 @@ -53,4 +53,50 @@ struct ip6_tnl_parm2 {
@@ -711,7 +711,7 @@ index 0245269b037c8..3fb6f7cda3bc8 100644
 +#endif
 +
 diff --git a/include/uapi/linux/netfilter/nf_conntrack_common.h b/include/uapi/linux/netfilter/nf_conntrack_common.h
-index 26071021e986f..8dd5f5dd842d4 100644
+index 26071021e986..8dd5f5dd842d 100644
 --- a/include/uapi/linux/netfilter/nf_conntrack_common.h
 +++ b/include/uapi/linux/netfilter/nf_conntrack_common.h
 @@ -118,6 +118,14 @@ enum ip_conntrack_status {
@@ -747,7 +747,7 @@ index 26071021e986f..8dd5f5dd842d4 100644
  #ifdef __KERNEL__
  	__IPCT_MAX
 diff --git a/include/uapi/linux/netfilter/nf_conntrack_tuple_common.h b/include/uapi/linux/netfilter/nf_conntrack_tuple_common.h
-index 64390fac6f7ea..a928825586a82 100644
+index 64390fac6f7e..a928825586a8 100644
 --- a/include/uapi/linux/netfilter/nf_conntrack_tuple_common.h
 +++ b/include/uapi/linux/netfilter/nf_conntrack_tuple_common.h
 @@ -14,6 +14,7 @@ enum ip_conntrack_dir {
@@ -759,7 +759,7 @@ index 64390fac6f7ea..a928825586a82 100644
   * network order
   */
 diff --git a/include/uapi/linux/netfilter/nfnetlink_conntrack.h b/include/uapi/linux/netfilter/nfnetlink_conntrack.h
-index c2ac7269acf7c..977b7ba64b7c2 100644
+index c2ac7269acf7..977b7ba64b7c 100644
 --- a/include/uapi/linux/netfilter/nfnetlink_conntrack.h
 +++ b/include/uapi/linux/netfilter/nfnetlink_conntrack.h
 @@ -57,6 +57,10 @@ enum ctattr_type {
@@ -794,102 +794,8 @@ index c2ac7269acf7c..977b7ba64b7c2 100644
  enum ctattr_stats_cpu {
  	CTA_STATS_UNSPEC,
  	CTA_STATS_SEARCHED,	/* no longer used */
-diff --git a/include/uapi/linux/netfilter/xt_QOSCONNMARK.h b/include/uapi/linux/netfilter/xt_QOSCONNMARK.h
-new file mode 100644
-index 0000000000000..8a0821856c320
---- /dev/null
-+++ b/include/uapi/linux/netfilter/xt_QOSCONNMARK.h
-@@ -0,0 +1,10 @@
-+#ifndef _XT_QOSCONNMARK_H_target
-+#define _XT_QOSCONNMARK_H_target
-+
-+#include <linux/netfilter/xt_qosconnmark.h>
-+
-+#endif /*_XT_QOSCONNMARK_H_target*/
-+
-+
-+
-+
-diff --git a/include/uapi/linux/netfilter/xt_QOSMARK.h b/include/uapi/linux/netfilter/xt_QOSMARK.h
-new file mode 100644
-index 0000000000000..45c4795aac127
---- /dev/null
-+++ b/include/uapi/linux/netfilter/xt_QOSMARK.h
-@@ -0,0 +1,6 @@
-+#ifndef _XT_QOSMARK_H_target
-+#define _XT_QOSMARK_H_target
-+
-+#include <linux/netfilter/xt_qosmark.h>
-+
-+#endif /*_XT_QOSMARK_H_target */
-diff --git a/include/uapi/linux/netfilter/xt_qosconnmark.h b/include/uapi/linux/netfilter/xt_qosconnmark.h
-new file mode 100644
-index 0000000000000..d9901a9bd4fd2
---- /dev/null
-+++ b/include/uapi/linux/netfilter/xt_qosconnmark.h
-@@ -0,0 +1,35 @@
-+#ifndef _XT_QOSCONNMARK_H
-+#define _XT_QOSCONNMARK_H
-+
-+#include <linux/types.h>
-+
-+/* Copyright (C) 2002,2004 MARA Systems AB <http://www.marasystems.com>
-+    + * by Henrik Nordstrom <hno@marasystems.com>
-+    + *
-+    + * This program is free software; you can redistribute it and/or modify
-+    + * it under the terms of the GNU General Public License as published by
-+    + * the Free Software Foundation; either version 2 of the License, or
-+    + * (at your option) any later version.
-+    + */
-+
-+enum {
-+    XT_QOSCONNMARK_SET = 0,
-+    XT_QOSCONNMARK_SAVE_QOSMARK,
-+    XT_QOSCONNMARK_RESTORE_QOSMARK
-+};
-+
-+struct xt_qosconnmark_tginfo1 {
-+    __u64 mark, ctmask, nfmask;
-+    __u8 mode;
-+};
-+
-+struct xt_qosconnmark_mtinfo1 {
-+    __u64 mark, mask;
-+     __u8 invert;
-+};
-+
-+#endif /*_XT_QOSCONNMARK_H*/
-+
-+
-+
-+
-diff --git a/include/uapi/linux/netfilter/xt_qosmark.h b/include/uapi/linux/netfilter/xt_qosmark.h
-new file mode 100644
-index 0000000000000..6f80bd016c40b
---- /dev/null
-+++ b/include/uapi/linux/netfilter/xt_qosmark.h
-@@ -0,0 +1,19 @@
-+#ifndef _XT_QOSMARK_H
-+#define _XT_QOSMARK_H
-+
-+#include <linux/types.h>
-+
-+struct xt_qosmark_tginfo2 {
-+    __u64 mark, mask;
-+};
-+
-+struct xt_qosmark_mtinfo1 {
-+    __u64 mark, mask;
-+    __u8 invert;
-+};
-+
-+#endif /*_XT_QOSMARK_H*/
-+
-+
-+
-+
 diff --git a/include/uapi/linux/netlink.h b/include/uapi/linux/netlink.h
-index e2ae82e3f9f71..9829e0af4ce17 100644
+index f87aaf28a649..b21fa5669175 100644
 --- a/include/uapi/linux/netlink.h
 +++ b/include/uapi/linux/netlink.h
 @@ -30,9 +30,13 @@
@@ -908,7 +814,7 @@ index e2ae82e3f9f71..9829e0af4ce17 100644
  struct sockaddr_nl {
  	__kernel_sa_family_t	nl_family;	/* AF_NETLINK	*/
 diff --git a/include/uapi/linux/pfkeyv2.h b/include/uapi/linux/pfkeyv2.h
-index 8abae1f6749c5..e92494a1ac997 100644
+index 8abae1f6749c..e92494a1ac99 100644
 --- a/include/uapi/linux/pfkeyv2.h
 +++ b/include/uapi/linux/pfkeyv2.h
 @@ -281,6 +281,7 @@ struct sadb_x_filter {
@@ -920,7 +826,7 @@ index 8abae1f6749c5..e92494a1ac997 100644
  /* Security Association states */
  #define SADB_SASTATE_LARVAL	0
 diff --git a/include/uapi/linux/ppp-ioctl.h b/include/uapi/linux/ppp-ioctl.h
-index 1cc5ce0ae062e..d1869d3f1bd44 100644
+index 1cc5ce0ae062..d1869d3f1bd4 100644
 --- a/include/uapi/linux/ppp-ioctl.h
 +++ b/include/uapi/linux/ppp-ioctl.h
 @@ -117,6 +117,7 @@ struct pppol2tp_ioc_stats {
@@ -932,7 +838,7 @@ index 1cc5ce0ae062e..d1869d3f1bd44 100644
  #define SIOCGPPPSTATS   (SIOCDEVPRIVATE + 0)
  #define SIOCGPPPVER     (SIOCDEVPRIVATE + 1)	/* NEVER change this!! */
 diff --git a/include/uapi/linux/rtnetlink.h b/include/uapi/linux/rtnetlink.h
-index 51c13cf9c5aee..450691a3580de 100644
+index 63a0922937e7..33115c765e37 100644
 --- a/include/uapi/linux/rtnetlink.h
 +++ b/include/uapi/linux/rtnetlink.h
 @@ -151,6 +151,14 @@ enum {
@@ -951,7 +857,7 @@ index 51c13cf9c5aee..450691a3580de 100644
  	RTM_NEWCHAIN = 100,
  #define RTM_NEWCHAIN RTM_NEWCHAIN
 diff --git a/net/Kconfig b/net/Kconfig
-index 3a18e3d85a7ed..274feacff5664 100644
+index d532ec33f1fe..dd65935f4d89 100644
 --- a/net/Kconfig
 +++ b/net/Kconfig
 @@ -116,6 +116,15 @@ config INET
@@ -971,10 +877,10 @@ index 3a18e3d85a7ed..274feacff5664 100644
  source "net/ipv6/Kconfig"
  source "net/netlabel/Kconfig"
 diff --git a/net/bridge/br.c b/net/bridge/br.c
-index a6e94ceb7c9a0..f57d98460fafd 100644
+index d466febcf9ab..be84fd985edb 100644
 --- a/net/bridge/br.c
 +++ b/net/bridge/br.c
-@@ -472,6 +472,60 @@ static void __exit br_deinit(void)
+@@ -484,6 +484,60 @@ static void __exit br_deinit(void)
  	br_fdb_fini();
  }
  
@@ -1036,7 +942,7 @@ index a6e94ceb7c9a0..f57d98460fafd 100644
  module_exit(br_deinit)
  MODULE_LICENSE("GPL");
 diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index a6d8cd9a58078..a9030c64e25f4 100644
+index fa2970db2130..98c85d5849f0 100644
 --- a/net/bridge/br_fdb.c
 +++ b/net/bridge/br_fdb.c
 @@ -14,6 +14,10 @@
@@ -1101,7 +1007,7 @@ index a6d8cd9a58078..a9030c64e25f4 100644
  		if (time_after(this_timer, now)) {
  			work_delay = min(work_delay, this_timer - now);
  		} else {
-@@ -878,6 +912,14 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+@@ -882,6 +916,14 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
  			/* fastpath: update of existing entry */
  			if (unlikely(source != READ_ONCE(fdb->dst) &&
  				     !test_bit(BR_FDB_STICKY, &fdb->flags))) {
@@ -1116,7 +1022,7 @@ index a6d8cd9a58078..a9030c64e25f4 100644
  				br_switchdev_fdb_notify(br, fdb, RTM_DELNEIGH);
  				WRITE_ONCE(fdb->dst, source);
  				fdb_modified = true;
-@@ -1506,3 +1548,21 @@ void br_fdb_clear_offload(const struct net_device *dev, u16 vid)
+@@ -1511,3 +1553,21 @@ void br_fdb_clear_offload(const struct net_device *dev, u16 vid)
  	spin_unlock_bh(&p->br->hash_lock);
  }
  EXPORT_SYMBOL_GPL(br_fdb_clear_offload);
@@ -1139,7 +1045,7 @@ index a6d8cd9a58078..a9030c64e25f4 100644
 +EXPORT_SYMBOL(br_fdb_deregister_can_expire_cb);
 +#endif
 diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index e19b583ff2c6d..52de8201979db 100644
+index e9f09cdb9848..53eafbc8bccd 100644
 --- a/net/bridge/br_forward.c
 +++ b/net/bridge/br_forward.c
 @@ -33,7 +33,11 @@ static inline int should_deliver(const struct net_bridge_port *p,
@@ -1156,18 +1062,20 @@ index e19b583ff2c6d..52de8201979db 100644
  
  	br_drop_fake_rtable(skb);
 diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index e09000e38d071..dac357e201f26 100644
+index 847fe03a08ee..b177824019a4 100644
 --- a/net/bridge/br_input.c
 +++ b/net/bridge/br_input.c
-@@ -65,4 +65,8 @@ static int br_pass_frame_up(struct sk_buff *skb)
- 	br_multicast_count(br, NULL, skb, br_multicast_igmp_type(skb),
- 			   BR_MCAST_DIR_TX);
+@@ -67,6 +67,10 @@ static int br_pass_frame_up(struct sk_buff *skb, bool promisc)
+ 
+ 	BR_INPUT_SKB_CB(skb)->promisc = promisc;
  
 +#if defined(CONFIG_CPE_FAST_PATH)
 +	skb->underlying_iif = indev->ifindex;
 +#endif
 +
  	return NF_HOOK(NFPROTO_BRIDGE, NF_BR_LOCAL_IN,
+ 		       dev_net(indev), NULL, skb, indev, NULL,
+ 		       br_netif_receive_skb);
 @@ -161,6 +165,10 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
  	BR_INPUT_SKB_CB(skb)->brdev = br->dev;
  	BR_INPUT_SKB_CB(skb)->src_port_isolated = !!(p->flags & BR_ISOLATED);
@@ -1181,20 +1089,20 @@ index e09000e38d071..dac357e201f26 100644
  	     skb->protocol == htons(ETH_P_RARP))) {
 @@ -209,6 +217,10 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
  
- 		if (now != dst->used)
- 			dst->used = now;
+ 		if (now != READ_ONCE(dst->used))
+ 			WRITE_ONCE(dst->used, now);
 +#if defined(CONFIG_CPE_FAST_PATH)
-+			/* Used by ABM module */
-+			skb->abm_ff = 1;
++		/* Used by ABM module */
++		skb->abm_ff = 1;
 +#endif
  		br_forward(dst->dst, skb, local_rcv, false);
  	} else {
  		if (!mcast_hit)
 diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index e4f1a08322da9..8e992ef0cf706 100644
+index f0d8edc378a0..7427561286c0 100644
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
-@@ -609,6 +609,11 @@ struct br_input_skb_cb {
+@@ -613,6 +613,11 @@ struct br_input_skb_cb {
  #endif
  
  	u32 backup_nhid;
@@ -1206,7 +1114,7 @@ index e4f1a08322da9..8e992ef0cf706 100644
  };
  
  #define BR_INPUT_SKB_CB(__skb)	((struct br_input_skb_cb *)(__skb)->cb)
-@@ -845,6 +850,11 @@ int br_fdb_add_local(struct net_bridge *br, struct net_bridge_port *source,
+@@ -849,6 +854,11 @@ int br_fdb_add_local(struct net_bridge *br, struct net_bridge_port *source,
  void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
  		   const unsigned char *addr, u16 vid, unsigned long flags);
  
@@ -1219,7 +1127,7 @@ index e4f1a08322da9..8e992ef0cf706 100644
  		  struct net_device *dev, const unsigned char *addr, u16 vid,
  		  struct netlink_ext_ack *extack);
 diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
-index 75204d36d7f90..0ee39d723422e 100644
+index 75204d36d7f9..0ee39d723422 100644
 --- a/net/bridge/br_stp_if.c
 +++ b/net/bridge/br_stp_if.c
 @@ -123,6 +123,10 @@ void br_stp_disable_port(struct net_bridge_port *p)
@@ -1234,7 +1142,7 @@ index 75204d36d7f90..0ee39d723422e 100644
  
  static int br_stp_call_user(struct net_bridge *br, char *arg)
 diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index 15f44d026e75a..162543ecca911 100644
+index cc54b8267bcc..7bbf9f40a055 100644
 --- a/net/bridge/br_vlan.c
 +++ b/net/bridge/br_vlan.c
 @@ -517,9 +517,21 @@ struct sk_buff *br_handle_vlan(struct net_bridge *br,
@@ -1281,7 +1189,7 @@ index 15f44d026e75a..162543ecca911 100644
  
  	return true;
 diff --git a/net/core/dev.c b/net/core/dev.c
-index 5a5bd339f11eb..da3466f4d8563 100644
+index 56b6797589f5..4612c083086c 100644
 --- a/net/core/dev.c
 +++ b/net/core/dev.c
 @@ -189,6 +189,10 @@ static struct napi_struct *napi_by_id(unsigned int napi_id);
@@ -1295,7 +1203,7 @@ index 5a5bd339f11eb..da3466f4d8563 100644
  static DEFINE_MUTEX(ifalias_mutex);
  
  /* protects napi_hash addition/deletion and napi_gen_id */
-@@ -3662,10 +3666,17 @@ static struct sk_buff *validate_xmit_skb(struct sk_buff *skb, struct net_device
+@@ -3724,10 +3728,17 @@ static struct sk_buff *validate_xmit_skb(struct sk_buff *skb, struct net_device
  			skb = segs;
  		}
  	} else {
@@ -1317,7 +1225,7 @@ index 5a5bd339f11eb..da3466f4d8563 100644
  		/* If packet is not checksummed and device does not
  		 * support checksumming for this protocol, complete
  		 * checksumming here.
-@@ -4401,6 +4412,40 @@ int __dev_queue_xmit(struct sk_buff *skb, struct net_device *sb_dev)
+@@ -4480,6 +4491,40 @@ int __dev_queue_xmit(struct sk_buff *skb, struct net_device *sb_dev)
  }
  EXPORT_SYMBOL(__dev_queue_xmit);
  
@@ -1358,7 +1266,7 @@ index 5a5bd339f11eb..da3466f4d8563 100644
  int __dev_direct_xmit(struct sk_buff *skb, u16 queue_id)
  {
  	struct net_device *dev = skb->dev;
-@@ -5355,6 +5400,14 @@ static int __netif_receive_skb_core(struct sk_buff **pskb, bool pfmemalloc,
+@@ -5434,6 +5479,14 @@ static int __netif_receive_skb_core(struct sk_buff **pskb, bool pfmemalloc,
  
  	trace_netif_receive_skb(skb);
  
@@ -1373,7 +1281,7 @@ index 5a5bd339f11eb..da3466f4d8563 100644
  	orig_dev = skb->dev;
  
  	skb_reset_network_header(skb);
-@@ -6597,8 +6650,6 @@ static int __napi_poll(struct napi_struct *n, bool *repoll)
+@@ -6676,8 +6729,6 @@ static int __napi_poll(struct napi_struct *n, bool *repoll)
  		napi_gro_flush(n, HZ >= 1000);
  	}
  
@@ -1382,7 +1290,7 @@ index 5a5bd339f11eb..da3466f4d8563 100644
  	/* Some drivers may have called napi_schedule
  	 * prior to exhausting their budget.
  	 */
-@@ -10620,10 +10671,28 @@ struct rtnl_link_stats64 *dev_get_stats(struct net_device *dev,
+@@ -10703,10 +10754,28 @@ struct rtnl_link_stats64 *dev_get_stats(struct net_device *dev,
  			storage->rx_otherhost_dropped += READ_ONCE(core_stats->rx_otherhost_dropped);
  		}
  	}
@@ -1412,10 +1320,10 @@ index 5a5bd339f11eb..da3466f4d8563 100644
   *	dev_fetch_sw_netstats - get per-cpu network device statistics
   *	@s: place to store stats
 diff --git a/net/core/gro.c b/net/core/gro.c
-index 31e40f25fdf10..f27bd97d34844 100644
+index 92cb86d4ce50..e4f60c064a09 100644
 --- a/net/core/gro.c
 +++ b/net/core/gro.c
-@@ -627,6 +627,11 @@ static void napi_reuse_skb(struct napi_struct *napi, struct sk_buff *skb)
+@@ -621,6 +621,11 @@ static void napi_reuse_skb(struct napi_struct *napi, struct sk_buff *skb)
  	__vlan_hwaccel_clear_tag(skb);
  	skb->dev = napi->dev;
  	skb->skb_iif = 0;
@@ -1428,10 +1336,10 @@ index 31e40f25fdf10..f27bd97d34844 100644
  	/* eth_type_trans() assumes pkt_type is PACKET_HOST */
  	skb->pkt_type = PACKET_HOST;
 diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index 96f617819342c..a052a12600f12 100644
+index 161356313203..0402bdc6bae8 100644
 --- a/net/core/rtnetlink.c
 +++ b/net/core/rtnetlink.c
-@@ -785,9 +785,17 @@ int rtnetlink_put_metrics(struct sk_buff *skb, u32 *metrics)
+@@ -814,9 +814,17 @@ int rtnetlink_put_metrics(struct sk_buff *skb, u32 *metrics)
  	struct nlattr *mx;
  	int i, valid = 0;
  
@@ -1449,7 +1357,7 @@ index 96f617819342c..a052a12600f12 100644
  
  	mx = nla_nest_start_noflag(skb, RTA_METRICS);
  	if (mx == NULL)
-@@ -817,6 +825,17 @@ int rtnetlink_put_metrics(struct sk_buff *skb, u32 *metrics)
+@@ -846,6 +854,17 @@ int rtnetlink_put_metrics(struct sk_buff *skb, u32 *metrics)
  			}
  			valid++;
  		}
@@ -1468,10 +1376,10 @@ index 96f617819342c..a052a12600f12 100644
  
  	if (!valid) {
 diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index cf3c7a0062b8d..aa609a04b5244 100644
+index 4c28954f915f..d8b17b5fe2d2 100644
 --- a/net/core/skbuff.c
 +++ b/net/core/skbuff.c
-@@ -1403,18 +1403,32 @@ static void __copy_skb_header(struct sk_buff *new, const struct sk_buff *old)
+@@ -1381,18 +1381,32 @@ static void __copy_skb_header(struct sk_buff *new, const struct sk_buff *old)
  	skb_dst_copy(new, old);
  	__skb_ext_copy(new, old);
  	__nf_copy(new, old, false);
@@ -1504,7 +1412,7 @@ index cf3c7a0062b8d..aa609a04b5244 100644
  	CHECK_SKB_FIELD(vlan_proto);
  	CHECK_SKB_FIELD(vlan_tci);
  	CHECK_SKB_FIELD(transport_header);
-@@ -1449,6 +1463,24 @@ static struct sk_buff *__skb_clone(struct sk_buff *n, struct sk_buff *skb)
+@@ -1427,6 +1441,24 @@ static struct sk_buff *__skb_clone(struct sk_buff *n, struct sk_buff *skb)
  {
  #define C(x) n->x = skb->x
  
@@ -1529,7 +1437,7 @@ index cf3c7a0062b8d..aa609a04b5244 100644
  	n->next = n->prev = NULL;
  	n->sk = NULL;
  	__copy_skb_header(n, skb);
-@@ -1471,6 +1503,13 @@ static struct sk_buff *__skb_clone(struct sk_buff *n, struct sk_buff *skb)
+@@ -1449,6 +1481,13 @@ static struct sk_buff *__skb_clone(struct sk_buff *n, struct sk_buff *skb)
  	C(truesize);
  	refcount_set(&n->users, 1);
  
@@ -1543,7 +1451,7 @@ index cf3c7a0062b8d..aa609a04b5244 100644
  	atomic_inc(&(skb_shinfo(skb)->dataref));
  	skb->cloned = 1;
  
-@@ -2047,6 +2086,9 @@ struct sk_buff *__pskb_copy_fclone(struct sk_buff *skb, int headroom,
+@@ -2025,6 +2064,9 @@ struct sk_buff *__pskb_copy_fclone(struct sk_buff *skb, int headroom,
  	int flags = skb_alloc_rx_flag(skb) | (fclone ? SKB_ALLOC_FCLONE : 0);
  	struct sk_buff *n = __alloc_skb(size, gfp_mask, flags, NUMA_NO_NODE);
  
@@ -1553,7 +1461,7 @@ index cf3c7a0062b8d..aa609a04b5244 100644
  	if (!n)
  		goto out;
  
-@@ -5885,7 +5927,15 @@ void skb_scrub_packet(struct sk_buff *skb, bool xnet)
+@@ -5865,7 +5907,15 @@ void skb_scrub_packet(struct sk_buff *skb, bool xnet)
  	skb->skb_iif = 0;
  	skb->ignore_df = 0;
  	skb_dst_drop(skb);
@@ -1571,7 +1479,7 @@ index cf3c7a0062b8d..aa609a04b5244 100644
  	nf_reset_trace(skb);
  
 diff --git a/net/ipv4/Kconfig b/net/ipv4/Kconfig
-index 2dfb12230f089..79900616505fe 100644
+index 2dfb12230f08..79900616505f 100644
 --- a/net/ipv4/Kconfig
 +++ b/net/ipv4/Kconfig
 @@ -392,6 +392,12 @@ config INET_ESPINTCP
@@ -1588,12 +1496,12 @@ index 2dfb12230f089..79900616505fe 100644
  	tristate "IP: IPComp transformation"
  	select INET_XFRM_TUNNEL
 diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
-index 2458461e24874..2bdafa514f867 100644
+index ff8040101193..4032b9d6e461 100644
 --- a/net/ipv4/ip_output.c
 +++ b/net/ipv4/ip_output.c
-@@ -101,4 +101,15 @@ int __ip_local_out(struct net *net, struct sock *sk, struct sk_buff *skb)
- {
- 	struct iphdr *iph = ip_hdr(skb);
+@@ -103,6 +103,17 @@ int __ip_local_out(struct net *net, struct sock *sk, struct sk_buff *skb)
+ 
+ 	IP_INC_STATS(net, IPSTATS_MIB_OUTREQUESTS);
  
 +#if defined(CONFIG_INET_IPSEC_OFFLOAD)
 +	/*
@@ -1607,6 +1515,8 @@ index 2458461e24874..2bdafa514f867 100644
 +		goto sendout;
 +#endif /* endif for CONFIG_INET_IPSEC_OFFLOAD */
  	iph_set_totlen(iph, skb->len);
+ 	ip_send_check(iph);
+ 
 @@ -113,8 +124,19 @@ int __ip_local_out(struct net *net, struct sock *sk, struct sk_buff *skb)
  	if (unlikely(!skb))
  		return 0;
@@ -1640,9 +1550,9 @@ index 2458461e24874..2bdafa514f867 100644
  		return ip_fragment(net, sk, skb, mtu, ip_finish_output2);
  
  	return ip_finish_output2(net, sk, skb);
-@@ -430,6 +456,13 @@ int ip_output(struct net *net, struct sock *sk, struct sk_buff *skb)
- 	skb->dev = dev;
- 	skb->protocol = htons(ETH_P_IP);
+@@ -417,6 +443,13 @@ int ip_mc_output(struct net *net, struct sock *sk, struct sk_buff *skb)
+ 				ip_mc_finish_output);
+ 	}
  
 +#if defined(CONFIG_INET_IPSEC_OFFLOAD)
 +	/* Bypass invoking post routing hooks since the tunnel header and ESP
@@ -1652,9 +1562,9 @@ index 2458461e24874..2bdafa514f867 100644
 +		return ip_finish_output(net, sk, skb);
 +#endif
  	return NF_HOOK_COND(NFPROTO_IPV4, NF_INET_POST_ROUTING,
- 			    net, sk, skb, indev, dev,
+ 			    net, sk, skb, NULL, skb->dev,
  			    ip_finish_output,
-@@ -560,6 +593,9 @@ static void ip_copy_metadata(struct sk_buff *to, struct sk_buff *from)
+@@ -565,6 +598,9 @@ static void ip_copy_metadata(struct sk_buff *to, struct sk_buff *from)
  	skb_dst_copy(to, from);
  	to->dev = from->dev;
  	to->mark = from->mark;
@@ -1665,7 +1575,7 @@ index 2458461e24874..2bdafa514f867 100644
  	skb_copy_hash(to, from);
  
 diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
-index acf93f34a8213..136c4c079648e 100644
+index 090403c8cc6c..afa658c812ff 100644
 --- a/net/ipv4/ip_tunnel.c
 +++ b/net/ipv4/ip_tunnel.c
 @@ -438,6 +438,9 @@ int ip_tunnel_rcv(struct ip_tunnel *tunnel, struct sk_buff *skb,
@@ -1679,7 +1589,7 @@ index acf93f34a8213..136c4c079648e 100644
  	}
  
 diff --git a/net/ipv4/xfrm4_policy.c b/net/ipv4/xfrm4_policy.c
-index c33bca2c38415..7b4b5b0572148 100644
+index 63bbc7f6a5a8..7e7531fd0cf5 100644
 --- a/net/ipv4/xfrm4_policy.c
 +++ b/net/ipv4/xfrm4_policy.c
 @@ -13,6 +13,7 @@
@@ -1691,7 +1601,7 @@ index c33bca2c38415..7b4b5b0572148 100644
  #include <net/ip.h>
  #include <net/l3mdev.h>
 diff --git a/net/ipv6/Kconfig b/net/ipv6/Kconfig
-index 08d4b7132d4c4..c8706726d37b3 100644
+index 1c9c686d9522..396a081a12b9 100644
 --- a/net/ipv6/Kconfig
 +++ b/net/ipv6/Kconfig
 @@ -103,6 +103,12 @@ config INET6_ESPINTCP
@@ -1708,7 +1618,7 @@ index 08d4b7132d4c4..c8706726d37b3 100644
  	tristate "IPv6: IPComp transformation"
  	select INET6_XFRM_TUNNEL
 diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-index 5d8d86c159dc3..7f1690ea18a2a 100644
+index c86d5dca29df..005642c7007d 100644
 --- a/net/ipv6/ip6_output.c
 +++ b/net/ipv6/ip6_output.c
 @@ -83,6 +83,13 @@ static int ip6_finish_output2(struct net *net, struct sock *sk, struct sk_buff *
@@ -1760,7 +1670,7 @@ index 5d8d86c159dc3..7f1690ea18a2a 100644
  	skb_copy_hash(to, from);
  
 diff --git a/net/ipv6/ip6_tunnel.c b/net/ipv6/ip6_tunnel.c
-index 97905d4174eca..043bccf72c9e7 100644
+index 69cace90ece1..9a5668bee940 100644
 --- a/net/ipv6/ip6_tunnel.c
 +++ b/net/ipv6/ip6_tunnel.c
 @@ -19,6 +19,7 @@
@@ -2332,7 +2242,7 @@ index 97905d4174eca..043bccf72c9e7 100644
  	}
  
  	if (t->err_count > 0) {
-@@ -1396,6 +1920,12 @@ ipxip6_tnl_xmit(struct sk_buff *skb, struct net_device *dev,
+@@ -1395,6 +1919,12 @@ ipxip6_tnl_xmit(struct sk_buff *skb, struct net_device *dev,
  
  	skb_set_inner_ipproto(skb, protocol);
  
@@ -2345,7 +2255,7 @@ index 97905d4174eca..043bccf72c9e7 100644
  	err = ip6_tnl_xmit(skb, dev, dsfield, &fl6, encap_limit, &mtu,
  			   protocol);
  	if (err != 0) {
-@@ -1430,6 +1960,10 @@ ip6_tnl_start_xmit(struct sk_buff *skb, struct net_device *dev)
+@@ -1429,6 +1959,10 @@ ip6_tnl_start_xmit(struct sk_buff *skb, struct net_device *dev)
  
  	switch (skb->protocol) {
  	case htons(ETH_P_IP):
@@ -2356,7 +2266,7 @@ index 97905d4174eca..043bccf72c9e7 100644
  		ipproto = IPPROTO_IPIP;
  		break;
  	case htons(ETH_P_IPV6):
-@@ -1634,6 +2168,10 @@ ip6_tnl_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
+@@ -1633,6 +2167,10 @@ ip6_tnl_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
  	struct ip6_tnl *t = netdev_priv(dev);
  	struct net *net = t->net;
  	struct ip6_tnl_net *ip6n = net_generic(net, ip6_tnl_net_id);
@@ -2367,7 +2277,7 @@ index 97905d4174eca..043bccf72c9e7 100644
  
  	memset(&p1, 0, sizeof(p1));
  
-@@ -1714,9 +2252,120 @@ ip6_tnl_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
+@@ -1713,9 +2251,120 @@ ip6_tnl_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
  		err = 0;
  		unregister_netdevice(dev);
  		break;
@@ -2488,7 +2398,7 @@ index 97905d4174eca..043bccf72c9e7 100644
  	return err;
  }
  
-@@ -2317,9 +2966,24 @@ static int __init ip6_tunnel_init(void)
+@@ -2316,9 +2965,24 @@ static int __init ip6_tunnel_init(void)
  	if (!ipv6_mod_enabled())
  		return -EOPNOTSUPP;
  
@@ -2513,7 +2423,7 @@ index 97905d4174eca..043bccf72c9e7 100644
  
  	err = xfrm6_tunnel_register(&ip4ip6_handler, AF_INET);
  	if (err < 0) {
-@@ -2356,6 +3020,10 @@ static int __init ip6_tunnel_init(void)
+@@ -2355,6 +3019,10 @@ static int __init ip6_tunnel_init(void)
  	xfrm6_tunnel_deregister(&ip4ip6_handler, AF_INET);
  out_ip4ip6:
  	unregister_pernet_device(&ip6_tnl_net_ops);
@@ -2525,7 +2435,7 @@ index 97905d4174eca..043bccf72c9e7 100644
  	return err;
  }
 diff --git a/net/ipv6/netfilter/ip6t_NPT.c b/net/ipv6/netfilter/ip6t_NPT.c
-index 787c74aa85e33..f523f471722ae 100644
+index 787c74aa85e3..f523f471722a 100644
 --- a/net/ipv6/netfilter/ip6t_NPT.c
 +++ b/net/ipv6/netfilter/ip6t_NPT.c
 @@ -11,6 +11,9 @@
@@ -2579,7 +2489,7 @@ index 787c74aa85e33..f523f471722ae 100644
  }
  
 diff --git a/net/ipv6/output_core.c b/net/ipv6/output_core.c
-index b5205311f372b..a63725d4d2947 100644
+index b5205311f372..a63725d4d294 100644
 --- a/net/ipv6/output_core.c
 +++ b/net/ipv6/output_core.c
 @@ -128,7 +128,18 @@ int __ip6_local_out(struct net *net, struct sock *sk, struct sk_buff *skb)
@@ -2617,7 +2527,7 @@ index b5205311f372b..a63725d4d2947 100644
  		       net, sk, skb, NULL, skb_dst(skb)->dev,
  		       dst_output);
 diff --git a/net/ipv6/sit.c b/net/ipv6/sit.c
-index eb4c8e2a2b12e..941dbcdb6bd32 100644
+index eb4c8e2a2b12..941dbcdb6bd3 100644
 --- a/net/ipv6/sit.c
 +++ b/net/ipv6/sit.c
 @@ -691,6 +691,9 @@ static int ipip6_rcv(struct sk_buff *skb)
@@ -2631,7 +2541,7 @@ index eb4c8e2a2b12e..941dbcdb6bd32 100644
  
  		if (packet_is_spoofed(skb, iph, tunnel)) {
 diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
-index c77ee9a3cde24..0acbdc0f37675 100644
+index 6df2459f2561..5c8f7c4c306e 100644
 --- a/net/ipv6/udp.c
 +++ b/net/ipv6/udp.c
 @@ -737,7 +737,6 @@ static int udpv6_queue_rcv_one_skb(struct sock *sk, struct sk_buff *skb)
@@ -2643,7 +2553,7 @@ index c77ee9a3cde24..0acbdc0f37675 100644
  	 * UDP-Lite specific tests, ignored on UDP sockets (see net/ipv4/udp.c).
  	 */
 diff --git a/net/ipv6/xfrm6_policy.c b/net/ipv6/xfrm6_policy.c
-index 444b0b4469a49..4ae5e1455000d 100644
+index e5d76e782b96..b05c82704a90 100644
 --- a/net/ipv6/xfrm6_policy.c
 +++ b/net/ipv6/xfrm6_policy.c
 @@ -17,6 +17,7 @@
@@ -2655,7 +2565,7 @@ index 444b0b4469a49..4ae5e1455000d 100644
  #include <net/ip.h>
  #include <net/ipv6.h>
 diff --git a/net/key/af_key.c b/net/key/af_key.c
-index d68d01804dc7b..7c6d7f26874b8 100644
+index 6c4448908afe..70782de55625 100644
 --- a/net/key/af_key.c
 +++ b/net/key/af_key.c
 @@ -26,8 +26,183 @@
@@ -3603,7 +3513,7 @@ index d68d01804dc7b..7c6d7f26874b8 100644
  	return err;
  
 diff --git a/net/netfilter/Kconfig b/net/netfilter/Kconfig
-index 441d1f1341100..33f23d7e0d156 100644
+index 441d1f134110..33f23d7e0d15 100644
 --- a/net/netfilter/Kconfig
 +++ b/net/netfilter/Kconfig
 @@ -790,6 +790,30 @@ config NETFILTER_XT_CONNMARK
@@ -3638,7 +3548,7 @@ index 441d1f1341100..33f23d7e0d156 100644
  	tristate 'set target and match support'
  	depends on IP_SET
 diff --git a/net/netfilter/Makefile b/net/netfilter/Makefile
-index d4958e7e76310..d2b32a9c1079b 100644
+index d4958e7e7631..d2b32a9c1079 100644
 --- a/net/netfilter/Makefile
 +++ b/net/netfilter/Makefile
 @@ -22,6 +22,7 @@ nf_conntrack-$(CONFIG_DEBUG_INFO_BTF) += nf_conntrack_bpf.o
@@ -3658,508 +3568,8 @@ index d4958e7e76310..d2b32a9c1079b 100644
  obj-$(CONFIG_NETFILTER_XT_SET) += xt_set.o
  obj-$(CONFIG_NETFILTER_XT_NAT) += xt_nat.o
  
-diff --git a/net/netfilter/comcerto_fp_netfilter.c b/net/netfilter/comcerto_fp_netfilter.c
-new file mode 100644
-index 0000000000000..726261cad9867
---- /dev/null
-+++ b/net/netfilter/comcerto_fp_netfilter.c
-@@ -0,0 +1,494 @@
-+/* Copyright (C) 2015 Freescale Semiconductor, Inc.
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions are met:
-+ *     * Redistributions of source code must retain the above copyright
-+ *       notice, this list of conditions and the following disclaimer.
-+ *     * Redistributions in binary form must reproduce the above copyright
-+ *       notice, this list of conditions and the following disclaimer in the
-+ *       documentation and/or other materials provided with the distribution.
-+ *     * Neither the name of Freescale Semiconductor nor the
-+ *       names of its contributors may be used to endorse or promote products
-+ *       derived from this software without specific prior written permission.
-+ *
-+ *
-+ * ALTERNATIVELY, this software may be distributed under the terms of the
-+ * GNU General Public License ("GPL") as published by the Free Software
-+ * Foundation, either version 2 of that License or (at your option) any
-+ * later version.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY Freescale Semiconductor ``AS IS'' AND ANY
-+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-+ * DISCLAIMED. IN NO EVENT SHALL Freescale Semiconductor BE LIABLE FOR ANY
-+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/version.h>
-+#include <linux/kernel.h>
-+#include <linux/skbuff.h>
-+#include <linux/netfilter.h>
-+#include <net/netfilter/nf_conntrack.h>
-+#include <net/netfilter/nf_conntrack_ecache.h>
-+
-+
-+#ifndef IPSEC_FLOW_CACHE
-+/* this function is used to fill the xfrm info in conntrack structure */
-+static void nf_ct_set_xfrm_in_fp(struct sk_buff *skb, struct xfrm_state *xfrm[MAX_SUPPORTED_XFRMS_PER_DIR],
-+						  int num_xfrm, int xfrm_dir, int *rekey)
-+{
-+	struct nf_conn *ct;
-+	enum ip_conntrack_info ctinfo;
-+	struct comcerto_fp_info *fp_info;
-+	int dir, xfrm_ind, ii;
-+
-+	if (num_xfrm > MAX_SUPPORTED_XFRMS_PER_DIR)
-+	{
-+		printk(KERN_ERR "%s(%d) num_xfrm %d > %d(MAX supported)\n",
-+			__FUNCTION__,__LINE__,num_xfrm,MAX_SUPPORTED_XFRMS_PER_DIR);
-+		return;
-+	}	
-+	/* get ct info */
-+	ct = nf_ct_get(skb, &ctinfo);
-+	if (!ct)
-+	{
-+		return;
-+	}
-+	
-+	dir = CTINFO2DIR(ctinfo);
-+	if (dir == IP_CT_DIR_ORIGINAL) {
-+		fp_info = &ct->fp_info[IP_CT_DIR_ORIGINAL];
-+	} else {
-+		fp_info = &ct->fp_info[IP_CT_DIR_REPLY];
-+	}
-+
-+	if (xfrm_dir == XFRM_POLICY_FWD)
-+		xfrm_dir = 0;
-+	/* xfrm_dir can be XFRM_POLICY_IN, XFRM_POLICY_OUT, XFRM_POLICY_FWD */
-+	/* fp_info->xfrm_id[4] has 4 instances , first 2 instances reserved for direction IN/FWD
-+	   next 2 instances for OUT direction */
-+	xfrm_ind =  xfrm_dir << 1;
-+	
-+	for (ii=0; ii<num_xfrm; ii++)
-+	{
-+		if (fp_info->xfrm_handle[xfrm_ind+ii]  && 
-+			fp_info->xfrm_handle[xfrm_ind+ii] != xfrm[ii]->handle)
-+		{
-+			*rekey = 1;
-+		}
-+		/* filling SA info and xfrm handle */
-+		fp_info->xfrm_handle[xfrm_ind+ii] = xfrm[ii]->handle;
-+		/*printk("%s(%d)ii %d, index %d ct %p,  dir %d, SPI %x, proto %d xfrmdir %d, sgid %x\n",
-+		__FUNCTION__,__LINE__,ii, xfrm_ind+ii, ct,  dir, xfrm[ii]->id.spi, xfrm[ii]->id.proto,
-+		xfrm_dir, fp_info->xfrm_handle[xfrm_ind+ii]); */
-+	}
-+	return;
-+}
-+
-+/* this function is used to get the inbound and outbound xfrm info corresponding to
-+ * skb , if exist fill in conntrack structure */
-+static unsigned int fp_netfilter_get_xfrm_info(struct sk_buff *skb)
-+{
-+	struct nf_conn *ct;
-+	enum ip_conntrack_info ctinfo;
-+	struct sec_path *sp ;
-+	struct xfrm_state *x[2]={}, *tmp;
-+	int num_xfrms = 0, i, dir, rekey = 0;
-+	struct dst_entry *dst1 = skb_dst(skb);
-+
-+	/* get ct info */
-+	ct = nf_ct_get(skb, &ctinfo);
-+	if (!ct)
-+	{
-+		return NF_ACCEPT;
-+	}
-+	/* ctinfo direction [originator/replier] */
-+	dir = CTINFO2DIR(ctinfo);
-+
-+	/* extract the inbound IPSec information if exist */
-+	if ((sp = skb_sec_path(skb)))
-+	{
-+		for (i=sp->len-1; (i>=0) && (num_xfrms < MAX_SUPPORTED_XFRMS_PER_DIR); i--)
-+		{
-+			x[num_xfrms] = sp->xvec[i];
-+	
-+			/* printk("%s(%d) num_xfrm %d , xfrm %p , SPI %x dir XFRM_POLICY_FWD, handle %x\n",
-+				__FUNCTION__,__LINE__,num_xfrms, x[num_xfrms], 
-+				x[num_xfrms]->id.spi, x[num_xfrms]->handle);*/
-+			num_xfrms++;
-+		}
-+		if (num_xfrms)
-+			nf_ct_set_xfrm_in_fp(skb, x, num_xfrms, XFRM_POLICY_FWD, &rekey);
-+	}
-+
-+	/* extract the outbound IPSec information if exist */
-+	if (dst1 && dst1->xfrm)
-+	{
-+		for (i=0; i<MAX_SUPPORTED_XFRMS_PER_DIR; i++)
-+			x[i]  = 0;
-+		num_xfrms = 0;
-+	
-+		while(((tmp = dst1->xfrm) != NULL) && (num_xfrms<MAX_SUPPORTED_XFRMS_PER_DIR))  {
-+			/*printk("%s(%d) num_xfrm %d , xfrm %p , SPI %x, handle %x XFRM_POLICY_OUT\n",
-+				__FUNCTION__,__LINE__, num_xfrms, tmp, tmp->id.spi, tmp->handle);*/
-+			x[num_xfrms] = tmp;			
-+			dst1 = xfrm_dst_child(dst1);
-+			num_xfrms++;
-+			if (dst1 == NULL) {
-+				printk("%s(%d) DST is null \n",__FUNCTION__,__LINE__);
-+				break;
-+			}
-+		}
-+		if (num_xfrms)
-+			nf_ct_set_xfrm_in_fp(skb, x, num_xfrms, XFRM_POLICY_OUT, &rekey);
-+	}
-+
-+	/* if there is a change in ipsec info, send rekey conntrack event */
-+	if (rekey)
-+	{
-+		/*printk("%s(%d) sending rekey event\n",__FUNCTION__,__LINE__); */
-+		nf_conntrack_event_cache(IPCT_PROTOINFO, ct);
-+	}
-+	return NF_ACCEPT;
-+}
-+#endif /* IPSEC_FLOW_CACHE */
-+
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
-+static unsigned int fp_netfilter_pre_routing(int family, const struct nf_hook_state *state, struct sk_buff *skb)
-+#else
-+static unsigned int fp_netfilter_pre_routing(int family, const struct nf_hook_ops *ops, struct sk_buff *skb)
-+#endif
-+{
-+	struct nf_conn *ct;
-+	u_int8_t protonum;
-+	enum ip_conntrack_info ctinfo;
-+	struct comcerto_fp_info *fp_info;
-+	int dir;
-+
-+	ct = nf_ct_get(skb, &ctinfo);
-+	if (!ct)
-+		goto done;
-+
-+	protonum = nf_ct_protonum(ct);
-+	if ((protonum != IPPROTO_TCP) && (protonum != IPPROTO_UDP) && (protonum != IPPROTO_IPIP) && (protonum != IPPROTO_IPV6) && 
-+#ifdef CONFIG_CPE_ETHERIP
-+	(protonum != IPPROTO_ETHERIP) &&
-+#endif
-+	(protonum != IPPROTO_GRE) && (protonum != IPPROTO_ESP) && (protonum != IPPROTO_AH))
-+		goto done;
-+
-+	dir = CTINFO2DIR(ctinfo);
-+
-+	//  if (printk_ratelimit())
-+	//      printk(KERN_INFO "ct: %lx, dir: %x, mark: %x, ifindex: %d iif: %d iif_index:%d\n", (unsigned long)ct, dir, skb->mark, skb->dev->ifindex, skb->skb_iif,skb->iif_index);
-+
-+	/* We could also check for changes and notify userspace (or print message) */
-+	if (dir == IP_CT_DIR_ORIGINAL) {
-+		fp_info = &ct->fp_info[IP_CT_DIR_ORIGINAL];
-+	} else {
-+		fp_info = &ct->fp_info[IP_CT_DIR_REPLY];
-+	}
-+
-+	if (fp_info->mark && (fp_info->mark != skb->mark))
-+		if (printk_ratelimit())
-+			printk(KERN_INFO "ct: mark changed %x, %x\n", fp_info->mark, skb->mark);
-+
-+
-+	if (fp_info->ifindex && (fp_info->ifindex != skb->dev->ifindex))
-+		if (printk_ratelimit())
-+			printk(KERN_INFO "ct: ifindex changed %d, %d\n", fp_info->ifindex, skb->dev->ifindex);
-+
-+	if (fp_info->iif && (fp_info->iif != skb->iif_index))
-+		if (printk_ratelimit())
-+			printk(KERN_INFO "ct: iif changed %d, %d\n", fp_info->iif, skb->iif_index);
-+	/*      // commenting it out as a duplicate print. In most cases iif and underlying iif are the same.
-+			if (fp_info->underlying_iif && (fp_info->underlying_iif != skb->underlying_iif))
-+			if (printk_ratelimit())
-+			printk(KERN_INFO "ct: underlying_iif changed %d, %d\n", fp_info->underlying_iif, skb->underlying_iif);
-+	 */
-+
-+	fp_info->mark = skb->mark;
-+	fp_info->ifindex = skb->dev->ifindex;
-+	/* now skb_iif always tracks dev,so iif_index stores incoming interface */
-+	fp_info->iif = skb->iif_index;
-+	fp_info->underlying_iif = skb->underlying_iif;
-+	/*omit priority bits in vlan tag*/
-+	fp_info->underlying_vlan_id = skb->underlying_vlan_tci & VLAN_VID_MASK;
-+
-+done:
-+	return NF_ACCEPT;
-+}
-+
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
-+static unsigned int fp_netfilter_local_out(int family, const struct nf_hook_state *state, struct sk_buff *skb)
-+#else
-+static unsigned int fp_netfilter_local_out(int family, const struct nf_hook_ops *ops, struct sk_buff *skb)
-+#endif
-+{
-+	struct nf_conn *ct;
-+	u_int8_t protonum;
-+	enum ip_conntrack_info ctinfo;
-+	struct comcerto_fp_info *fp_info;
-+	int dir,update_event=0;
-+
-+	ct = nf_ct_get(skb, &ctinfo);
-+	if (!ct)
-+		goto done;
-+
-+
-+	protonum = nf_ct_protonum(ct);
-+#ifdef CONFIG_CPE_ETHERIP
-+	if ((protonum != IPPROTO_ETHERIP) && (protonum != IPPROTO_IPIP) && (protonum != IPPROTO_IPV6) && (protonum != IPPROTO_GRE))
-+#else
-+		if ((protonum != IPPROTO_IPIP) && (protonum != IPPROTO_IPV6) && (protonum != IPPROTO_GRE))
-+			goto done;
-+#endif
-+
-+	dir = CTINFO2DIR(ctinfo);
-+
-+	/* We could also check for changes and notify userspace (or print message) */
-+	if (dir == IP_CT_DIR_ORIGINAL) {
-+		fp_info = &ct->fp_info[IP_CT_DIR_ORIGINAL];
-+	} else {
-+		fp_info = &ct->fp_info[IP_CT_DIR_REPLY];
-+	}
-+
-+	if (fp_info->mark && (fp_info->mark != skb->mark))
-+		if (printk_ratelimit())
-+			printk(KERN_INFO "ct: mark changed %x, %x\n", fp_info->mark, skb->mark);
-+
-+	if ((fp_info->ifindex) && (skb->dev) &&(fp_info->ifindex != skb->dev->ifindex))
-+		if (printk_ratelimit()) {
-+			printk(KERN_INFO "ct: ifindex changed %d, %d\n", fp_info->ifindex, skb->dev->ifindex);
-+			update_event=1;
-+		}
-+#if 0
-+	if (fp_info->iif && (fp_info->iif != skb->skb_iif))
-+		if (printk_ratelimit())
-+			printk(KERN_INFO "ct: iif changed %d, %d\n", fp_info->iif, skb->skb_iif);
-+#endif
-+
-+	fp_info->mark = skb->mark;
-+	if (skb->dev)
-+		fp_info->ifindex = skb->dev->ifindex;
-+
-+	if (update_event == 1) {
-+		nf_conntrack_event_cache(IPCT_PROTOINFO, ct);
-+	}
-+
-+	//printk(KERN_INFO "%s:(DIR-%d, CT-%x):%x:%s:%x\n",__func__,dir, (unsigned int)ct, fp_info->mark,  skb->dev->name, skb->skb_iif);
-+	fp_info->iif = 0; /* To identify the connection as local connection */
-+
-+#ifndef IPSEC_FLOW_CACHE
-+	/* fill xfrm info in conntrack structure */
-+	return (fp_netfilter_get_xfrm_info(skb));
-+#endif /* IPSEC_FLOW_CACHE */
-+done:
-+	return NF_ACCEPT;
-+}
-+
-+
-+#ifndef IPSEC_FLOW_CACHE
-+/* this post routing hook is introduced to gather the xfrm information
-+ * corresponding to ctinfo of skb and fill it in conntrack structure.
-+ * This is required to take the xfrm info of ctinfo part of conntrack message
-+ * to user space
-+ */
-+static unsigned int fp_ip_netfilter_post_routing(void *priv,
-+						struct sk_buff *skb,
-+						const struct nf_hook_state *state)
-+{
-+	return (fp_netfilter_get_xfrm_info(skb));
-+}
-+#endif /* IPSEC_FLOW_CACHE */
-+
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
-+static unsigned int fp_ipv4_netfilter_pre_routing(void *priv,
-+		struct sk_buff *skb,
-+		const struct nf_hook_state *state)
-+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0)
-+static unsigned int fp_ipv4_netfilter_pre_routing(const struct nf_hook_ops *ops,
-+		struct sk_buff *skb,
-+		const struct nf_hook_state *state)
-+#else
-+static unsigned int fp_ipv4_netfilter_pre_routing(const struct nf_hook_ops *ops,
-+		struct sk_buff *skb,
-+		const struct net_device *in,
-+		const struct net_device *out,
-+		int (*okfn)(struct sk_buff *))
-+#endif
-+
-+{
-+
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
-+	return fp_netfilter_pre_routing(PF_INET, state, skb);
-+#else
-+	return fp_netfilter_pre_routing(PF_INET, ops, skb);
-+#endif
-+}
-+
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
-+static unsigned int fp_ipv6_netfilter_pre_routing(void *priv,
-+		struct sk_buff *skb,
-+		const struct nf_hook_state *state)
-+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0)
-+static unsigned int fp_ipv6_netfilter_pre_routing(const struct nf_hook_ops *ops,
-+		struct sk_buff *skb,
-+		const struct nf_hook_state *state)
-+#else
-+static unsigned int fp_ipv6_netfilter_pre_routing(const struct nf_hook_ops *ops,
-+		struct sk_buff *skb,
-+		const struct net_device *in,
-+		const struct net_device *out,
-+		int (*okfn)(struct sk_buff *))
-+#endif
-+{
-+
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
-+	return fp_netfilter_pre_routing(PF_INET6, state, skb);
-+#else
-+	return fp_netfilter_pre_routing(PF_INET6, ops, skb);
-+#endif
-+}
-+
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
-+static unsigned int fp_ipv4_netfilter_local_out(void *priv,
-+		struct sk_buff *skb,
-+		const struct nf_hook_state *state)
-+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0)
-+static unsigned int fp_ipv4_netfilter_local_out(const struct nf_hook_ops *ops,
-+		struct sk_buff *skb,
-+		const struct nf_hook_state *state)
-+#else
-+static unsigned int fp_ipv4_netfilter_local_out(const struct nf_hook_ops *ops,
-+		struct sk_buff *skb,
-+		const struct net_device *in,
-+		const struct net_device *out,
-+		int (*okfn)(struct sk_buff *))
-+#endif
-+{
-+
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
-+	return fp_netfilter_local_out(PF_INET, state, skb);
-+#else
-+	return fp_netfilter_local_out(PF_INET, ops, skb);
-+#endif
-+}
-+
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
-+static unsigned int fp_ipv6_netfilter_local_out(void *priv,
-+		struct sk_buff *skb,
-+		const struct nf_hook_state *state)
-+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0)
-+static unsigned int fp_ipv6_netfilter_local_out(const struct nf_hook_ops *ops,
-+		struct sk_buff *skb,
-+		const struct nf_hook_state *state)
-+#else
-+static unsigned int fp_ipv6_netfilter_local_out(const struct nf_hook_ops *ops,
-+		struct sk_buff *skb,
-+		const struct net_device *in,
-+		const struct net_device *out,
-+		int (*okfn)(struct sk_buff *))
-+#endif
-+{
-+
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
-+	return fp_netfilter_local_out(PF_INET6, state, skb);
-+#else
-+	return fp_netfilter_local_out(PF_INET6, ops, skb);
-+#endif
-+}
-+
-+
-+static struct nf_hook_ops fp_netfilter_ops[] __read_mostly = {
-+	{
-+		.hook       = fp_ipv4_netfilter_pre_routing,
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,4,0)
-+		.owner      = THIS_MODULE,
-+#endif
-+		.pf     = NFPROTO_IPV4,
-+		.hooknum    = NF_INET_PRE_ROUTING,
-+		.priority   = NF_IP_PRI_LAST,
-+	},
-+	{
-+		.hook       = fp_ipv6_netfilter_pre_routing,
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,4,0)
-+		.owner      = THIS_MODULE,
-+#endif
-+		.pf     = NFPROTO_IPV6,
-+		.hooknum    = NF_INET_PRE_ROUTING,
-+		.priority   = NF_IP_PRI_LAST,
-+	},
-+	/* For local_out packets, routing will be done
-+	   1. before entering the LOCAL_OUT hook
-+	   2. and at the completion of all mangle rules,
-+	   if there are changes to the packet like mark etc
-+
-+	   So NF_IP_PRI_LAST priority is used here to receive
-+	   the mark value of the packet, at the end of all changes.
-+	 */
-+	{
-+		.hook           = fp_ipv4_netfilter_local_out,
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,4,0)
-+		.owner          = THIS_MODULE,
-+#endif
-+		.pf             = NFPROTO_IPV4,
-+		.hooknum        = NF_INET_LOCAL_OUT,
-+		.priority       = NF_IP_PRI_LAST - 1,
-+	},
-+	{
-+		.hook           = fp_ipv6_netfilter_local_out,
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,4,0)
-+		.owner          = THIS_MODULE,
-+#endif
-+		.pf             = NFPROTO_IPV6,
-+		.hooknum        = NF_INET_LOCAL_OUT,
-+		.priority       = NF_IP_PRI_LAST - 1,
-+	},
-+
-+#ifndef IPSEC_FLOW_CACHE
-+	{
-+		.hook			= fp_ip_netfilter_post_routing,
-+		.pf 			= NFPROTO_IPV4,
-+		.hooknum		= NF_INET_POST_ROUTING,
-+		.priority		= NF_IP_PRI_LAST - 1, /* this priority should be less than INT_MAX */
-+	},
-+	{
-+		.hook			= fp_ip_netfilter_post_routing,
-+		.pf 			= NFPROTO_IPV6,
-+		.hooknum		= NF_INET_POST_ROUTING,
-+		.priority		= NF_IP_PRI_LAST - 1, /* this priority should be less than INT_MAX, */
-+	},
-+#endif
-+};
-+
-+static int __init fp_netfilter_init(void)
-+{
-+	int rc;
-+
-+	rc = nf_register_net_hooks(&init_net, fp_netfilter_ops, ARRAY_SIZE(fp_netfilter_ops));
-+	if (rc < 0) {
-+		printk(KERN_ERR "fp_netfilter_ops: can't register hooks.\n");
-+		goto err0;
-+	}
-+
-+	return 0;
-+
-+err0:
-+	return rc;
-+}
-+
-+
-+static void __exit fp_netfilter_exit(void)
-+{
-+	nf_unregister_net_hooks(&init_net, fp_netfilter_ops, ARRAY_SIZE(fp_netfilter_ops));
-+}
-+
-+module_init(fp_netfilter_init);
-+module_exit(fp_netfilter_exit);
 diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
-index e4ae2a08da6ac..845185d2d06cf 100644
+index 0081c1a0d5e5..f523bcfd5f5e 100644
 --- a/net/netfilter/nf_conntrack_core.c
 +++ b/net/netfilter/nf_conntrack_core.c
 @@ -10,7 +10,7 @@
@@ -4171,7 +3581,7 @@ index e4ae2a08da6ac..845185d2d06cf 100644
  #include <linux/types.h>
  #include <linux/netfilter.h>
  #include <linux/module.h>
-@@ -1638,6 +1638,14 @@ __nf_conntrack_alloc(struct net *net,
+@@ -1652,6 +1652,14 @@ __nf_conntrack_alloc(struct net *net,
  	ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple = *orig;
  	ct->tuplehash[IP_CT_DIR_ORIGINAL].hnnode.pprev = NULL;
  	ct->tuplehash[IP_CT_DIR_REPLY].tuple = *repl;
@@ -4186,7 +3596,7 @@ index e4ae2a08da6ac..845185d2d06cf 100644
  	/* save hash for reusing when confirming */
  	*(unsigned long *)(&ct->tuplehash[IP_CT_DIR_REPLY].hnnode.pprev) = hash;
  	ct->status = 0;
-@@ -1771,6 +1779,9 @@ init_conntrack(struct net *net, struct nf_conn *tmpl,
+@@ -1785,6 +1793,9 @@ init_conntrack(struct net *net, struct nf_conn *tmpl,
  #ifdef CONFIG_NF_CONNTRACK_MARK
  			ct->mark = READ_ONCE(exp->master->mark);
  #endif
@@ -4196,7 +3606,7 @@ index e4ae2a08da6ac..845185d2d06cf 100644
  #ifdef CONFIG_NF_CONNTRACK_SECMARK
  			ct->secmark = exp->master->secmark;
  #endif
-@@ -2584,6 +2595,52 @@ void *nf_ct_alloc_hashtable(unsigned int *sizep, int nulls)
+@@ -2601,6 +2612,52 @@ void *nf_ct_alloc_hashtable(unsigned int *sizep, int nulls)
  }
  EXPORT_SYMBOL_GPL(nf_ct_alloc_hashtable);
  
@@ -4249,7 +3659,7 @@ index e4ae2a08da6ac..845185d2d06cf 100644
  int nf_conntrack_hash_resize(unsigned int hashsize)
  {
  	int i, bucket;
-@@ -2863,3 +2920,19 @@ int nf_ct_change_status_common(struct nf_conn *ct, unsigned int status)
+@@ -2880,3 +2937,19 @@ int nf_ct_change_status_common(struct nf_conn *ct, unsigned int status)
  	return 0;
  }
  EXPORT_SYMBOL_GPL(nf_ct_change_status_common);
@@ -4270,7 +3680,7 @@ index e4ae2a08da6ac..845185d2d06cf 100644
 +EXPORT_SYMBOL_GPL(nf_ct_is_expired);
 +#endif
 diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index 4dab45039f349..d5101d00f474f 100644
+index 928bd2013289..bc48dbec992f 100644
 --- a/net/netfilter/nf_conntrack_netlink.c
 +++ b/net/netfilter/nf_conntrack_netlink.c
 @@ -28,6 +28,11 @@
@@ -4338,9 +3748,9 @@ index 4dab45039f349..d5101d00f474f 100644
  #ifdef CONFIG_NF_CONNTRACK_SECMARK
  static int ctnetlink_dump_secctx(struct sk_buff *skb, const struct nf_conn *ct)
  {
-@@ -415,6 +445,59 @@ ctnetlink_dump_labels(struct sk_buff *skb, const struct nf_conn *ct)
- #define ctnetlink_label_size(a)	(0)
- #endif
+@@ -412,6 +442,59 @@ ctnetlink_dump_labels(struct sk_buff *skb, const struct nf_conn *ct)
+ 	return 0;
+ }
  
 +#if defined(CONFIG_CPE_FAST_PATH)
 +static int
@@ -4398,7 +3808,7 @@ index 4dab45039f349..d5101d00f474f 100644
  #define master_tuple(ct) &(ct->master->tuplehash[IP_CT_DIR_ORIGINAL].tuple)
  
  static int ctnetlink_dump_master(struct sk_buff *skb, const struct nf_conn *ct)
-@@ -555,7 +638,11 @@ static int ctnetlink_dump_info(struct sk_buff *skb, struct nf_conn *ct)
+@@ -552,7 +635,11 @@ static int ctnetlink_dump_info(struct sk_buff *skb, struct nf_conn *ct)
  {
  	if (ctnetlink_dump_status(skb, ct) < 0 ||
  	    ctnetlink_dump_mark(skb, ct, true) < 0 ||
@@ -4410,7 +3820,7 @@ index 4dab45039f349..d5101d00f474f 100644
  	    ctnetlink_dump_id(skb, ct) < 0 ||
  	    ctnetlink_dump_use(skb, ct) < 0 ||
  	    ctnetlink_dump_master(skb, ct) < 0)
-@@ -707,6 +794,13 @@ static size_t ctnetlink_nlmsg_size(const struct nf_conn *ct)
+@@ -704,6 +791,13 @@ static size_t ctnetlink_nlmsg_size(const struct nf_conn *ct)
  	       + nla_total_size(0) /* CTA_HELP */
  	       + nla_total_size(NF_CT_HELPER_NAME_LEN) /* CTA_HELP_NAME */
  	       + ctnetlink_secctx_size(ct)
@@ -4424,7 +3834,7 @@ index 4dab45039f349..d5101d00f474f 100644
  #if IS_ENABLED(CONFIG_NF_NAT)
  	       + 2 * nla_total_size(0) /* CTA_NAT_SEQ_ADJ_ORIG|REPL */
  	       + 6 * nla_total_size(sizeof(u_int32_t)) /* CTA_NAT_SEQ_OFFSET */
-@@ -714,6 +808,9 @@ static size_t ctnetlink_nlmsg_size(const struct nf_conn *ct)
+@@ -711,6 +805,9 @@ static size_t ctnetlink_nlmsg_size(const struct nf_conn *ct)
  #ifdef CONFIG_NF_CONNTRACK_MARK
  	       + nla_total_size(sizeof(u_int32_t)) /* CTA_MARK */
  #endif
@@ -4434,7 +3844,7 @@ index 4dab45039f349..d5101d00f474f 100644
  #ifdef CONFIG_NF_CONNTRACK_ZONES
  	       + nla_total_size(sizeof(u_int16_t)) /* CTA_ZONE|CTA_TUPLE_ZONE */
  #endif
-@@ -788,6 +885,11 @@ ctnetlink_conntrack_event(unsigned int events, const struct nf_ct_event *item)
+@@ -785,6 +882,11 @@ ctnetlink_conntrack_event(unsigned int events, const struct nf_ct_event *item)
  				   NF_CT_DEFAULT_ZONE_DIR) < 0)
  		goto nla_put_failure;
  
@@ -4446,7 +3856,7 @@ index 4dab45039f349..d5101d00f474f 100644
  	if (ctnetlink_dump_id(skb, ct) < 0)
  		goto nla_put_failure;
  
-@@ -839,6 +941,11 @@ ctnetlink_conntrack_event(unsigned int events, const struct nf_ct_event *item)
+@@ -836,6 +938,11 @@ ctnetlink_conntrack_event(unsigned int events, const struct nf_ct_event *item)
  #ifdef CONFIG_NF_CONNTRACK_MARK
  	if (ctnetlink_dump_mark(skb, ct, events & (1 << IPCT_MARK)))
  		goto nla_put_failure;
@@ -4458,7 +3868,7 @@ index 4dab45039f349..d5101d00f474f 100644
  #endif
  	nlmsg_end(skb, nlh);
  	err = nfnetlink_send(skb, net, item->portid, group, item->report,
-@@ -1538,6 +1645,9 @@ static const struct nla_policy ct_nla_policy[CTA_MAX+1] = {
+@@ -1537,6 +1644,9 @@ static const struct nla_policy ct_nla_policy[CTA_MAX+1] = {
  	[CTA_NAT_SRC]		= { .type = NLA_NESTED },
  	[CTA_TIMEOUT] 		= { .type = NLA_U32 },
  	[CTA_MARK]		= { .type = NLA_U32 },
@@ -4468,7 +3878,7 @@ index 4dab45039f349..d5101d00f474f 100644
  	[CTA_ID]		= { .type = NLA_U32 },
  	[CTA_NAT_DST]		= { .type = NLA_NESTED },
  	[CTA_TUPLE_MASTER]	= { .type = NLA_NESTED },
-@@ -1895,6 +2005,48 @@ ctnetlink_change_status(struct nf_conn *ct, const struct nlattr * const cda[])
+@@ -1894,6 +2004,48 @@ ctnetlink_change_status(struct nf_conn *ct, const struct nlattr * const cda[])
  	return nf_ct_change_status_common(ct, ntohl(nla_get_be32(cda[CTA_STATUS])));
  }
  
@@ -4517,7 +3927,7 @@ index 4dab45039f349..d5101d00f474f 100644
  static int
  ctnetlink_setup_nat(struct nf_conn *ct, const struct nlattr * const cda[])
  {
-@@ -2199,6 +2351,11 @@ ctnetlink_change_conntrack(struct nf_conn *ct,
+@@ -2198,6 +2350,11 @@ ctnetlink_change_conntrack(struct nf_conn *ct,
  			return err;
  	}
  
@@ -4529,7 +3939,7 @@ index 4dab45039f349..d5101d00f474f 100644
  #if defined(CONFIG_NF_CONNTRACK_MARK)
  	if (cda[CTA_MARK])
  		ctnetlink_change_mark(ct, cda);
-@@ -2337,6 +2494,11 @@ ctnetlink_create_conntrack(struct net *net,
+@@ -2336,6 +2493,11 @@ ctnetlink_create_conntrack(struct net *net,
  			goto err2;
  	}
  
@@ -4541,7 +3951,7 @@ index 4dab45039f349..d5101d00f474f 100644
  #if defined(CONFIG_NF_CONNTRACK_MARK)
  	if (cda[CTA_MARK])
  		ctnetlink_change_mark(ct, cda);
-@@ -2463,6 +2625,15 @@ static int ctnetlink_new_conntrack(struct sk_buff *skb,
+@@ -2462,6 +2624,15 @@ static int ctnetlink_new_conntrack(struct sk_buff *skb,
  	err = -EEXIST;
  	ct = nf_ct_tuplehash_to_ctrack(h);
  	if (!(info->nlh->nlmsg_flags & NLM_F_EXCL)) {
@@ -4558,7 +3968,7 @@ index 4dab45039f349..d5101d00f474f 100644
  		if (err == 0) {
  			nf_conntrack_eventmask_report((1 << IPCT_REPLY) |
 diff --git a/net/netfilter/nf_conntrack_proto_tcp.c b/net/netfilter/nf_conntrack_proto_tcp.c
-index 53d46ebcb5f76..fe9f0d999734b 100644
+index 53d46ebcb5f7..fe9f0d999734 100644
 --- a/net/netfilter/nf_conntrack_proto_tcp.c
 +++ b/net/netfilter/nf_conntrack_proto_tcp.c
 @@ -1329,6 +1329,10 @@ int nf_conntrack_tcp_packet(struct nf_conn *ct,
@@ -4573,7 +3983,7 @@ index 53d46ebcb5f76..fe9f0d999734b 100644
  	nf_ct_refresh_acct(ct, ctinfo, skb, timeout);
  
 diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/nf_conntrack_standalone.c
-index 559665467b04d..f81e853219e05 100644
+index 1d5de1d9f008..c3c954d26f3e 100644
 --- a/net/netfilter/nf_conntrack_standalone.c
 +++ b/net/netfilter/nf_conntrack_standalone.c
 @@ -336,6 +336,13 @@ static int ct_seq_show(struct seq_file *s, void *v)
@@ -4603,9 +4013,1237 @@ index 559665467b04d..f81e853219e05 100644
  
  	ct_show_secctx(s, ct);
  	ct_show_zone(s, ct, NF_CT_DEFAULT_ZONE_DIR);
+diff --git a/net/wireless/Kconfig b/net/wireless/Kconfig
+index f620acd2a0f5..3d3c91ed1932 100644
+--- a/net/wireless/Kconfig
++++ b/net/wireless/Kconfig
+@@ -1,6 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ config WIRELESS_EXT
+-	bool
++	def_bool y
+ 
+ config WEXT_CORE
+ 	def_bool y
+@@ -12,10 +12,10 @@ config WEXT_PROC
+ 	depends on WEXT_CORE
+ 
+ config WEXT_SPY
+-	bool
++	def_bool y
+ 
+ config WEXT_PRIV
+-	bool
++	def_bool y
+ 
+ config CFG80211
+ 	tristate "cfg80211 - wireless configuration API"
+diff --git a/net/wireless/wext-core.c b/net/wireless/wext-core.c
+index 73a29ee3eff2..df9477c05485 100644
+--- a/net/wireless/wext-core.c
++++ b/net/wireless/wext-core.c
+@@ -984,6 +984,9 @@ static int wireless_process_ioctl(struct net *net, struct iwreq *iwr,
+ 		else if (private)
+ 			return private(dev, iwr, cmd, info, handler);
+ 	}
++	/* Old driver API : call driver ioctl handler */
++	if (dev->netdev_ops->ndo_do_ioctl)
++		return dev->netdev_ops->ndo_do_ioctl(dev, (struct ifreq *)iwr, cmd);
+ 	return -EOPNOTSUPP;
+ }
+ 
+diff --git a/net/xfrm/Makefile b/net/xfrm/Makefile
+index cd47f88921f5..5a92bcedb420 100644
+--- a/net/xfrm/Makefile
++++ b/net/xfrm/Makefile
+@@ -21,3 +21,4 @@ obj-$(CONFIG_XFRM_USER_COMPAT) += xfrm_compat.o
+ obj-$(CONFIG_XFRM_IPCOMP) += xfrm_ipcomp.o
+ obj-$(CONFIG_XFRM_INTERFACE) += xfrm_interface.o
+ obj-$(CONFIG_XFRM_ESPINTCP) += espintcp.o
++obj-$(CONFIG_INET_IPSEC_OFFLOAD) += ipsec_flow.o
+diff --git a/net/xfrm/xfrm_input.c b/net/xfrm/xfrm_input.c
+index 0c08bac3ed26..2bc22d0fa4de 100644
+--- a/net/xfrm/xfrm_input.c
++++ b/net/xfrm/xfrm_input.c
+@@ -43,6 +43,10 @@ struct xfrm_trans_cb {
+ 
+ #define XFRM_TRANS_SKB_CB(__skb) ((struct xfrm_trans_cb *)&((__skb)->cb[0]))
+ 
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++extern int dpaa_submit_inb_pkt_to_SEC(struct sk_buff *skb, uint16_t sagd);
++#endif /* IPSEC */
++
+ static DEFINE_SPINLOCK(xfrm_input_afinfo_lock);
+ static struct xfrm_input_afinfo const __rcu *xfrm_input_afinfo[2][AF_INET6 + 1];
+ 
+@@ -590,6 +594,16 @@ int xfrm_input(struct sk_buff *skb, int nexthdr, __be32 spi, int encap_type)
+ 			goto drop;
+ 		}
+ 
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++		/*net_crit_ratelimited("%s(%d) x->handle %d, mac hdr %p, data %p\n",
++			__FUNCTION__,__LINE__, x->handle, skb_mac_header(skb), skb->data);  */
++		/* check if the corresponding SA is offloaded,
++		   then submit the packet to SEC engine */
++
++		if ((x->offloaded) && 
++		    !(dpaa_submit_inb_pkt_to_SEC(skb, x->handle)))
++			return 0;
++#endif /* IPSEC offload end */
+ lock:
+ 		spin_lock(&x->lock);
+ 
+diff --git a/net/xfrm/xfrm_output.c b/net/xfrm/xfrm_output.c
+index 9277dd4ed541..69a3c8dc324e 100644
+--- a/net/xfrm/xfrm_output.c
++++ b/net/xfrm/xfrm_output.c
+@@ -67,6 +67,10 @@ static int xfrm4_transport_output(struct xfrm_state *x, struct sk_buff *skb)
+ 	struct iphdr *iph = ip_hdr(skb);
+ 	int ihl = iph->ihl * 4;
+ 
++#if defined(CONFIG_INET_IPSEC_OFFLOAD)
++	if(skb->ipsec_offload)
++		return 0;
++#endif
+ 	skb_set_inner_transport_header(skb, skb_transport_offset(skb));
+ 
+ 	skb_set_network_header(skb, -x->props.header_len);
+@@ -167,6 +171,10 @@ static int xfrm6_transport_output(struct xfrm_state *x, struct sk_buff *skb)
+ 	u8 *prevhdr;
+ 	int hdr_len;
+ 
++#if defined(CONFIG_INET6_IPSEC_OFFLOAD)
++	if(skb->ipsec_offload)
++		return 0;
++#endif
+ 	iph = ipv6_hdr(skb);
+ 	skb_set_inner_transport_header(skb, skb_transport_offset(skb));
+ 
+@@ -413,6 +421,10 @@ static int xfrm4_prepare_output(struct xfrm_state *x, struct sk_buff *skb)
+ 	IPCB(skb)->flags |= IPSKB_XFRM_TUNNEL_SIZE;
+ 	skb->protocol = htons(ETH_P_IP);
+ 
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++	if (skb->ipsec_offload)
++		return 0;
++#endif
+ 	switch (x->props.mode) {
+ 	case XFRM_MODE_BEET:
+ 		return xfrm4_beet_encap_add(x, skb);
+@@ -436,6 +448,10 @@ static int xfrm6_prepare_output(struct xfrm_state *x, struct sk_buff *skb)
+ 	skb->ignore_df = 1;
+ 	skb->protocol = htons(ETH_P_IPV6);
+ 
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++	if (skb->ipsec_offload)
++		return 0;
++#endif
+ 	switch (x->props.mode) {
+ 	case XFRM_MODE_BEET:
+ 		return xfrm6_beet_encap_add(x, skb);
+@@ -492,11 +508,40 @@ static int xfrm_output_one(struct sk_buff *skb, int err)
+ 	struct dst_entry *dst = skb_dst(skb);
+ 	struct xfrm_state *x = dst->xfrm;
+ 	struct net *net = xs_net(x);
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++	struct xfrm_state *xfrm_vec[XFRM_MAX_DEPTH];
++	int xfrm_nr = 0;
++	int i;
++	struct sec_path *sp;
++#endif
+ 
+ 	if (err <= 0 || x->xso.type == XFRM_DEV_OFFLOAD_PACKET)
+ 		goto resume;
+ 
+ 	do {
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++		if (x->offloaded) {
++			if (xfrm_nr == XFRM_MAX_DEPTH) {
++				err = -ENOBUFS;
++				goto out;
++			}
++
++			if (!x->curlft.use_time)
++				x->curlft.use_time = ktime_get_real_seconds();
++
++			xfrm_state_hold(x);
++			xfrm_vec[xfrm_nr++] = x;
++			skb->ipsec_offload = 1;
++
++			err = xfrm_outer_mode_output(x, skb);
++			if (err) {
++				XFRM_INC_STATS(net, LINUX_MIB_XFRMOUTSTATEMODEERROR);
++				goto error_nolock;
++			}
++			goto next_dst;
++		}
++#endif
++
+ 		err = xfrm_skb_check_space(skb);
+ 		if (err) {
+ 			XFRM_INC_STATS(net, LINUX_MIB_XFRMOUTERROR);
+@@ -561,6 +606,9 @@ static int xfrm_output_one(struct sk_buff *skb, int err)
+ 			goto error_nolock;
+ 		}
+ 
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++next_dst:
++#endif
+ 		dst = skb_dst_pop(skb);
+ 		if (!dst) {
+ 			XFRM_INC_STATS(net, LINUX_MIB_XFRMOUTERROR);
+@@ -571,11 +619,40 @@ static int xfrm_output_one(struct sk_buff *skb, int err)
+ 		x = dst->xfrm;
+ 	} while (x && !(x->outer_mode.flags & XFRM_MODE_FLAG_TUNNEL));
+ 
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++	if (!(sp = skb_sec_path(skb))) {
++
++		sp = secpath_set(skb);
++		if (!sp)
++			goto error_nolock;
++	}
++
++	/* Hub and spoke changes: Resetting the POLICY_IN SA and setting only the 
++	   POLICY_OUT SA */
++	if (skb->ipsec_xfrm_dir & ( 1 << XFRM_POLICY_IN))
++	{
++		sp->len = 0;
++		skb->ipsec_xfrm_dir &= ~ ( 1 << XFRM_POLICY_IN);
++	}
++
++	if (xfrm_nr + sp->len > XFRM_MAX_DEPTH)
++		goto error_nolock;
++
++	memcpy(sp->xvec + sp->len, xfrm_vec,
++			xfrm_nr * sizeof(xfrm_vec[0]));
++	sp->len += xfrm_nr;
++#endif
++
++
+ 	return 0;
+ 
+ error:
+ 	spin_unlock_bh(&x->lock);
+ error_nolock:
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++	for (i = 0; i < xfrm_nr; i++)
++		xfrm_state_put(xfrm_vec[i]);
++#endif
+ 	kfree_skb(skb);
+ out:
+ 	return err;
+@@ -866,10 +943,20 @@ static int xfrm4_extract_output(struct xfrm_state *x, struct sk_buff *skb)
+ 	if (err)
+ 		return err;
+ 
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++	if (skb->ipsec_offload == 0) {
++		XFRM_MODE_SKB_CB(skb)->protocol = ip_hdr(skb)->protocol;
++		xfrm4_extract_header(skb);
++		return 0;
++	} else {
++		return 0;
++	}
++#else
+ 	XFRM_MODE_SKB_CB(skb)->protocol = ip_hdr(skb)->protocol;
+ 
+ 	xfrm4_extract_header(skb);
+ 	return 0;
++#endif
+ }
+ 
+ #if IS_ENABLED(CONFIG_IPV6)
+@@ -913,10 +1000,18 @@ static int xfrm6_extract_output(struct xfrm_state *x, struct sk_buff *skb)
+ 	if (err)
+ 		return err;
+ 
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++	if (skb->ipsec_offload == 0) {
++		XFRM_MODE_SKB_CB(skb)->protocol = ipv6_hdr(skb)->nexthdr;
++		xfrm6_extract_header(skb);
++	}
++	return 0;
++#else
+ 	XFRM_MODE_SKB_CB(skb)->protocol = ipv6_hdr(skb)->nexthdr;
+ 
+ 	xfrm6_extract_header(skb);
+ 	return 0;
++#endif
+ #else
+ 	WARN_ON_ONCE(1);
+ 	return -EAFNOSUPPORT;
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index b516dd15113e..878bb18747f2 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -1,4 +1,4 @@
+-// SPDX-License-Identifier: GPL-2.0-only
++046a0// SPDX-License-Identifier: GPL-2.0-only
+ /*
+  * xfrm_policy.c
+  *
+@@ -46,6 +46,11 @@
+ #endif
+ 
+ #include "xfrm_hash.h"
++#ifdef IPSEC_FLOW_CACHE
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++#include "ipsec_flow.h"
++#endif
++#endif
+ 
+ #define XFRM_QUEUE_TMO_MIN ((unsigned)(HZ/10))
+ #define XFRM_QUEUE_TMO_MAX ((unsigned)(60*HZ))
+@@ -158,6 +163,15 @@ static struct xfrm_policy_afinfo const __rcu *xfrm_policy_afinfo[AF_INET6 + 1]
+ 
+ static struct kmem_cache *xfrm_dst_cache __ro_after_init;
+ 
++#ifdef IPSEC_FLOW_CACHE
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++extern int ipsec_nlkey_flow(u16 xfrm_nr, u16 *xfrm_handle,
++		const struct flowi *fl, u16 family, u16 dir, u16 ignore_neigh);
++int ipsec_flow_init(struct net *net);
++void ipsec_flow_fini(struct net *net);
++#endif
++#endif
++
+ static struct rhashtable xfrm_policy_inexact_table;
+ static const struct rhashtable_params xfrm_pol_inexact_params;
+ 
+@@ -2565,7 +2579,11 @@ xfrm_tmpl_resolve(struct xfrm_policy **pols, int npols, const struct flowi *fl,
+ 
+ }
+ 
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++int xfrm_get_tos(const struct flowi *fl, int family)
++#else
+ static int xfrm_get_tos(const struct flowi *fl, int family)
++#endif
+ {
+ 	if (family == AF_INET)
+ 		return IPTOS_RT_MASK & fl->u.ip4.flowi4_tos;
+@@ -2631,6 +2649,9 @@ static inline int xfrm_fill_dst(struct xfrm_dst *xdst, struct net_device *dev,
+ 
+ 	return err;
+ }
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++EXPORT_SYMBOL(xfrm_get_tos);
++#endif
+ 
+ 
+ /* Allocate chain of dst_entry's, attach known xfrm's, calculate
+@@ -3264,6 +3285,10 @@ struct dst_entry *xfrm_lookup_with_ifid(struct net *net,
+ 		dst_release(dst);
+ 		dst = dst_orig;
+ 	}
++
++#ifdef CONFIG_INET_IPSEC_OFFLOAD
++	ipsec_flow_cache_resolve(net, fl, dst, family);
++#endif
+ ok:
+ 	xfrm_pols_put(pols, drop_pols);
+ 	if (dst && dst->xfrm &&
+@@ -3787,14 +3812,39 @@ int __xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb,
+ 			}
+ 		}
+ 
+-		if (secpath_has_nontransport(sp, k, &xerr_idx)) {
+-			XFRM_INC_STATS(net, LINUX_MIB_XFRMINTMPLMISMATCH);
+-			goto reject;
++	if (secpath_has_nontransport(sp, k, &xerr_idx)) {
++		XFRM_INC_STATS(net, LINUX_MIB_XFRMINTMPLMISMATCH);
++		goto reject;
++	}
++
++#ifdef IPSEC_FLOW_CACHE
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++	{
++		struct xfrm_state *x;
++		u16 xfrm_handle[XFRM_POLICY_TYPE_MAX];
++
++		xfrm_nr = 0;
++		memset(xfrm_handle, 0, XFRM_POLICY_TYPE_MAX * sizeof(u16));
++		for (i = sp->len - 1; (i >= 0) && (xfrm_nr < XFRM_POLICY_TYPE_MAX); i--) {
++			x = sp->xvec[i];
++			xfrm_handle[xfrm_nr++] = x->handle;
++		}
++		if (ipsec_flow_add(net, (const struct flowi *)&fl, family, dir, xfrm_handle)) {
++			/* sent flow notification to cmm with sa_handle */
++			ipsec_nlkey_flow(xfrm_nr, xfrm_handle, (const struct flowi *)&fl, family, dir, 0);
+ 		}
++	}
++
++	/* Hub and spoke changes: Setting the POLICY_IN direction in the packet */
++	skb->ipsec_xfrm_dir |= (1 << XFRM_POLICY_IN);
++
++std_path:
++#endif
++#endif
+ 
+ out:
+-		xfrm_pols_put(pols, npols);
+-		sp->verified_cnt = k;
++	xfrm_pols_put(pols, npols);
++	sp->verified_cnt = k;
+ 
+ 		return 1;
+ 	}
+@@ -4261,11 +4311,18 @@ static int __net_init xfrm_net_init(struct net *net)
+ 	if (rv < 0)
+ 		goto out_policy;
+ 	rv = xfrm_sysctl_init(net);
++
++	rv = ipsec_flow_net_init(net);
++	if (rv < 0)
++		goto out_ipsec_flow;
+ 	if (rv < 0)
+ 		goto out_sysctl;
+ 
+ 	return 0;
+ 
++out_ipsec_flow:
++	ipsec_flow_net_fini(net);
++	xfrm_sysctl_fini(net);
+ out_sysctl:
+ 	xfrm_policy_fini(net);
+ out_policy:
+@@ -4278,6 +4335,7 @@ static int __net_init xfrm_net_init(struct net *net)
+ 
+ static void __net_exit xfrm_net_exit(struct net *net)
+ {
++	ipsec_flow_net_fini(net);
+ 	xfrm_sysctl_fini(net);
+ 	xfrm_policy_fini(net);
+ 	xfrm_state_fini(net);
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 81e01cdc7a7d..0ad0eb3f7a21 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -17,6 +17,7 @@
+ #include <linux/compat.h>
+ #include <linux/workqueue.h>
+ #include <net/xfrm.h>
++#include "ipsec_flow.h"
+ #include <linux/pfkeyv2.h>
+ #include <linux/ipsec.h>
+ #include <linux/module.h>
+@@ -58,6 +59,9 @@ static inline bool xfrm_state_hold_rcu(struct xfrm_state __rcu *x)
+ 	return refcount_inc_not_zero(&x->refcnt);
+ }
+ 
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++static unsigned short xfrm_state_handle;
++#endif
+ static inline unsigned int xfrm_dst_hash(struct net *net,
+ 					 const xfrm_address_t *daddr,
+ 					 const xfrm_address_t *saddr,
+@@ -114,12 +118,22 @@ static unsigned int xfrm_seq_hash(struct net *net, u32 seq)
+ 			hlist_add_before_rcu(_n, &_x->by);                 \
+ 	}
+ 
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++static void xfrm_hash_transfer(struct hlist_head *list,
++			       struct hlist_head *ndsttable,
++			       struct hlist_head *nsrctable,
++			       struct hlist_head *nspitable,
++			       struct hlist_head *nseqtable,
++			       struct hlist_head *nhtable,
++			       unsigned int nhashmask)
++#else
+ static void xfrm_hash_transfer(struct hlist_head *list,
+ 			       struct hlist_head *ndsttable,
+ 			       struct hlist_head *nsrctable,
+ 			       struct hlist_head *nspitable,
+ 			       struct hlist_head *nseqtable,
+ 			       unsigned int nhashmask)
++#endif
+ {
+ 	struct hlist_node *tmp;
+ 	struct xfrm_state *x;
+@@ -150,6 +164,13 @@ static void xfrm_hash_transfer(struct hlist_head *list,
+ 			XFRM_STATE_INSERT(byseq, &x->byseq, nseqtable + h,
+ 					  x->xso.type);
+ 		}
++
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++		if (x->handle && x->in_byh_hash) {
++			h = (x->handle & nhashmask);
++			hlist_add_head_rcu(&x->byh, nhtable + h);
++		}
++#endif
+ 	}
+ }
+ 
+@@ -162,6 +183,9 @@ static void xfrm_hash_resize(struct work_struct *work)
+ {
+ 	struct net *net = container_of(work, struct net, xfrm.state_hash_work);
+ 	struct hlist_head *ndst, *nsrc, *nspi, *nseq, *odst, *osrc, *ospi, *oseq;
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++	struct hlist_head *nh, *oh;
++#endif
+ 	unsigned long nsize, osize;
+ 	unsigned int nhashmask, ohashmask;
+ 	int i;
+@@ -188,6 +212,16 @@ static void xfrm_hash_resize(struct work_struct *work)
+ 		xfrm_hash_free(nspi, nsize);
+ 		return;
+ 	}
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++	nh = xfrm_hash_alloc(nsize);
++	if (!nh) {
++		xfrm_hash_free(ndst, nsize);
++		xfrm_hash_free(nsrc, nsize);
++		xfrm_hash_free(nspi, nsize);
++		xfrm_hash_free(nseq, nsize);
++		return;
++	}
++#endif
+ 
+ 	spin_lock_bh(&net->xfrm.xfrm_state_lock);
+ 	write_seqcount_begin(&net->xfrm.xfrm_state_hash_generation);
+@@ -195,17 +229,27 @@ static void xfrm_hash_resize(struct work_struct *work)
+ 	nhashmask = (nsize / sizeof(struct hlist_head)) - 1U;
+ 	odst = xfrm_state_deref_prot(net->xfrm.state_bydst, net);
+ 	for (i = net->xfrm.state_hmask; i >= 0; i--)
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++		xfrm_hash_transfer(odst + i, ndst, nsrc, nspi, nseq, nh, nhashmask);
++#else
+ 		xfrm_hash_transfer(odst + i, ndst, nsrc, nspi, nseq, nhashmask);
++#endif
+ 
+ 	osrc = xfrm_state_deref_prot(net->xfrm.state_bysrc, net);
+ 	ospi = xfrm_state_deref_prot(net->xfrm.state_byspi, net);
+ 	oseq = xfrm_state_deref_prot(net->xfrm.state_byseq, net);
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++	oh = xfrm_state_deref_prot(net->xfrm.state_byh, net);
++#endif
+ 	ohashmask = net->xfrm.state_hmask;
+ 
+ 	rcu_assign_pointer(net->xfrm.state_bydst, ndst);
+ 	rcu_assign_pointer(net->xfrm.state_bysrc, nsrc);
+ 	rcu_assign_pointer(net->xfrm.state_byspi, nspi);
+ 	rcu_assign_pointer(net->xfrm.state_byseq, nseq);
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++	rcu_assign_pointer(net->xfrm.state_byh, nh);
++#endif
+ 	net->xfrm.state_hmask = nhashmask;
+ 
+ 	write_seqcount_end(&net->xfrm.xfrm_state_hash_generation);
+@@ -219,6 +263,9 @@ static void xfrm_hash_resize(struct work_struct *work)
+ 	xfrm_hash_free(osrc, osize);
+ 	xfrm_hash_free(ospi, osize);
+ 	xfrm_hash_free(oseq, osize);
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++	xfrm_hash_free(oh, osize);
++#endif
+ }
+ 
+ static DEFINE_SPINLOCK(xfrm_state_afinfo_lock);
+@@ -681,6 +728,9 @@ struct xfrm_state *xfrm_state_alloc(struct net *net)
+ 		INIT_HLIST_NODE(&x->bysrc);
+ 		INIT_HLIST_NODE(&x->byspi);
+ 		INIT_HLIST_NODE(&x->byseq);
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++		INIT_HLIST_NODE(&x->byh);
++#endif
+ 		hrtimer_init(&x->mtimer, CLOCK_BOOTTIME, HRTIMER_MODE_ABS_SOFT);
+ 		x->mtimer.function = xfrm_timer_handler;
+ 		timer_setup(&x->rtimer, xfrm_replay_timer_handler, 0);
+@@ -758,6 +808,17 @@ int __xfrm_state_delete(struct xfrm_state *x)
+ 			hlist_del_rcu(&x->byseq);
+ 		if (x->id.spi)
+ 			hlist_del_rcu(&x->byspi);
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++		/*
++		 * if 'handle' value is assigned and xfrm_state is inserted
++		 * into 'byh' hash table, remove it now and reset 'in_byh_hash'
++		 * to zero.
++		 */
++		if (x->handle && x->in_byh_hash) {
++			hlist_del_rcu(&x->byh);
++			x->in_byh_hash = 0;
++		}
++#endif
+ 		net->xfrm.state_num--;
+ 		spin_unlock(&net->xfrm.xfrm_state_lock);
+ 
+@@ -1401,6 +1462,19 @@ xfrm_state_find(const xfrm_address_t *daddr, const xfrm_address_t *saddr,
+ 						  net->xfrm.state_byseq + h,
+ 						  x->xso.type);
+ 			}
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++			/*
++			 * at this point, xfrm_state is activated because it
++			 * has been inserted into other linux original hash
++			 * tables.  it must be inserted into 'byh' hash table
++			 * too if it is not yet inserted.
++			 */
++			if (x->handle && !x->in_byh_hash) {
++				h = (x->handle & net->xfrm.state_hmask);
++				hlist_add_head_rcu(&x->byh, net->xfrm.state_byh + h);
++				x->in_byh_hash = 1;
++			}
++#endif
+ 			x->lft.hard_add_expires_seconds = net->xfrm.sysctl_acq_expires;
+ 			hrtimer_start(&x->mtimer,
+ 				      ktime_set(net->xfrm.sysctl_acq_expires, 0),
+@@ -1557,6 +1631,19 @@ static void __xfrm_state_insert(struct xfrm_state *x)
+ 				  x->xso.type);
+ 	}
+ 
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++	/*
++	 * at this point, xfrm_state is activated because it has been inserted
++	 * into other linux original hash tables.  it must also be inserted
++	 * into 'byh' hash table if it is not yet inserted.
++	 */
++	if (x->handle && !x->in_byh_hash) {
++		h = (x->handle & net->xfrm.state_hmask);
++		hlist_add_head_rcu(&x->byh, net->xfrm.state_byh + h);
++		x->in_byh_hash = 1;
++	}
++#endif
++
+ 	hrtimer_start(&x->mtimer, ktime_set(1, 0), HRTIMER_MODE_REL_SOFT);
+ 	if (x->replay_maxage)
+ 		mod_timer(&x->rtimer, jiffies + x->replay_maxage);
+@@ -1585,8 +1672,19 @@ static void __xfrm_state_bump_genids(struct xfrm_state *xnew)
+ 		    (mark & x->mark.m) == x->mark.v &&
+ 		    xfrm_addr_equal(&x->id.daddr, &xnew->id.daddr, family) &&
+ 		    xfrm_addr_equal(&x->props.saddr, &xnew->props.saddr, family))
++		{
+ 			x->genid++;
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++			if (!parent_sa_handle)
++			{
++				parent_sa_handle = x->handle;
++			}
++#endif
++		}
+ 	}
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++	xnew->parent_sa_handle = parent_sa_handle;
++#endif
+ }
+ 
+ void xfrm_state_insert(struct xfrm_state *x)
+@@ -2103,6 +2201,36 @@ xfrm_state_lookup_byaddr(struct net *net, u32 mark,
+ }
+ EXPORT_SYMBOL(xfrm_state_lookup_byaddr);
+ 
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++struct xfrm_state *__xfrm_state_lookup_byhandle(struct net *net, u16 handle)
++{
++	unsigned int h = (handle & net->xfrm.state_hmask);
++	struct xfrm_state *x;
++
++	hlist_for_each_entry(x, net->xfrm.state_byh + h, byh) {
++		if (x->handle != handle)
++			continue;
++
++		xfrm_state_hold(x);
++		return x;
++	}
++
++	return NULL;
++}
++
++struct xfrm_state *
++xfrm_state_lookup_byhandle(struct net *net, u16 handle)
++{
++	struct xfrm_state *x;
++
++	spin_lock_bh(&net->xfrm.xfrm_state_lock);
++	x = __xfrm_state_lookup_byhandle(net, handle);
++	spin_unlock_bh(&net->xfrm.xfrm_state_lock);
++	return x;
++}
++EXPORT_SYMBOL(xfrm_state_lookup_byhandle);
++#endif
++
+ struct xfrm_state *
+ xfrm_find_acq(struct net *net, const struct xfrm_mark *mark, u8 mode, u32 reqid,
+ 	      u32 if_id, u8 proto, const xfrm_address_t *daddr,
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index 5b3ab4532aec..58cbbfea1094 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -908,6 +908,10 @@ static void copy_to_user_state(struct xfrm_state *x, struct xfrm_usersa_info *p)
+ 	if (x->xso.dev)
+ 		xfrm_dev_state_update_curlft(x);
+ 	memcpy(&p->curlft, &x->curlft, sizeof(p->curlft));
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++	if (x->curr_time)
++		p->curlft.use_time = x->curr_time;
++#endif
+ 	put_unaligned(x->stats.replay_window, &p->stats.replay_window);
+ 	put_unaligned(x->stats.replay, &p->stats.replay);
+ 	put_unaligned(x->stats.integrity_failed, &p->stats.integrity_failed);
+diff --git a/tools/perf/.gitignore b/tools/perf/.gitignore
+index 5a8617eb5419..6ff95fb6267a 100644
+--- a/tools/perf/.gitignore
++++ b/tools/perf/.gitignore
+@@ -3,7 +3,6 @@ PERF-CFLAGS
+ PERF-GUI-VARS
+ PERF-VERSION-FILE
+ FEATURE-DUMP
+-perf
+ !include/perf/
+ perf-read-vdso32
+ perf-read-vdsox32
+diff --git a/include/uapi/linux/netfilter/xt_QOSCONNMARK.h b/include/uapi/linux/netfilter/xt_QOSCONNMARK.h
+new file mode 100644
+index 000000000000..8a0821856c32
+--- /dev/null
++++ b/include/uapi/linux/netfilter/xt_QOSCONNMARK.h
+@@ -0,0 +1,10 @@
++#ifndef _XT_QOSCONNMARK_H_target
++#define _XT_QOSCONNMARK_H_target
++
++#include <linux/netfilter/xt_qosconnmark.h>
++
++#endif /*_XT_QOSCONNMARK_H_target*/
++
++
++
++
+diff --git a/include/uapi/linux/netfilter/xt_QOSMARK.h b/include/uapi/linux/netfilter/xt_QOSMARK.h
+new file mode 100644
+index 000000000000..45c4795aac12
+--- /dev/null
++++ b/include/uapi/linux/netfilter/xt_QOSMARK.h
+@@ -0,0 +1,6 @@
++#ifndef _XT_QOSMARK_H_target
++#define _XT_QOSMARK_H_target
++
++#include <linux/netfilter/xt_qosmark.h>
++
++#endif /*_XT_QOSMARK_H_target */
+diff --git a/include/uapi/linux/netfilter/xt_qosconnmark.h b/include/uapi/linux/netfilter/xt_qosconnmark.h
+new file mode 100644
+index 000000000000..d9901a9bd4fd
+--- /dev/null
++++ b/include/uapi/linux/netfilter/xt_qosconnmark.h
+@@ -0,0 +1,35 @@
++#ifndef _XT_QOSCONNMARK_H
++#define _XT_QOSCONNMARK_H
++
++#include <linux/types.h>
++
++/* Copyright (C) 2002,2004 MARA Systems AB <http://www.marasystems.com>
++    + * by Henrik Nordstrom <hno@marasystems.com>
++    + *
++    + * This program is free software; you can redistribute it and/or modify
++    + * it under the terms of the GNU General Public License as published by
++    + * the Free Software Foundation; either version 2 of the License, or
++    + * (at your option) any later version.
++    + */
++
++enum {
++    XT_QOSCONNMARK_SET = 0,
++    XT_QOSCONNMARK_SAVE_QOSMARK,
++    XT_QOSCONNMARK_RESTORE_QOSMARK
++};
++
++struct xt_qosconnmark_tginfo1 {
++    __u64 mark, ctmask, nfmask;
++    __u8 mode;
++};
++
++struct xt_qosconnmark_mtinfo1 {
++    __u64 mark, mask;
++     __u8 invert;
++};
++
++#endif /*_XT_QOSCONNMARK_H*/
++
++
++
++
+diff --git a/include/uapi/linux/netfilter/xt_qosmark.h b/include/uapi/linux/netfilter/xt_qosmark.h
+new file mode 100644
+index 000000000000..6f80bd016c40
+--- /dev/null
++++ b/include/uapi/linux/netfilter/xt_qosmark.h
+@@ -0,0 +1,19 @@
++#ifndef _XT_QOSMARK_H
++#define _XT_QOSMARK_H
++
++#include <linux/types.h>
++
++struct xt_qosmark_tginfo2 {
++    __u64 mark, mask;
++};
++
++struct xt_qosmark_mtinfo1 {
++    __u64 mark, mask;
++    __u8 invert;
++};
++
++#endif /*_XT_QOSMARK_H*/
++
++
++
++
+diff --git a/net/netfilter/comcerto_fp_netfilter.c b/net/netfilter/comcerto_fp_netfilter.c
+new file mode 100644
+index 000000000000..78a025ce4423
+--- /dev/null
++++ b/net/netfilter/comcerto_fp_netfilter.c
+@@ -0,0 +1,448 @@
++/* Copyright (C) 2015 Freescale Semiconductor, Inc.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *     * Redistributions of source code must retain the above copyright
++ *       notice, this list of conditions and the following disclaimer.
++ *     * Redistributions in binary form must reproduce the above copyright
++ *       notice, this list of conditions and the following disclaimer in the
++ *       documentation and/or other materials provided with the distribution.
++ *     * Neither the name of Freescale Semiconductor nor the
++ *       names of its contributors may be used to endorse or promote products
++ *       derived from this software without specific prior written permission.
++ *
++ *
++ * ALTERNATIVELY, this software may be distributed under the terms of the
++ * GNU General Public License ("GPL") as published by the Free Software
++ * Foundation, either version 2 of that License or (at your option) any
++ * later version.
++ *
++ * THIS SOFTWARE IS PROVIDED BY Freescale Semiconductor ``AS IS'' AND ANY
++ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
++ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
++ * DISCLAIMED. IN NO EVENT SHALL Freescale Semiconductor BE LIABLE FOR ANY
++ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
++ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
++ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
++ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
++ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
++ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ */
++
++#include <linux/module.h>
++#include <linux/version.h>
++#include <linux/kernel.h>
++#include <linux/skbuff.h>
++#include <linux/netfilter.h>
++#include <net/netfilter/nf_conntrack.h>
++#include <net/netfilter/nf_conntrack_ecache.h>
++#include <net/xfrm.h>
++
++#ifndef IPSEC_FLOW_CACHE
++/* this function is used to fill the xfrm info in conntrack structure */
++static void nf_ct_set_xfrm_in_fp(struct sk_buff *skb, struct xfrm_state *xfrm[MAX_SUPPORTED_XFRMS_PER_DIR],
++	int num_xfrm, int xfrm_dir, int *rekey)
++{
++	struct nf_conn *ct;
++	enum ip_conntrack_info ctinfo;
++	struct comcerto_fp_info *fp_info;
++	int dir, xfrm_ind, ii;
++
++	if (num_xfrm > MAX_SUPPORTED_XFRMS_PER_DIR) {
++		printk(KERN_ERR "%s(%d) num_xfrm %d > %d(MAX supported)\n",
++			__FUNCTION__, __LINE__, num_xfrm, MAX_SUPPORTED_XFRMS_PER_DIR);
++		return;
++	}
++
++	/* get ct info */
++	ct = nf_ct_get(skb, &ctinfo);
++	if (!ct)
++		return;
++
++	dir = CTINFO2DIR(ctinfo);
++	if (dir == IP_CT_DIR_ORIGINAL)
++		fp_info = &ct->fp_info[IP_CT_DIR_ORIGINAL];
++	else
++		fp_info = &ct->fp_info[IP_CT_DIR_REPLY];
++
++	if (xfrm_dir == XFRM_POLICY_FWD)
++		xfrm_dir = 0;
++	/* xfrm_dir can be XFRM_POLICY_IN, XFRM_POLICY_OUT, XFRM_POLICY_FWD */
++	/* fp_info->xfrm_id[4] has 4 instances, first 2 instances reserved for direction IN/FWD
++	   next 2 instances for OUT direction */
++	xfrm_ind = xfrm_dir << 1;
++
++	for (ii = 0; ii < num_xfrm; ii++) {
++		if (fp_info->xfrm_handle[xfrm_ind + ii] &&
++		    fp_info->xfrm_handle[xfrm_ind + ii] != xfrm[ii]->handle)
++			*rekey = 1;
++
++		/* filling SA info and xfrm handle */
++		fp_info->xfrm_handle[xfrm_ind + ii] = xfrm[ii]->handle;
++	}
++}
++
++/* this function is used to get the inbound and outbound xfrm info corresponding to
++ * skb, if exist fill in conntrack structure */
++static unsigned int fp_netfilter_get_xfrm_info(struct sk_buff *skb)
++{
++	struct nf_conn *ct;
++	enum ip_conntrack_info ctinfo;
++	struct sec_path *sp;
++	struct xfrm_state *x[2] = {}, *tmp;
++	int num_xfrms = 0, i, dir, rekey = 0;
++	struct dst_entry *dst1 = skb_dst(skb);
++
++	/* get ct info */
++	ct = nf_ct_get(skb, &ctinfo);
++	if (!ct)
++		return NF_ACCEPT;
++
++	/* ctinfo direction [originator/replier] */
++	dir = CTINFO2DIR(ctinfo);
++
++	/* extract the inbound IPSec information if exist */
++	sp = skb_sec_path(skb);
++	if (sp) {
++		for (i = sp->len - 1; (i >= 0) && (num_xfrms < MAX_SUPPORTED_XFRMS_PER_DIR); i--) {
++			x[num_xfrms] = sp->xvec[i];
++			num_xfrms++;
++		}
++		if (num_xfrms)
++			nf_ct_set_xfrm_in_fp(skb, x, num_xfrms, XFRM_POLICY_FWD, &rekey);
++	}
++
++	/* extract the outbound IPSec information if exist */
++	if (dst1 && dst1->xfrm) {
++		for (i = 0; i < MAX_SUPPORTED_XFRMS_PER_DIR; i++)
++			x[i] = 0;
++		num_xfrms = 0;
++
++		while (((tmp = dst1->xfrm) != NULL) && (num_xfrms < MAX_SUPPORTED_XFRMS_PER_DIR)) {
++			x[num_xfrms] = tmp;
++			dst1 = xfrm_dst_child(dst1);
++			num_xfrms++;
++			if (dst1 == NULL) {
++				pr_warn("%s(%d) DST is null\n", __FUNCTION__, __LINE__);
++				break;
++			}
++		}
++		if (num_xfrms)
++			nf_ct_set_xfrm_in_fp(skb, x, num_xfrms, XFRM_POLICY_OUT, &rekey);
++	}
++
++	/* if there is a change in ipsec info, send rekey conntrack event */
++	if (rekey)
++		nf_conntrack_event_cache(IPCT_PROTOINFO, ct);
++
++	return NF_ACCEPT;
++}
++#endif /* IPSEC_FLOW_CACHE */
++
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
++static unsigned int fp_netfilter_pre_routing(int family, const struct nf_hook_state *state, struct sk_buff *skb)
++#else
++static unsigned int fp_netfilter_pre_routing(int family, const struct nf_hook_ops *ops, struct sk_buff *skb)
++#endif
++{
++	struct nf_conn *ct;
++	u_int8_t protonum;
++	enum ip_conntrack_info ctinfo;
++	struct comcerto_fp_info *fp_info;
++	int dir;
++
++	ct = nf_ct_get(skb, &ctinfo);
++	if (!ct)
++		goto done;
++
++	protonum = nf_ct_protonum(ct);
++	if ((protonum != IPPROTO_TCP) && (protonum != IPPROTO_UDP) &&
++	    (protonum != IPPROTO_IPIP) && (protonum != IPPROTO_IPV6) &&
++#ifdef CONFIG_CPE_ETHERIP
++	    (protonum != IPPROTO_ETHERIP) &&
++#endif
++	    (protonum != IPPROTO_GRE) && (protonum != IPPROTO_ESP) && (protonum != IPPROTO_AH))
++		goto done;
++
++	dir = CTINFO2DIR(ctinfo);
++
++	if (dir == IP_CT_DIR_ORIGINAL)
++		fp_info = &ct->fp_info[IP_CT_DIR_ORIGINAL];
++	else
++		fp_info = &ct->fp_info[IP_CT_DIR_REPLY];
++
++	/* Log changes via dynamic debug (enable with dyndbg) */
++	if (fp_info->mark && (fp_info->mark != skb->mark))
++		pr_debug("fp_pre: mark changed %x -> %x\n", fp_info->mark, skb->mark);
++
++	if (fp_info->ifindex && (fp_info->ifindex != skb->dev->ifindex))
++		pr_debug("fp_pre: ifindex changed %d -> %d\n", fp_info->ifindex, skb->dev->ifindex);
++
++if (fp_info->iif_index && (fp_info->iif_index != skb->skb_iif))
++pr_debug("fp_pre: iif changed %d -> %d\n", fp_info->iif_index, skb->skb_iif);
++
++fp_info->mark = skb->mark;
++fp_info->ifindex = skb->dev->ifindex;
++/* skb->skb_iif is set by netif_receive_skb() to the original input interface.
++ * For forwarded packets iif_index != 0; for locally generated packets it's 0 or
++ * equals the output device depending on routing, but local_out hook forces it to 0. */
++fp_info->iif_index = skb->skb_iif;
++
++done:
++	return NF_ACCEPT;
++}
++
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
++static unsigned int fp_netfilter_local_out(int family, const struct nf_hook_state *state, struct sk_buff *skb)
++#else
++static unsigned int fp_netfilter_local_out(int family, const struct nf_hook_ops *ops, struct sk_buff *skb)
++#endif
++{
++	struct nf_conn *ct;
++	u_int8_t protonum;
++	enum ip_conntrack_info ctinfo;
++	struct comcerto_fp_info *fp_info;
++	int dir, update_event = 0;
++
++	ct = nf_ct_get(skb, &ctinfo);
++	if (!ct)
++		goto done;
++
++	protonum = nf_ct_protonum(ct);
++#ifdef CONFIG_CPE_ETHERIP
++	if ((protonum != IPPROTO_ETHERIP) && (protonum != IPPROTO_IPIP) &&
++	    (protonum != IPPROTO_IPV6) && (protonum != IPPROTO_GRE))
++#else
++	if ((protonum != IPPROTO_IPIP) && (protonum != IPPROTO_IPV6) && (protonum != IPPROTO_GRE))
++		goto done;
++#endif
++
++	dir = CTINFO2DIR(ctinfo);
++
++	if (dir == IP_CT_DIR_ORIGINAL)
++		fp_info = &ct->fp_info[IP_CT_DIR_ORIGINAL];
++	else
++		fp_info = &ct->fp_info[IP_CT_DIR_REPLY];
++
++	if (fp_info->mark && (fp_info->mark != skb->mark))
++		pr_debug("fp_out: mark changed %x -> %x\n", fp_info->mark, skb->mark);
++
++	if ((fp_info->ifindex) && (skb->dev) && (fp_info->ifindex != skb->dev->ifindex)) {
++		pr_debug("fp_out: ifindex changed %d -> %d\n", fp_info->ifindex, skb->dev->ifindex);
++		update_event = 1;
++	}
++
++	fp_info->mark = skb->mark;
++	if (skb->dev)
++		fp_info->ifindex = skb->dev->ifindex;
++
++	if (update_event == 1)
++		nf_conntrack_event_cache(IPCT_PROTOINFO, ct);
++
++	fp_info->iif_index = 0; /* To identify the connection as local connection */
++
++#ifndef IPSEC_FLOW_CACHE
++	/* fill xfrm info in conntrack structure */
++	return (fp_netfilter_get_xfrm_info(skb));
++#endif /* IPSEC_FLOW_CACHE */
++done:
++	return NF_ACCEPT;
++}
++
++#ifndef IPSEC_FLOW_CACHE
++/* this post routing hook is introduced to gather the xfrm information
++ * corresponding to ctinfo of skb and fill it in conntrack structure.
++ * This is required to take the xfrm info of ctinfo part of conntrack message
++ * to user space
++ */
++static unsigned int fp_ip_netfilter_post_routing(void *priv,
++	struct sk_buff *skb,
++	const struct nf_hook_state *state)
++{
++	return (fp_netfilter_get_xfrm_info(skb));
++}
++#endif /* IPSEC_FLOW_CACHE */
++
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
++static unsigned int fp_ipv4_netfilter_pre_routing(void *priv,
++	struct sk_buff *skb,
++	const struct nf_hook_state *state)
++#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0)
++static unsigned int fp_ipv4_netfilter_pre_routing(const struct nf_hook_ops *ops,
++	struct sk_buff *skb,
++	const struct nf_hook_state *state)
++#else
++static unsigned int fp_ipv4_netfilter_pre_routing(const struct nf_hook_ops *ops,
++	struct sk_buff *skb,
++	const struct net_device *in,
++	const struct net_device *out,
++	int (*okfn)(struct sk_buff *))
++#endif
++{
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
++	return fp_netfilter_pre_routing(PF_INET, state, skb);
++#else
++	return fp_netfilter_pre_routing(PF_INET, ops, skb);
++#endif
++}
++
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
++static unsigned int fp_ipv6_netfilter_pre_routing(void *priv,
++	struct sk_buff *skb,
++	const struct nf_hook_state *state)
++#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0)
++static unsigned int fp_ipv6_netfilter_pre_routing(const struct nf_hook_ops *ops,
++	struct sk_buff *skb,
++	const struct nf_hook_state *state)
++#else
++static unsigned int fp_ipv6_netfilter_pre_routing(const struct nf_hook_ops *ops,
++	struct sk_buff *skb,
++	const struct net_device *in,
++	const struct net_device *out,
++	int (*okfn)(struct sk_buff *))
++#endif
++{
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
++	return fp_netfilter_pre_routing(PF_INET6, state, skb);
++#else
++	return fp_netfilter_pre_routing(PF_INET6, ops, skb);
++#endif
++}
++
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
++static unsigned int fp_ipv4_netfilter_local_out(void *priv,
++	struct sk_buff *skb,
++	const struct nf_hook_state *state)
++#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0)
++static unsigned int fp_ipv4_netfilter_local_out(const struct nf_hook_ops *ops,
++	struct sk_buff *skb,
++	const struct nf_hook_state *state)
++#else
++static unsigned int fp_ipv4_netfilter_local_out(const struct nf_hook_ops *ops,
++	struct sk_buff *skb,
++	const struct net_device *in,
++	const struct net_device *out,
++	int (*okfn)(struct sk_buff *))
++#endif
++{
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
++	return fp_netfilter_local_out(PF_INET, state, skb);
++#else
++	return fp_netfilter_local_out(PF_INET, ops, skb);
++#endif
++}
++
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
++static unsigned int fp_ipv6_netfilter_local_out(void *priv,
++	struct sk_buff *skb,
++	const struct nf_hook_state *state)
++#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0)
++static unsigned int fp_ipv6_netfilter_local_out(const struct nf_hook_ops *ops,
++	struct sk_buff *skb,
++	const struct nf_hook_state *state)
++#else
++static unsigned int fp_ipv6_netfilter_local_out(const struct nf_hook_ops *ops,
++	struct sk_buff *skb,
++	const struct net_device *in,
++	const struct net_device *out,
++	int (*okfn)(struct sk_buff *))
++#endif
++{
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
++	return fp_netfilter_local_out(PF_INET6, state, skb);
++#else
++	return fp_netfilter_local_out(PF_INET6, ops, skb);
++#endif
++}
++
++static struct nf_hook_ops fp_netfilter_ops[] __read_mostly = {
++	{
++		.hook		= fp_ipv4_netfilter_pre_routing,
++		.pf		= NFPROTO_IPV4,
++		.hooknum	= NF_INET_PRE_ROUTING,
++		.priority	= NF_IP_PRI_LAST,
++	},
++	{
++		.hook		= fp_ipv6_netfilter_pre_routing,
++		.pf		= NFPROTO_IPV6,
++		.hooknum	= NF_INET_PRE_ROUTING,
++		.priority	= NF_IP_PRI_LAST,
++	},
++	/* For local_out packets, routing will be done
++	   1. before entering the LOCAL_OUT hook
++	   2. and at the completion of all mangle rules,
++	   if there are changes to the packet like mark etc
++
++	   So NF_IP_PRI_LAST priority is used here to receive
++	   the mark value of the packet, at the end of all changes.
++	 */
++	{
++		.hook		= fp_ipv4_netfilter_local_out,
++		.pf		= NFPROTO_IPV4,
++		.hooknum	= NF_INET_LOCAL_OUT,
++		.priority	= NF_IP_PRI_LAST - 1,
++	},
++	{
++		.hook		= fp_ipv6_netfilter_local_out,
++		.pf		= NFPROTO_IPV6,
++		.hooknum	= NF_INET_LOCAL_OUT,
++		.priority	= NF_IP_PRI_LAST - 1,
++	},
++#ifndef IPSEC_FLOW_CACHE
++	{
++		.hook		= fp_ip_netfilter_post_routing,
++		.pf		= NFPROTO_IPV4,
++		.hooknum	= NF_INET_POST_ROUTING,
++		.priority	= NF_IP_PRI_LAST - 1,
++	},
++	{
++		.hook		= fp_ip_netfilter_post_routing,
++		.pf		= NFPROTO_IPV6,
++		.hooknum	= NF_INET_POST_ROUTING,
++		.priority	= NF_IP_PRI_LAST - 1,
++	},
++#endif
++};
++
++static int __init fp_netfilter_init(void)
++{
++	int rc;
++
++	/*
++	 * Force-register conntrack hooks in init_net.
++	 * Kernel 6.6 lazy-loads conntrack hooks — they only activate when an
++	 * nftables chain uses a 'ct' expression (e.g., ct state new).  ASK
++	 * needs conntrack active to populate fp_info on every tracked flow.
++	 * Calling nf_ct_netns_get() increments the conntrack refcount for this
++	 * netns, which registers the PREROUTING/OUTPUT conntrack hooks if they
++	 * haven't been registered yet.  This ensures conntrack tracking works
++	 * even on TFTP dev boot where nftables modules may not be available.
++	 */
++	rc = nf_ct_netns_get(&init_net, NFPROTO_INET);
++	if (rc < 0) {
++		pr_warn("ASK fp_netfilter: nf_ct_netns_get failed (%d), conntrack may not track\n", rc);
++		/* Non-fatal: continue with hook registration */
++	}
++
++	rc = nf_register_net_hooks(&init_net, fp_netfilter_ops, ARRAY_SIZE(fp_netfilter_ops));
++	if (rc < 0) {
++		printk(KERN_ERR "fp_netfilter_ops: can't register hooks.\n");
++		nf_ct_netns_put(&init_net, NFPROTO_INET);
++		goto err0;
++	}
++
++	pr_info("ASK fp_netfilter: hooks registered + conntrack force-enabled\n");
++	return 0;
++
++err0:
++	return rc;
++}
++
++static void __exit fp_netfilter_exit(void)
++{
++	nf_unregister_net_hooks(&init_net, fp_netfilter_ops, ARRAY_SIZE(fp_netfilter_ops));
++	nf_ct_netns_put(&init_net, NFPROTO_INET);
++}
++
++module_init(fp_netfilter_init);
++module_exit(fp_netfilter_exit);
+\ No newline at end of file
 diff --git a/net/netfilter/xt_qosconnmark.c b/net/netfilter/xt_qosconnmark.c
 new file mode 100644
-index 0000000000000..a47f1ad051684
+index 000000000000..a47f1ad05168
 --- /dev/null
 +++ b/net/netfilter/xt_qosconnmark.c
 @@ -0,0 +1,171 @@
@@ -4782,7 +5420,7 @@ index 0000000000000..a47f1ad051684
 +
 diff --git a/net/netfilter/xt_qosmark.c b/net/netfilter/xt_qosmark.c
 new file mode 100644
-index 0000000000000..771edb1f812f4
+index 000000000000..771edb1f812f
 --- /dev/null
 +++ b/net/netfilter/xt_qosmark.c
 @@ -0,0 +1,85 @@
@@ -4871,66 +5509,18 @@ index 0000000000000..771edb1f812f4
 +module_exit(qosmark_mt_exit);
 +
 +
-diff --git a/net/wireless/Kconfig b/net/wireless/Kconfig
-index f620acd2a0f5e..3d3c91ed1932f 100644
---- a/net/wireless/Kconfig
-+++ b/net/wireless/Kconfig
-@@ -1,6 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0-only
- config WIRELESS_EXT
--	bool
-+	def_bool y
- 
- config WEXT_CORE
- 	def_bool y
-@@ -12,10 +12,10 @@ config WEXT_PROC
- 	depends on WEXT_CORE
- 
- config WEXT_SPY
--	bool
-+	def_bool y
- 
- config WEXT_PRIV
--	bool
-+	def_bool y
- 
- config CFG80211
- 	tristate "cfg80211 - wireless configuration API"
-diff --git a/net/wireless/wext-core.c b/net/wireless/wext-core.c
-index 838ad6541a17d..862c47191b46d 100644
---- a/net/wireless/wext-core.c
-+++ b/net/wireless/wext-core.c
-@@ -984,6 +984,9 @@ static int wireless_process_ioctl(struct net *net, struct iwreq *iwr,
- 		else if (private)
- 			return private(dev, iwr, cmd, info, handler);
- 	}
-+	/* Old driver API : call driver ioctl handler */
-+	if (dev->netdev_ops->ndo_do_ioctl)
-+		return dev->netdev_ops->ndo_do_ioctl(dev, (struct ifreq *)iwr, cmd);
- 	return -EOPNOTSUPP;
- }
- 
-diff --git a/net/xfrm/Makefile b/net/xfrm/Makefile
-index cd47f88921f59..5a92bcedb4202 100644
---- a/net/xfrm/Makefile
-+++ b/net/xfrm/Makefile
-@@ -21,3 +21,4 @@ obj-$(CONFIG_XFRM_USER_COMPAT) += xfrm_compat.o
- obj-$(CONFIG_XFRM_IPCOMP) += xfrm_ipcomp.o
- obj-$(CONFIG_XFRM_INTERFACE) += xfrm_interface.o
- obj-$(CONFIG_XFRM_ESPINTCP) += espintcp.o
-+obj-$(CONFIG_INET_IPSEC_OFFLOAD) += ipsec_flow.o
 diff --git a/net/xfrm/ipsec_flow.c b/net/xfrm/ipsec_flow.c
 new file mode 100644
-index 0000000000000..55f5a38568883
+index 000000000000..d982bfbb6c72
 --- /dev/null
 +++ b/net/xfrm/ipsec_flow.c
-@@ -0,0 +1,221 @@
+@@ -0,0 +1,223 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/* Maintain IPSec flow table for ASK fast path
 + *
 + * Copyright 2019 NXP
 + */
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET_IPSEC_OFFLOAD_MODULE) || defined(CONFIG_INET6_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD_MODULE)
 +#include <linux/kernel.h>
 +#include <linux/module.h>
 +#include <linux/list.h>
@@ -5144,11 +5734,13 @@ index 0000000000000..55f5a38568883
 +	kfree(ft->hash_table);
 +}
 +EXPORT_SYMBOL(ipsec_flow_fini);
++
++MODULE_LICENSE("GPL");
 +#endif
 +
 diff --git a/net/xfrm/ipsec_flow.h b/net/xfrm/ipsec_flow.h
 new file mode 100644
-index 0000000000000..ee8a7fa571b8d
+index 000000000000..07eed6985154
 --- /dev/null
 +++ b/net/xfrm/ipsec_flow.h
 @@ -0,0 +1,31 @@
@@ -5157,7 +5749,7 @@ index 0000000000000..ee8a7fa571b8d
 + *
 + * Copyright 2019 NXP
 + */
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
++#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET_IPSEC_OFFLOAD_MODULE) || defined(CONFIG_INET6_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD_MODULE)
 +#include <linux/kernel.h>
 +#include <linux/list.h>
 +#include <linux/mutex.h>
@@ -5183,615 +5775,3 @@ index 0000000000000..ee8a7fa571b8d
 +int ipsec_flow_add(struct net *net, const struct flowi *flow, u16 family, u8 dir, u16 *xfrm_handle);
 +#endif
 +
-diff --git a/net/xfrm/xfrm_input.c b/net/xfrm/xfrm_input.c
-index 0c08bac3ed269..2bc22d0fa4de8 100644
---- a/net/xfrm/xfrm_input.c
-+++ b/net/xfrm/xfrm_input.c
-@@ -43,6 +43,10 @@ struct xfrm_trans_cb {
- 
- #define XFRM_TRANS_SKB_CB(__skb) ((struct xfrm_trans_cb *)&((__skb)->cb[0]))
- 
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+extern int dpaa_submit_inb_pkt_to_SEC(struct sk_buff *skb, uint16_t sagd);
-+#endif /* IPSEC */
-+
- static DEFINE_SPINLOCK(xfrm_input_afinfo_lock);
- static struct xfrm_input_afinfo const __rcu *xfrm_input_afinfo[2][AF_INET6 + 1];
- 
-@@ -590,6 +594,16 @@ int xfrm_input(struct sk_buff *skb, int nexthdr, __be32 spi, int encap_type)
- 			goto drop;
- 		}
- 
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+		/*net_crit_ratelimited("%s(%d) x->handle %d, mac hdr %p, data %p\n",
-+			__FUNCTION__,__LINE__, x->handle, skb_mac_header(skb), skb->data);  */
-+		/* check if the corresponding SA is offloaded,
-+		   then submit the packet to SEC engine */
-+
-+		if ((x->offloaded) && 
-+		    !(dpaa_submit_inb_pkt_to_SEC(skb, x->handle)))
-+			return 0;
-+#endif /* IPSEC offload end */
- lock:
- 		spin_lock(&x->lock);
- 
-diff --git a/net/xfrm/xfrm_output.c b/net/xfrm/xfrm_output.c
-index e5722c95b8bb3..2806c59dbd3b7 100644
---- a/net/xfrm/xfrm_output.c
-+++ b/net/xfrm/xfrm_output.c
-@@ -67,6 +67,10 @@ static int xfrm4_transport_output(struct xfrm_state *x, struct sk_buff *skb)
- 	struct iphdr *iph = ip_hdr(skb);
- 	int ihl = iph->ihl * 4;
- 
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD)
-+	if(skb->ipsec_offload)
-+		return 0;
-+#endif
- 	skb_set_inner_transport_header(skb, skb_transport_offset(skb));
- 
- 	skb_set_network_header(skb, -x->props.header_len);
-@@ -167,6 +171,10 @@ static int xfrm6_transport_output(struct xfrm_state *x, struct sk_buff *skb)
- 	u8 *prevhdr;
- 	int hdr_len;
- 
-+#if defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+	if(skb->ipsec_offload)
-+		return 0;
-+#endif
- 	iph = ipv6_hdr(skb);
- 	skb_set_inner_transport_header(skb, skb_transport_offset(skb));
- 
-@@ -413,6 +421,10 @@ static int xfrm4_prepare_output(struct xfrm_state *x, struct sk_buff *skb)
- 	IPCB(skb)->flags |= IPSKB_XFRM_TUNNEL_SIZE;
- 	skb->protocol = htons(ETH_P_IP);
- 
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+	if (skb->ipsec_offload)
-+		return 0;
-+#endif
- 	switch (x->props.mode) {
- 	case XFRM_MODE_BEET:
- 		return xfrm4_beet_encap_add(x, skb);
-@@ -436,6 +448,10 @@ static int xfrm6_prepare_output(struct xfrm_state *x, struct sk_buff *skb)
- 	skb->ignore_df = 1;
- 	skb->protocol = htons(ETH_P_IPV6);
- 
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+	if (skb->ipsec_offload)
-+		return 0;
-+#endif
- 	switch (x->props.mode) {
- 	case XFRM_MODE_BEET:
- 		return xfrm6_beet_encap_add(x, skb);
-@@ -492,11 +508,40 @@ static int xfrm_output_one(struct sk_buff *skb, int err)
- 	struct dst_entry *dst = skb_dst(skb);
- 	struct xfrm_state *x = dst->xfrm;
- 	struct net *net = xs_net(x);
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+	struct xfrm_state *xfrm_vec[XFRM_MAX_DEPTH];
-+	int xfrm_nr = 0;
-+	int i;
-+	struct sec_path *sp;
-+#endif
- 
- 	if (err <= 0 || x->xso.type == XFRM_DEV_OFFLOAD_PACKET)
- 		goto resume;
- 
- 	do {
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+		if (x->offloaded) {
-+			if (xfrm_nr == XFRM_MAX_DEPTH) {
-+				err = -ENOBUFS;
-+				goto out;
-+			}
-+
-+			if (!x->curlft.use_time)
-+				x->curlft.use_time = ktime_get_real_seconds();
-+
-+			xfrm_state_hold(x);
-+			xfrm_vec[xfrm_nr++] = x;
-+			skb->ipsec_offload = 1;
-+
-+			err = xfrm_outer_mode_output(x, skb);
-+			if (err) {
-+				XFRM_INC_STATS(net, LINUX_MIB_XFRMOUTSTATEMODEERROR);
-+				goto error_nolock;
-+			}
-+			goto next_dst;
-+		}
-+#endif
-+
- 		err = xfrm_skb_check_space(skb);
- 		if (err) {
- 			XFRM_INC_STATS(net, LINUX_MIB_XFRMOUTERROR);
-@@ -561,6 +606,9 @@ static int xfrm_output_one(struct sk_buff *skb, int err)
- 			goto error_nolock;
- 		}
- 
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+next_dst:
-+#endif
- 		dst = skb_dst_pop(skb);
- 		if (!dst) {
- 			XFRM_INC_STATS(net, LINUX_MIB_XFRMOUTERROR);
-@@ -571,11 +619,40 @@ static int xfrm_output_one(struct sk_buff *skb, int err)
- 		x = dst->xfrm;
- 	} while (x && !(x->outer_mode.flags & XFRM_MODE_FLAG_TUNNEL));
- 
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+	if (!(sp = skb_sec_path(skb))) {
-+
-+		sp = secpath_set(skb);
-+		if (!sp)
-+			goto error_nolock;
-+	}
-+
-+	/* Hub and spoke changes: Resetting the POLICY_IN SA and setting only the 
-+	   POLICY_OUT SA */
-+	if (skb->ipsec_xfrm_dir & ( 1 << XFRM_POLICY_IN))
-+	{
-+		sp->len = 0;
-+		skb->ipsec_xfrm_dir &= ~ ( 1 << XFRM_POLICY_IN);
-+	}
-+
-+	if (xfrm_nr + sp->len > XFRM_MAX_DEPTH)
-+		goto error_nolock;
-+
-+	memcpy(sp->xvec + sp->len, xfrm_vec,
-+			xfrm_nr * sizeof(xfrm_vec[0]));
-+	sp->len += xfrm_nr;
-+#endif
-+
-+
- 	return 0;
- 
- error:
- 	spin_unlock_bh(&x->lock);
- error_nolock:
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+	for (i = 0; i < xfrm_nr; i++)
-+		xfrm_state_put(xfrm_vec[i]);
-+#endif
- 	kfree_skb(skb);
- out:
- 	return err;
-@@ -821,10 +898,20 @@ static int xfrm4_extract_output(struct xfrm_state *x, struct sk_buff *skb)
- 	if (err)
- 		return err;
- 
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+	if (skb->ipsec_offload == 0) {
-+		XFRM_MODE_SKB_CB(skb)->protocol = ip_hdr(skb)->protocol;
-+		xfrm4_extract_header(skb);
-+		return 0;
-+	} else {
-+		return 0;
-+	}
-+#else
- 	XFRM_MODE_SKB_CB(skb)->protocol = ip_hdr(skb)->protocol;
- 
- 	xfrm4_extract_header(skb);
- 	return 0;
-+#endif
- }
- 
- #if IS_ENABLED(CONFIG_IPV6)
-@@ -868,10 +955,18 @@ static int xfrm6_extract_output(struct xfrm_state *x, struct sk_buff *skb)
- 	if (err)
- 		return err;
- 
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+	if (skb->ipsec_offload == 0) {
-+		XFRM_MODE_SKB_CB(skb)->protocol = ipv6_hdr(skb)->nexthdr;
-+		xfrm6_extract_header(skb);
-+	}
-+	return 0;
-+#else
- 	XFRM_MODE_SKB_CB(skb)->protocol = ipv6_hdr(skb)->nexthdr;
- 
- 	xfrm6_extract_header(skb);
- 	return 0;
-+#endif
- #else
- 	WARN_ON_ONCE(1);
- 	return -EAFNOSUPPORT;
-diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-index b699cc2ec35ac..8882db05455f7 100644
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -46,6 +46,11 @@
- #endif
- 
- #include "xfrm_hash.h"
-+#ifdef IPSEC_FLOW_CACHE
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+#include "ipsec_flow.h"
-+#endif
-+#endif
- 
- #define XFRM_QUEUE_TMO_MIN ((unsigned)(HZ/10))
- #define XFRM_QUEUE_TMO_MAX ((unsigned)(60*HZ))
-@@ -158,6 +163,15 @@ static struct xfrm_policy_afinfo const __rcu *xfrm_policy_afinfo[AF_INET6 + 1]
- 
- static struct kmem_cache *xfrm_dst_cache __ro_after_init;
- 
-+#ifdef IPSEC_FLOW_CACHE
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+extern int ipsec_nlkey_flow(u16 xfrm_nr, u16 *xfrm_handle,
-+		const struct flowi *fl, u16 family, u16 dir, u16 ignore_neigh);
-+int ipsec_flow_init(struct net *net);
-+void ipsec_flow_fini(struct net *net);
-+#endif
-+#endif
-+
- static struct rhashtable xfrm_policy_inexact_table;
- static const struct rhashtable_params xfrm_pol_inexact_params;
- 
-@@ -2536,7 +2550,11 @@ xfrm_tmpl_resolve(struct xfrm_policy **pols, int npols, const struct flowi *fl,
- 
- }
- 
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+int xfrm_get_tos(const struct flowi *fl, int family)
-+#else
- static int xfrm_get_tos(const struct flowi *fl, int family)
-+#endif
- {
- 	if (family == AF_INET)
- 		return IPTOS_RT_MASK & fl->u.ip4.flowi4_tos;
-@@ -2603,6 +2621,9 @@ static inline int xfrm_fill_dst(struct xfrm_dst *xdst, struct net_device *dev,
- 
- 	return err;
- }
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+EXPORT_SYMBOL(xfrm_get_tos);
-+#endif
- 
- 
- /* Allocate chain of dst_entry's, attach known xfrm's, calculate
-@@ -3236,6 +3257,10 @@ struct dst_entry *xfrm_lookup_with_ifid(struct net *net,
- 		dst_release(dst);
- 		dst = dst_orig;
- 	}
-+
-+#ifdef CONFIG_INET_IPSEC_OFFLOAD
-+	ipsec_flow_cache_resolve(net, fl, dst, family);
-+#endif
- ok:
- 	xfrm_pols_put(pols, drop_pols);
- 	if (dst && dst->xfrm &&
-@@ -3758,6 +3783,31 @@ int __xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb,
- 			goto reject;
- 		}
- 
-+#ifdef IPSEC_FLOW_CACHE
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+		{
-+			struct xfrm_state *x;
-+			u16 xfrm_handle[XFRM_POLICY_TYPE_MAX];
-+
-+			xfrm_nr = 0;
-+			memset(xfrm_handle, 0, XFRM_POLICY_TYPE_MAX * sizeof(u16));
-+			for (i = sp->len - 1; (i >= 0) && (xfrm_nr < XFRM_POLICY_TYPE_MAX); i--) {
-+				x = sp->xvec[i];
-+				xfrm_handle[xfrm_nr++] = x->handle;
-+			}
-+			if (ipsec_flow_add(net, (const struct flowi *)&fl, family, dir, xfrm_handle)) {
-+				/* sent flow notification to cmm with sa_handle */
-+				ipsec_nlkey_flow(xfrm_nr, xfrm_handle, (const struct flowi *)&fl, family, dir, 0);
-+			}
-+		}
-+
-+		/* Hub and spoke changes: Setting the POLICY_IN direction in the packet */
-+		skb->ipsec_xfrm_dir |= (1 << XFRM_POLICY_IN);
-+
-+std_path:
-+#endif
-+#endif
-+
- 		xfrm_pols_put(pols, npols);
- 		sp->verified_cnt = k;
- 
-@@ -4226,11 +4276,18 @@ static int __net_init xfrm_net_init(struct net *net)
- 	if (rv < 0)
- 		goto out_policy;
- 	rv = xfrm_sysctl_init(net);
-+
-+	rv = ipsec_flow_net_init(net);
-+	if (rv < 0)
-+		goto out_ipsec_flow;
- 	if (rv < 0)
- 		goto out_sysctl;
- 
- 	return 0;
- 
-+out_ipsec_flow:
-+	ipsec_flow_net_fini(net);
-+	xfrm_sysctl_fini(net);
- out_sysctl:
- 	xfrm_policy_fini(net);
- out_policy:
-@@ -4243,6 +4300,7 @@ static int __net_init xfrm_net_init(struct net *net)
- 
- static void __net_exit xfrm_net_exit(struct net *net)
- {
-+	ipsec_flow_net_fini(net);
- 	xfrm_sysctl_fini(net);
- 	xfrm_policy_fini(net);
- 	xfrm_state_fini(net);
-diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index 8a6e8656d014f..d4080c9750b57 100644
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -17,6 +17,7 @@
- #include <linux/compat.h>
- #include <linux/workqueue.h>
- #include <net/xfrm.h>
-+#include "ipsec_flow.h"
- #include <linux/pfkeyv2.h>
- #include <linux/ipsec.h>
- #include <linux/module.h>
-@@ -56,6 +57,9 @@ static inline bool xfrm_state_hold_rcu(struct xfrm_state __rcu *x)
- 	return refcount_inc_not_zero(&x->refcnt);
- }
- 
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+static unsigned short xfrm_state_handle;
-+#endif
- static inline unsigned int xfrm_dst_hash(struct net *net,
- 					 const xfrm_address_t *daddr,
- 					 const xfrm_address_t *saddr,
-@@ -104,12 +108,22 @@ static unsigned int xfrm_seq_hash(struct net *net, u32 seq)
- 			hlist_add_before_rcu(_n, &_x->by);                 \
- 	}
- 
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+static void xfrm_hash_transfer(struct hlist_head *list,
-+			       struct hlist_head *ndsttable,
-+			       struct hlist_head *nsrctable,
-+			       struct hlist_head *nspitable,
-+			       struct hlist_head *nseqtable,
-+			       struct hlist_head *nhtable,
-+			       unsigned int nhashmask)
-+#else
- static void xfrm_hash_transfer(struct hlist_head *list,
- 			       struct hlist_head *ndsttable,
- 			       struct hlist_head *nsrctable,
- 			       struct hlist_head *nspitable,
- 			       struct hlist_head *nseqtable,
- 			       unsigned int nhashmask)
-+#endif
- {
- 	struct hlist_node *tmp;
- 	struct xfrm_state *x;
-@@ -140,6 +154,13 @@ static void xfrm_hash_transfer(struct hlist_head *list,
- 			XFRM_STATE_INSERT(byseq, &x->byseq, nseqtable + h,
- 					  x->xso.type);
- 		}
-+
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+		if (x->handle && x->in_byh_hash) {
-+			h = (x->handle & nhashmask);
-+			hlist_add_head_rcu(&x->byh, nhtable + h);
-+		}
-+#endif
- 	}
- }
- 
-@@ -152,6 +173,9 @@ static void xfrm_hash_resize(struct work_struct *work)
- {
- 	struct net *net = container_of(work, struct net, xfrm.state_hash_work);
- 	struct hlist_head *ndst, *nsrc, *nspi, *nseq, *odst, *osrc, *ospi, *oseq;
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+	struct hlist_head *nh, *oh;
-+#endif
- 	unsigned long nsize, osize;
- 	unsigned int nhashmask, ohashmask;
- 	int i;
-@@ -178,6 +202,16 @@ static void xfrm_hash_resize(struct work_struct *work)
- 		xfrm_hash_free(nspi, nsize);
- 		return;
- 	}
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+	nh = xfrm_hash_alloc(nsize);
-+	if (!nh) {
-+		xfrm_hash_free(ndst, nsize);
-+		xfrm_hash_free(nsrc, nsize);
-+		xfrm_hash_free(nspi, nsize);
-+		xfrm_hash_free(nseq, nsize);
-+		return;
-+	}
-+#endif
- 
- 	spin_lock_bh(&net->xfrm.xfrm_state_lock);
- 	write_seqcount_begin(&net->xfrm.xfrm_state_hash_generation);
-@@ -185,17 +219,27 @@ static void xfrm_hash_resize(struct work_struct *work)
- 	nhashmask = (nsize / sizeof(struct hlist_head)) - 1U;
- 	odst = xfrm_state_deref_prot(net->xfrm.state_bydst, net);
- 	for (i = net->xfrm.state_hmask; i >= 0; i--)
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+		xfrm_hash_transfer(odst + i, ndst, nsrc, nspi, nseq, nh, nhashmask);
-+#else
- 		xfrm_hash_transfer(odst + i, ndst, nsrc, nspi, nseq, nhashmask);
-+#endif
- 
- 	osrc = xfrm_state_deref_prot(net->xfrm.state_bysrc, net);
- 	ospi = xfrm_state_deref_prot(net->xfrm.state_byspi, net);
- 	oseq = xfrm_state_deref_prot(net->xfrm.state_byseq, net);
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+	oh = xfrm_state_deref_prot(net->xfrm.state_byh, net);
-+#endif
- 	ohashmask = net->xfrm.state_hmask;
- 
- 	rcu_assign_pointer(net->xfrm.state_bydst, ndst);
- 	rcu_assign_pointer(net->xfrm.state_bysrc, nsrc);
- 	rcu_assign_pointer(net->xfrm.state_byspi, nspi);
- 	rcu_assign_pointer(net->xfrm.state_byseq, nseq);
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+	rcu_assign_pointer(net->xfrm.state_byh, nh);
-+#endif
- 	net->xfrm.state_hmask = nhashmask;
- 
- 	write_seqcount_end(&net->xfrm.xfrm_state_hash_generation);
-@@ -209,6 +253,9 @@ static void xfrm_hash_resize(struct work_struct *work)
- 	xfrm_hash_free(osrc, osize);
- 	xfrm_hash_free(ospi, osize);
- 	xfrm_hash_free(oseq, osize);
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+	xfrm_hash_free(oh, osize);
-+#endif
- }
- 
- static DEFINE_SPINLOCK(xfrm_state_afinfo_lock);
-@@ -669,6 +716,9 @@ struct xfrm_state *xfrm_state_alloc(struct net *net)
- 		INIT_HLIST_NODE(&x->bysrc);
- 		INIT_HLIST_NODE(&x->byspi);
- 		INIT_HLIST_NODE(&x->byseq);
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+		INIT_HLIST_NODE(&x->byh);
-+#endif
- 		hrtimer_init(&x->mtimer, CLOCK_BOOTTIME, HRTIMER_MODE_ABS_SOFT);
- 		x->mtimer.function = xfrm_timer_handler;
- 		timer_setup(&x->rtimer, xfrm_replay_timer_handler, 0);
-@@ -751,6 +801,17 @@ int __xfrm_state_delete(struct xfrm_state *x)
- 			hlist_del_rcu(&x->byseq);
- 		if (x->id.spi)
- 			hlist_del_rcu(&x->byspi);
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+		/*
-+		 * if 'handle' value is assigned and xfrm_state is inserted
-+		 * into 'byh' hash table, remove it now and reset 'in_byh_hash'
-+		 * to zero.
-+		 */
-+		if (x->handle && x->in_byh_hash) {
-+			hlist_del_rcu(&x->byh);
-+			x->in_byh_hash = 0;
-+		}
-+#endif
- 		net->xfrm.state_num--;
- 		spin_unlock(&net->xfrm.xfrm_state_lock);
- 
-@@ -1369,6 +1430,19 @@ xfrm_state_find(const xfrm_address_t *daddr, const xfrm_address_t *saddr,
- 						  net->xfrm.state_byseq + h,
- 						  x->xso.type);
- 			}
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+			/*
-+			 * at this point, xfrm_state is activated because it
-+			 * has been inserted into other linux original hash
-+			 * tables.  it must be inserted into 'byh' hash table
-+			 * too if it is not yet inserted.
-+			 */
-+			if (x->handle && !x->in_byh_hash) {
-+				h = (x->handle & net->xfrm.state_hmask);
-+				hlist_add_head_rcu(&x->byh, net->xfrm.state_byh + h);
-+				x->in_byh_hash = 1;
-+			}
-+#endif
- 			x->lft.hard_add_expires_seconds = net->xfrm.sysctl_acq_expires;
- 			hrtimer_start(&x->mtimer,
- 				      ktime_set(net->xfrm.sysctl_acq_expires, 0),
-@@ -1502,6 +1576,19 @@ static void __xfrm_state_insert(struct xfrm_state *x)
- 				  x->xso.type);
- 	}
- 
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+	/*
-+	 * at this point, xfrm_state is activated because it has been inserted
-+	 * into other linux original hash tables.  it must also be inserted
-+	 * into 'byh' hash table if it is not yet inserted.
-+	 */
-+	if (x->handle && !x->in_byh_hash) {
-+		h = (x->handle & net->xfrm.state_hmask);
-+		hlist_add_head_rcu(&x->byh, net->xfrm.state_byh + h);
-+		x->in_byh_hash = 1;
-+	}
-+#endif
-+
- 	hrtimer_start(&x->mtimer, ktime_set(1, 0), HRTIMER_MODE_REL_SOFT);
- 	if (x->replay_maxage)
- 		mod_timer(&x->rtimer, jiffies + x->replay_maxage);
-@@ -1530,8 +1617,19 @@ static void __xfrm_state_bump_genids(struct xfrm_state *xnew)
- 		    (mark & x->mark.m) == x->mark.v &&
- 		    xfrm_addr_equal(&x->id.daddr, &xnew->id.daddr, family) &&
- 		    xfrm_addr_equal(&x->props.saddr, &xnew->props.saddr, family))
-+		{
- 			x->genid++;
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+			if (!parent_sa_handle)
-+			{
-+				parent_sa_handle = x->handle;
-+			}
-+#endif
-+		}
- 	}
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+	xnew->parent_sa_handle = parent_sa_handle;
-+#endif
- }
- 
- void xfrm_state_insert(struct xfrm_state *x)
-@@ -2041,6 +2139,36 @@ xfrm_state_lookup_byaddr(struct net *net, u32 mark,
- }
- EXPORT_SYMBOL(xfrm_state_lookup_byaddr);
- 
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+struct xfrm_state *__xfrm_state_lookup_byhandle(struct net *net, u16 handle)
-+{
-+	unsigned int h = (handle & net->xfrm.state_hmask);
-+	struct xfrm_state *x;
-+
-+	hlist_for_each_entry(x, net->xfrm.state_byh + h, byh) {
-+		if (x->handle != handle)
-+			continue;
-+
-+		xfrm_state_hold(x);
-+		return x;
-+	}
-+
-+	return NULL;
-+}
-+
-+struct xfrm_state *
-+xfrm_state_lookup_byhandle(struct net *net, u16 handle)
-+{
-+	struct xfrm_state *x;
-+
-+	spin_lock_bh(&net->xfrm.xfrm_state_lock);
-+	x = __xfrm_state_lookup_byhandle(net, handle);
-+	spin_unlock_bh(&net->xfrm.xfrm_state_lock);
-+	return x;
-+}
-+EXPORT_SYMBOL(xfrm_state_lookup_byhandle);
-+#endif
-+
- struct xfrm_state *
- xfrm_find_acq(struct net *net, const struct xfrm_mark *mark, u8 mode, u32 reqid,
- 	      u32 if_id, u8 proto, const xfrm_address_t *daddr,
-diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-index 979f23cded401..8aa4229b9b92e 100644
---- a/net/xfrm/xfrm_user.c
-+++ b/net/xfrm/xfrm_user.c
-@@ -904,6 +904,10 @@ static void copy_to_user_state(struct xfrm_state *x, struct xfrm_usersa_info *p)
- 	if (x->xso.dev)
- 		xfrm_dev_state_update_curlft(x);
- 	memcpy(&p->curlft, &x->curlft, sizeof(p->curlft));
-+#if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
-+	if (x->curr_time)
-+		p->curlft.use_time = x->curr_time;
-+#endif
- 	put_unaligned(x->stats.replay_window, &p->stats.replay_window);
- 	put_unaligned(x->stats.replay, &p->stats.replay);
- 	put_unaligned(x->stats.integrity_failed, &p->stats.integrity_failed);
-diff --git a/tools/perf/.gitignore b/tools/perf/.gitignore
-index f533e76fb4800..9bc4ca2de6ef3 100644
---- a/tools/perf/.gitignore
-+++ b/tools/perf/.gitignore
-@@ -3,7 +3,6 @@ PERF-CFLAGS
- PERF-GUI-VARS
- PERF-VERSION-FILE
- FEATURE-DUMP
--perf
- !include/perf/
- perf-read-vdso32
- perf-read-vdsox32
