@@ -135,30 +135,36 @@ static void cmmCtForceUpdate(struct nfct_handle * handler, struct ctTable * ctEn
 	nfct_set_attr_u8(ctTemp, ATTR_REPL_L3PROTO, family);
 	nfct_set_attr_u8(ctTemp, ATTR_REPL_L4PROTO, proto);
 
-	if (family == AF_INET)
-	{
-		Saddr = nfct_get_attr(ct, ATTR_ORIG_IPV4_SRC);
-		Daddr = nfct_get_attr(ct, ATTR_ORIG_IPV4_DST);
-		SaddrReply = nfct_get_attr(ct, ATTR_REPL_IPV4_SRC);
-		DaddrReply = nfct_get_attr(ct, ATTR_REPL_IPV4_DST);
+if (family == AF_INET)
+{
+Saddr = nfct_get_attr(ct, ATTR_ORIG_IPV4_SRC);
+Daddr = nfct_get_attr(ct, ATTR_ORIG_IPV4_DST);
+SaddrReply = nfct_get_attr(ct, ATTR_REPL_IPV4_SRC);
+DaddrReply = nfct_get_attr(ct, ATTR_REPL_IPV4_DST);
 
-		nfct_set_attr(ctTemp, ATTR_ORIG_IPV4_SRC, Saddr);
-		nfct_set_attr(ctTemp, ATTR_ORIG_IPV4_DST, Daddr);
-		nfct_set_attr(ctTemp, ATTR_REPL_IPV4_SRC, SaddrReply);
-		nfct_set_attr(ctTemp, ATTR_REPL_IPV4_DST, DaddrReply);
-	}
-	else
-	{
-		Saddr = nfct_get_attr(ct, ATTR_ORIG_IPV6_SRC);
-		Daddr = nfct_get_attr(ct, ATTR_ORIG_IPV6_DST);
-		SaddrReply = nfct_get_attr(ct, ATTR_REPL_IPV6_SRC);
-		DaddrReply = nfct_get_attr(ct, ATTR_REPL_IPV6_DST);
+	if (!Saddr || !Daddr || !SaddrReply || !DaddrReply)
+		return;
 
-		nfct_set_attr(ctTemp, ATTR_ORIG_IPV6_SRC, Saddr);
-		nfct_set_attr(ctTemp, ATTR_ORIG_IPV6_DST, Daddr);
-		nfct_set_attr(ctTemp, ATTR_REPL_IPV6_SRC, SaddrReply);
-		nfct_set_attr(ctTemp, ATTR_REPL_IPV6_DST, DaddrReply);
-	}
+	nfct_set_attr(ctTemp, ATTR_ORIG_IPV4_SRC, Saddr);
+nfct_set_attr(ctTemp, ATTR_ORIG_IPV4_DST, Daddr);
+nfct_set_attr(ctTemp, ATTR_REPL_IPV4_SRC, SaddrReply);
+nfct_set_attr(ctTemp, ATTR_REPL_IPV4_DST, DaddrReply);
+}
+else
+{
+Saddr = nfct_get_attr(ct, ATTR_ORIG_IPV6_SRC);
+Daddr = nfct_get_attr(ct, ATTR_ORIG_IPV6_DST);
+SaddrReply = nfct_get_attr(ct, ATTR_REPL_IPV6_SRC);
+DaddrReply = nfct_get_attr(ct, ATTR_REPL_IPV6_DST);
+
+	if (!Saddr || !Daddr || !SaddrReply || !DaddrReply)
+		return;
+
+	nfct_set_attr(ctTemp, ATTR_ORIG_IPV6_SRC, Saddr);
+nfct_set_attr(ctTemp, ATTR_ORIG_IPV6_DST, Daddr);
+nfct_set_attr(ctTemp, ATTR_REPL_IPV6_SRC, SaddrReply);
+nfct_set_attr(ctTemp, ATTR_REPL_IPV6_DST, DaddrReply);
+}
 
 	Sport = nfct_get_attr_u16(ct, ATTR_ORIG_PORT_SRC);
 	Dport = nfct_get_attr_u16(ct, ATTR_ORIG_PORT_DST);

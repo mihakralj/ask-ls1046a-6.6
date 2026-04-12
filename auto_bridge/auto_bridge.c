@@ -1382,7 +1382,7 @@ static void  abm_proc_fini(void)
 
 static struct ctl_table_header *abm_sysctl_hdr;
 
-static int abm_sysctl_l3_filtering(const struct ctl_table *ctl, int write,
+static int abm_sysctl_l3_filtering(struct ctl_table *ctl, int write,
 				  void *buffer,
 				  size_t *lenp, loff_t *ppos)
 {
@@ -1497,7 +1497,7 @@ static int __init abm_sysctl_init(void)
 	return register_pernet_subsys(&abm_net_ops);
 }
 
-static void abm_sysctl_fini(void)
+static void __maybe_unused abm_sysctl_fini(void)
 {
 	unregister_pernet_subsys(&abm_net_ops);
 }

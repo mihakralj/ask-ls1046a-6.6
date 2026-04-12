@@ -33,7 +33,7 @@
 
 #define VWD_INFOSTR_LEN          32
 
-#define CFG_WIFI_OFFLOAD
+/* #define CFG_WIFI_OFFLOAD  -- disabled: no WiFi on Mono Gateway */
 
 #define FMAN_IDX		0
 #define DEFA_WQ_ID      	0
@@ -171,11 +171,19 @@ static inline void display_fd(struct qm_fd *fd)
                 fd->format, fd->offset, fd->length20,
                 (uint64_t)fd->addr, fd->cmd);
 }
+#ifdef CFG_WIFI_OFFLOAD
 int dpaa_get_vap_fwd_fq(uint16_t vap_id, uint32_t* fqid, uint32_t hash);
 int dpaa_get_wifi_dev(uint16_t vap_id, void** netdev);
 int dpaa_get_wifi_ohport_handle( uint32_t* oh_handle);
 void drain_tx_bp_pool(struct dpa_bp *bp);
 int vwd_is_no_l2_itf_device(struct net_device* dev);
+#else
+static inline int dpaa_get_vap_fwd_fq(uint16_t vap_id, uint32_t* fqid, uint32_t hash) { return -ENODEV; }
+static inline int dpaa_get_wifi_dev(uint16_t vap_id, void** netdev) { return -ENODEV; }
+static inline int dpaa_get_wifi_ohport_handle(uint32_t* oh_handle) { return -ENODEV; }
+static inline void drain_tx_bp_pool(struct dpa_bp *bp) { }
+static inline int vwd_is_no_l2_itf_device(struct net_device* dev) { return 0; }
+#endif
 
 /* function called after fq-id creation ,
 to avoid multiple declarations , declaration added here

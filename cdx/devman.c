@@ -393,42 +393,93 @@ static int destroy_fwd_tx_fqs(struct dpa_iface_info *iface_info)
 #endif /* endif for VOIP_PRIORITY_SLOW_PATH_FRAME_QUEUES */
 
 struct net_device *find_osdev_by_fman_params(uint32_t fm_idx, uint32_t port_idx,
-		uint32_t speed)
+uint32_t speed)
 {
-	struct net_device *device;
-	struct dpa_priv_s *priv;	
-	struct mac_device *macdev;
+struct net_device *device;
+struct dpa_priv_s *priv;
+struct mac_device *macdev;
 
-	device = first_net_device(&init_net);
-	while(1) {
-		if (!device) 
-			break;
-		if (device->type == ARPHRD_ETHER) {
-			t_LnxWrpFmDev *p_LnxWrpFmDev;
-			priv = netdev_priv(device);
-			macdev = priv->mac_dev;
-			if (macdev) {
-				p_LnxWrpFmDev = (t_LnxWrpFmDev*)macdev->fm;
-				if (speed == 10) {
-					//10 gig interfaces upports only SUPPORTED_10000baseT_Full
-					/*DGW board has 2 fixed-link interfaces 
-						1 - (eth2)(xDSL)1G Fixed link interface linked to rgmii-txid
-						2 - eth5(G.fast)- 1G Fixed link interface linked to sgmii and
-						connected to 10G link of the board.
-						sgmii - considered as 1000baseT_Full and this has cell_index = 0*/
+printk(KERN_INFO "find_osdev: searching fm_idx=%u port_idx=%u speed=%u\n",
+fm_idx, port_idx, speed);
 
-					if ( (!macdev->fixed_link) && (macdev->if_support != SUPPORTED_10000baseT_Full) )
-						goto next_device; 
-				}
-				if ((fm_idx == p_LnxWrpFmDev->id) && 
-						(port_idx == macdev->cell_index))
-					return device;
-			}
-		}
+device = first_net_device(&init_net);
+while(1) {
+if (!device) 
+break;
+if (device->type == ARPHRD_ETHER) {
+/* Guard: only dereference netdev_priv() as dpa_priv_s on
+ * actual DPAA netdevs.  Non-DPAA ARPHRD_ETHER devices
+ * (bridges, bonds, veth, etc.) have different private data
+ * layouts — accessing them as dpa_priv_s crashes the kernel. */
+if (!device->dev.parent || !device->dev.parent->driver) {
+printk(KERN_DEBUG "find_osdev: skip %s (no parent driver)\n",
+device->name);
+goto next_device;
+}
+if (strstr(device->dev.parent->driver->name, "dpa") == NULL &&
+strstr(device->dev.parent->driver->name, "dpaa") == NULL) {
+printk(KERN_DEBUG "find_osdev: skip %s (driver=%s)\n",
+device->name, device->dev.parent->driver->name);
+goto next_device;
+}
+
+t_LnxWrpFmDev *p_LnxWrpFmDev;
+priv = netdev_priv(device);
+macdev = priv->mac_dev;
+if (macdev) {
+p_LnxWrpFmDev = (t_LnxWrpFmDev*)macdev->fm;
+printk(KERN_INFO "find_osdev: %s cell_index=%u fixed_link=%p "
+"if_support=0x%x fm_id=%d max_speed=%d\n",
+device->name, macdev->cell_index,
+macdev->fixed_link, macdev->if_support,
+p_LnxWrpFmDev ? p_LnxWrpFmDev->id : -1,
+macdev->max_speed);
+if (speed == 10) {
+/* 10G search: skip interfaces that are NOT 10G.
+ * A port is 10G if it has fixed_link (SDK 10G uses
+ * fixed-link in DTS) OR if_support == SUPPORTED_10000baseT_Full. */
+if ( (!macdev->fixed_link) && (macdev->if_support != SUPPORTED_10000baseT_Full) ) {
+printk(KERN_INFO "find_osdev: %s skipped by 10G filter "
+"(fixed_link=%p if_support=0x%x)\n",
+device->name, macdev->fixed_link,
+macdev->if_support);
+goto next_device;
+}
+} else {
+/* 1G search: skip 10G-only interfaces to prevent
+ * false matches when cell_index overlaps between
+ * 1G and 10G port types (SDK numbers them
+ * independently within each type). */
+if (macdev->max_speed == 10000) {
+printk(KERN_DEBUG "find_osdev: %s skipped by 1G filter "
+"(max_speed=%d)\n",
+device->name, macdev->max_speed);
+goto next_device;
+}
+}
+if (fm_idx == p_LnxWrpFmDev->id) {
+/* SDK kernel assigns cell_index 0-based within each
+ * port type (1G: 0-5, 10G: 0-1), NOT the absolute
+ * DTB cell-index (which is 8,9 for 10G on mainline).
+ * Use port_idx directly — no translation needed. */
+printk(KERN_INFO "find_osdev: %s comparing port_idx=%u "
+"vs cell_index=%u (speed=%u)\n",
+device->name, port_idx, macdev->cell_index,
+speed);
+if (port_idx == macdev->cell_index)
+return device;
+}
+} else {
+printk(KERN_DEBUG "find_osdev: %s macdev is NULL\n",
+device->name);
+}
+}
 next_device:
-		device = next_net_device(device);
-	}
-	return device;
+device = next_net_device(device);
+}
+printk(KERN_ERR "find_osdev: NO MATCH for fm_idx=%u port_idx=%u speed=%u\n",
+fm_idx, port_idx, speed);
+return device;
 }
 
 
@@ -2026,11 +2077,10 @@ int dpa_add_eth_if(char *name, struct _itf *itf, struct _itf *phys_itf)
 		goto err_ret2;
 	}
 
-	if(dpa_add_virt_storage_profile(iface_info->eth_info.net_dev ,&iface_info->eth_info)){
-		DPA_ERROR("%s::dpa_add_virt_storage_porfile_config failed\n",
-				__FUNCTION__);
-		goto err_ret3;
-	}
+if(dpa_add_virt_storage_profile(iface_info->eth_info.net_dev ,&iface_info->eth_info)){
+DPA_ERROR("%s::dpa_add_virt_storage_profile failed for %s (non-fatal, continuing without VSP)\n",
+__FUNCTION__, name);
+}
 	//add policer profile to port
 	if (dpa_add_ethport_ff_policier_profile(iface_info)) {
 		DPA_ERROR("%s::dpa_add_policier_profile failed\n",
@@ -2091,9 +2141,8 @@ err_ret5:
 #endif
 	/*TODO: Remove ff policer profile. */
 err_ret4:
-	dpa_remove_virt_storage_profile(&iface_info->eth_info);
-err_ret3:
-	/*TODO: DPA remove from port list. */
+dpa_remove_virt_storage_profile(&iface_info->eth_info);
+/*TODO: DPA remove from port list. */
 err_ret2:
 	proc_remove(((cdx_proc_dir_entry_t *)(iface_info->pcd_proc_entry))->proc_dir);
 err_ret1:
@@ -2631,6 +2680,8 @@ err_ret:
 
 void dpa_update_timestamp(uint32_t ts)
 {
+	if (!extHashTsInfo.ptr)
+		return;
 	FM_PCD_UpdateExtTimeStamp(EXTERNAL_TIMESTAMP_TIMERID, cpu_to_be32(ts));
 }
 
@@ -2895,26 +2946,30 @@ static void virt_iface_stats_callback(struct net_device *dev, struct rtnl_link_s
 		//if stats is disabled on the iface do nothing
 		if (!(iface_info->if_flags & IF_STATS_ENABLED))
 			break;
-		if(iface_info->if_flags & IF_TYPE_PPPOE) {
-			struct en_ehash_ifstats_with_ts *stats;
-			//printk("%s::returning pppoe iface stats\n", __FUNCTION__);
-			stats = (struct en_ehash_ifstats_with_ts *)iface_info->stats;
-			storage->rx_packets += cpu_to_be32(stats->rxstats.pkts);
-			storage->rx_bytes += cpu_to_be64(stats->rxstats.bytes);
-			storage->tx_packets += cpu_to_be32(stats->txstats.pkts);
-			storage->tx_bytes += cpu_to_be64(stats->txstats.bytes);
-			break;
-		} 
-		if(iface_info->if_flags & (IF_TYPE_TUNNEL | IF_TYPE_VLAN | IF_TYPE_ETHERNET)) {
-			struct en_ehash_ifstats *stats;
-			//printk("%s::returning other iface stats\n", __FUNCTION__);
-			stats = (struct en_ehash_ifstats *)iface_info->stats;
-			storage->rx_packets += cpu_to_be32(stats->rxstats.pkts);
-			storage->rx_bytes += cpu_to_be64(stats->rxstats.bytes);
-			storage->tx_packets += cpu_to_be32(stats->txstats.pkts);
-			storage->tx_bytes += cpu_to_be64(stats->txstats.bytes);
-			break;
-		}
+if(iface_info->if_flags & IF_TYPE_PPPOE) {
+struct en_ehash_ifstats_with_ts *stats;
+//printk("%s::returning pppoe iface stats\n", __FUNCTION__);
+stats = (struct en_ehash_ifstats_with_ts *)iface_info->stats;
+if (!stats || !virt_addr_valid(stats))
+break;
+storage->rx_packets += cpu_to_be32(stats->rxstats.pkts);
+storage->rx_bytes += cpu_to_be64(stats->rxstats.bytes);
+storage->tx_packets += cpu_to_be32(stats->txstats.pkts);
+storage->tx_bytes += cpu_to_be64(stats->txstats.bytes);
+break;
+} 
+if(iface_info->if_flags & (IF_TYPE_TUNNEL | IF_TYPE_VLAN | IF_TYPE_ETHERNET)) {
+struct en_ehash_ifstats *stats;
+//printk("%s::returning other iface stats\n", __FUNCTION__);
+stats = (struct en_ehash_ifstats *)iface_info->stats;
+if (!stats || !virt_addr_valid(stats))
+break;
+storage->rx_packets += cpu_to_be32(stats->rxstats.pkts);
+storage->rx_bytes += cpu_to_be64(stats->rxstats.bytes);
+storage->tx_packets += cpu_to_be32(stats->txstats.pkts);
+storage->tx_bytes += cpu_to_be64(stats->txstats.bytes);
+break;
+}
 		printk("%s::unknown iface type,no stats available\n", 
 				__FUNCTION__);
 		iface_info = iface_info->next;

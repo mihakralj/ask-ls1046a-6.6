@@ -183,7 +183,9 @@ void cmm_print_func(int level, const char *format, ...)
  *****************************************************************/
 const char *mac_ntop(const void *mac, char *buf, size_t len)
 {
-	snprintf(buf, len, "%02x:%02x:%02x:%02x:%02x:%02x", ((unsigned char *)mac)[0],
+if (!mac || !buf || len == 0)
+	return buf ? buf : "";
+snprintf(buf, len, "%02x:%02x:%02x:%02x:%02x:%02x", ((unsigned char *)mac)[0],
 		 					((unsigned char *)mac)[1],
 		 					((unsigned char *)mac)[2],
 		 					((unsigned char *)mac)[3],
@@ -222,8 +224,8 @@ int cmmIsDaemonRunning()
 	FILE*fd;
 	char buf[10];
 
-	fd = fopen(CMM_PID_FILE_PATH, "r");
-	if(fd > 0)
+fd = fopen(CMM_PID_FILE_PATH, "r");
+if(fd != NULL)
 	{
 		// Read the pid written in the pid file
 		if(fgets(buf, 10, fd) != NULL)

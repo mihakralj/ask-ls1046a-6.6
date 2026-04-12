@@ -76,7 +76,7 @@ static const struct proc_ops proc_fqid_stats = {
 
 int cdx_init_fqid_procfs(void)
 {
-	proc_fqid_dir = proc_mkdir("fqid_stats", NULL);
+	proc_fqid_dir = proc_mkdir("cdx_fqid_stats", NULL);
 	if (!proc_fqid_dir)
 	{
 		printk("%s(%d) proc_mkdir failed \n",__FUNCTION__,__LINE__);

@@ -183,14 +183,15 @@ static int __init cdx_module_init(void)
 	/* creating a /proc/fqid_stats dir for listing fqids created by cdx module */
 	cdx_init_fqid_procfs();
 #ifdef START_DPA_APP
-	rc = start_dpa_app();
-	if (rc != 0)  {
-		printk("%s::start_dpa_app failed rc %d\n", __FUNCTION__, rc);
-		/* cant pass error code from start_dpa_app */
-		rc = -EIO;
-		goto exit;
-	}
-	printk("%s::start_dpa_app successful\n", __FUNCTION__);
+rc = start_dpa_app();
+if (rc != 0)  {
+printk("%s::start_dpa_app failed rc %d (continuing anyway)\n", __FUNCTION__, rc);
+/* Non-fatal: allow CDX to load so dpa_app can be run manually */
+rc = 0;
+}
+else {
+printk("%s::start_dpa_app successful\n", __FUNCTION__);
+}
 #endif
 #ifdef CFG_WIFI_OFFLOAD
 	rc = dpaa_vwd_init();
@@ -199,12 +200,11 @@ static int __init cdx_module_init(void)
 		goto exit;
 	}
 #endif
-	// initialize global fragmentation params
-	if (cdx_init_frag_module()) { 
-		printk("%s::cdx_init_frag_module failed\n", __FUNCTION__);
-		rc = -EIO;
-		goto exit;
-	}
+// initialize global fragmentation params
+if (cdx_init_frag_module()) { 
+printk("%s::cdx_init_frag_module failed (continuing anyway)\n", __FUNCTION__);
+/* Non-fatal: frag module needs ports registered by dpa_app */
+}
 
 #ifdef DPA_IPSEC_OFFLOAD
 	if (cdx_dpa_ipsec_init()) {

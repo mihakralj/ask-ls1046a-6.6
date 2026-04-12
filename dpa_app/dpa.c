@@ -237,38 +237,42 @@ static void display_model(struct fmc_model_t *model)
 }
 #endif
 
-/* advance features like HMs are not enabled by default, 
-   enable them before executing fmc */
+/* Open FM PCD handle and disable PCD for later use.
+   fmc_execute() -> fmc_exec_engine_start() calls
+   FM_PCD_SetAdvancedOffloadSupport (which requires PCD disabled)
+   then FM_PCD_Enable.  We must disable PCD here because the SDK
+   kernel driver leaves it enabled after probe.  Do NOT call
+   SetAdvancedOffloadSupport here — let fmc_exec_engine_start()
+   handle that exactly once to avoid double-init issues. */
 static int set_fm_adv_options(struct cdx_fman_info *finfo)
 {
-	void *handle;
-	void *fdev;
-	t_FmPcdParams fm_pcd_params;
-	
-	//open FM device and PCD
-	fdev = FM_Open(finfo->index);
-	if (!fdev) {
-		printf("%s::could not opem fm device\n",
-			__FUNCTION__);
-		return -1;
-	}
-	memset(&fm_pcd_params, 0, sizeof(t_FmPcdParams));
-	fm_pcd_params.h_Fm = fdev;
-	handle = FM_PCD_Open(&fm_pcd_params);
-	//Disable PCD before we set advanced features
-	if (FM_PCD_Disable(handle) != E_OK) {
- 		printf("%s::could not disable pcd fm %d\n",
-                        __FUNCTION__, finfo->index);
-                return -1;
-        }
-	//enable Advanced pcd function before fmc_execute enables PCD
-	if (FM_PCD_SetAdvancedOffloadSupport(handle) != E_OK) {
-		printf("%s::could not enbl adv offload fm %d\n",
-			__FUNCTION__, finfo->index); 
-		return -1; 
-	}
-	finfo->fm_handle = handle;
-	return 0;
+void *handle;
+void *fdev;
+t_FmPcdParams fm_pcd_params;
+
+//open FM device and PCD (handle needed by get_fm_pcd_handle later)
+fdev = FM_Open(finfo->index);
+if (!fdev) {
+printf("%s::could not open fm device\n",
+__FUNCTION__);
+return -1;
+}
+memset(&fm_pcd_params, 0, sizeof(t_FmPcdParams));
+fm_pcd_params.h_Fm = fdev;
+handle = FM_PCD_Open(&fm_pcd_params);
+if (!handle) {
+printf("%s::could not open pcd fm %d\n",
+__FUNCTION__, finfo->index);
+return -1;
+}
+//Disable PCD so fmc_exec_engine_start can call SetAdvancedOffloadSupport
+if (FM_PCD_Disable(handle) != E_OK) {
+printf("%s::could not disable pcd fm %d\n",
+__FUNCTION__, finfo->index);
+return -1;
+}
+finfo->fm_handle = handle;
+return 0;
 }
 
 

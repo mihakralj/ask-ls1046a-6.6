@@ -1,7 +1,5 @@
-/* Auto-generated file. Do not edit cmm_17_03_1 */
+/*Auto-generated file.*/
 #ifndef VERSION_H
 #define VERSION_H
-
-#define CMM_VERSION "cmm_17_03_1"
-
-#endif /* VERSION_H */
+#define CMM_VERSION "mono-gw-ask-1.0"
+#endif

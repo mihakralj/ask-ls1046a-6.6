@@ -68,8 +68,7 @@ dpa_if_objs = devman.o\
 		cdx_ifstats.o\
 		control_rtp_relay.o\
 		cdx_reassm.o\
-		dpa_wifi.o\
-		voip.o\
+voip.o\
 		cdx_qos.o\
 		vsp_cfg.o\
 		procfs.o
@@ -95,8 +94,7 @@ cdx_cmd_objs = control_tx.o \
 	control_ipsec.o \
 	query_Rx.o \
 	control_tunnel.o \
-	control_qm.o\
-	control_wifi.o
+control_qm.o
 
 cdx-y += cdx_main.o \
 	cdx_hal.o \

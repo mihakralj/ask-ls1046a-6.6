@@ -16,7 +16,7 @@
 #include "fe.h"
 
 
-#define CFG_WIFI_OFFLOAD
+/* #define CFG_WIFI_OFFLOAD  -- disabled: no WiFi on Mono Gateway */
 
 #define MAX_PHY_PORTS           40
 
