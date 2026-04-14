@@ -862,6 +862,8 @@ static int cmmNeighborUpdate(struct cmm_ct *ctx, const struct sockaddr_nl *who, 
 	{
 		macAddr = RTA_DATA(tb[NDA_LLADDR]);
 		macAddrLen = RTA_PAYLOAD(tb[NDA_LLADDR]);
+		if (macAddrLen > ETH_ALEN)
+			macAddrLen = ETH_ALEN;
 	}
 	else
 	{

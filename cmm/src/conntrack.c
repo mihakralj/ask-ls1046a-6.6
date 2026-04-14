@@ -433,6 +433,12 @@ static struct ctTable *__cmmCtAdd(struct nf_conntrack *ct)
 		SaddrReply = nfct_get_attr(ct, ATTR_REPL_IPV6_SRC);
 		DaddrReply = nfct_get_attr(ct, ATTR_REPL_IPV6_DST);
 	}
+
+	if (!Saddr || !Daddr || !SaddrReply || !DaddrReply)
+	{
+		cmm_print(DEBUG_ERROR, "%s: nfct_get_attr returned NULL for address\n", __func__);
+		goto err0;
+	}
 	
 	//Add the Conntrack to the local table
 	key = HASH_CT(newEntry->family, Saddr,
@@ -3855,7 +3861,7 @@ out2:
 	__pthread_mutex_unlock(&itf_table.lock);
 
 out1:
-	free(ctTemp);
+	nfct_destroy(ctTemp);
 
 out0:
 	return rc;

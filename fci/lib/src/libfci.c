@@ -11,6 +11,7 @@
  */
 
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
@@ -138,11 +139,11 @@ int fci_close(FCI_CLIENT *this_client)
 {
 	int rc;
 
-	FCILIB_PRINTF(FCILIB_CLOSE, "fci_close: socket id %d\n", this_client->nl_sock_id);
-
 	/* unregister FCI client */
 	if (this_client == NULL)
 		return -1;
+
+	FCILIB_PRINTF(FCILIB_CLOSE, "fci_close: socket id %d\n", this_client->nl_sock_id);
 
 	if ((rc = fci_destroy_client(this_client)) < 0)
 	{
@@ -475,6 +476,12 @@ static FCI_CLIENT *fci_create_client(int nl_type, unsigned long group)
 
 	/* fill client properties */
 	this_client->nl_sock_id = socket_id;
+
+	/* Set receive timeout to prevent indefinite blocking */
+	{
+		struct timeval tv = { .tv_sec = 5, .tv_usec = 0 };
+		setsockopt(socket_id, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+	}
 
 	this_client->nl_type = nl_type;
 	

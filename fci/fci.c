@@ -539,8 +539,11 @@ static int fci_fe_inbound_parser(FCI_MSG *fci_msg, FCI_MSG *fci_rep)
 	fci_rep->length = 0;
 	rc = comcerto_fpp_send_command(fci_msg->fcode, fci_msg->length, fci_msg->payload, &fci_rep->length, fci_rep->payload);
 
-	if (fci_rep->length > FCI_MSG_MAX_PAYLOAD)
+	if (fci_rep->length > FCI_MSG_MAX_PAYLOAD) {
+		printk(KERN_WARNING "FCI: %s: reply length %u exceeds max %u, clamping\n",
+		       __func__, fci_rep->length, FCI_MSG_MAX_PAYLOAD);
 		fci_rep->length = FCI_MSG_MAX_PAYLOAD;
+	}
 
 	fci_rep->fcode = fci_msg->fcode;
 

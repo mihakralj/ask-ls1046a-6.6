@@ -148,6 +148,9 @@ long cdx_ctrl_ioctl(struct file *filp, unsigned int cmd,
 {
 	int retval;
 
+	if (!capable(CAP_NET_ADMIN))
+		return -EPERM;
+
 	//DPA_INFO("%s::cmd %d\n", __FUNCTION__, cmd);
 	switch (cmd) {
 		case CDX_CTRL_DPA_SET_PARAMS:
@@ -193,8 +196,7 @@ long cdx_ctrl_ioctl(struct file *filp, unsigned int cmd,
 long cdx_ctrl_compat_ioctl(struct file *filp, unsigned int cmd,
                 unsigned long args)
 {
-	DPA_INFO("%s::\n", __FUNCTION__);
-	return 0;
+	return cdx_ctrl_ioctl(filp, cmd, args);
 }
 #endif
 

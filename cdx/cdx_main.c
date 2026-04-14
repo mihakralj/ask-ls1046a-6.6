@@ -130,14 +130,17 @@ static int cdx_init_device(void)
 
 static void cdx_module_deinit(void)
 {
-	int ii = (init_level - 1);
+	int ii;
 
-	while(1) {
-		if (deinit_fn[ii])
-			deinit_fn[ii]();
-		if (!ii)
-			break;
-		ii--;
+	if (init_level > 0) {
+		ii = init_level - 1;
+		while(1) {
+			if (deinit_fn[ii])
+				deinit_fn[ii]();
+			if (!ii)
+				break;
+			ii--;
+		}
 	}
 	kfree(cdx_info);
 	return;

@@ -198,7 +198,7 @@ snprintf(buf, len, "%02x:%02x:%02x:%02x:%02x:%02x", ((unsigned char *)mac)[0],
 /*Print CMM help*/
 void cmmHelp()
 {
-	cmm_print(DEBUG_STDOUT, cmm_help);
+	cmm_print(DEBUG_STDOUT, "%s", cmm_help);
 }
 
 /*****************************************************************
@@ -348,7 +348,7 @@ int main (int argc, char ** argv)
 	globalConf.enable = 1;
 	globalConf.debug_level = DEBUG_ERROR;
 	globalConf.vlan_policy = ALLOW;
-	globalConf.ff_enable = 1;
+	__atomic_store_n(&globalConf.ff_enable, 1, __ATOMIC_RELEASE);
 	globalConf.cli_listenaddr=htonl(INADDR_LOOPBACK);
 #ifdef C2000_DPI
 	globalConf.dpi_enable = 0;
@@ -554,14 +554,24 @@ err0:
 /* function to return 64K buffer from pool, used from cmm_rtnl_listen */
 char *cmm_get_rtnl_buf(uint32_t *buf_size)
 {
-	if (!globalConf.cur_rtnl_bufs)
-		return NULL;
-	*buf_size = CMM_MAX_64K_BUFF_SIZE;
-	return (char *)(globalConf.rtnl_buf_pools_align[--globalConf.cur_rtnl_bufs]);
+	char *ret = NULL;
+
+	pthread_mutex_lock(&globalConf.rtnl_pool_mutex);
+	if (globalConf.cur_rtnl_bufs > 0) {
+		*buf_size = CMM_MAX_64K_BUFF_SIZE;
+		ret = (char *)(globalConf.rtnl_buf_pools_align[--globalConf.cur_rtnl_bufs]);
+	}
+	pthread_mutex_unlock(&globalConf.rtnl_pool_mutex);
+
+	return ret;
 }
 
 /* function to add 64k buffer to pool, called from cmm_rtnl_listen */
 void cmm_free_rtnl_buf(char *buf)
 {
-	globalConf.rtnl_buf_pools_align[globalConf.cur_rtnl_bufs++] = (uint64_t)buf;
+	pthread_mutex_lock(&globalConf.rtnl_pool_mutex);
+	if (globalConf.cur_rtnl_bufs < CMM_MAX_NUM_THREADS) {
+		globalConf.rtnl_buf_pools_align[globalConf.cur_rtnl_bufs++] = (uint64_t)buf;
+	}
+	pthread_mutex_unlock(&globalConf.rtnl_pool_mutex);
 }

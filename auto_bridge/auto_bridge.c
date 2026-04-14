@@ -537,11 +537,19 @@ static int abm_nl_rcv_msg(struct sk_buff *skb, struct nlmsghdr *nlh ,struct netl
 			if(tb[L2FLOWA_PPP_S_ID])
 				l2flow_temp.session_id = nla_get_u16(tb[L2FLOWA_PPP_S_ID]);
 
-			if(tb[L2FLOWA_IP_SRC])
-				memcpy(&l2flow_temp.l3.saddr.all, nla_data(tb[L2FLOWA_IP_SRC]), nla_len(tb[L2FLOWA_IP_SRC]));
+			if(tb[L2FLOWA_IP_SRC]) {
+				size_t cplen = nla_len(tb[L2FLOWA_IP_SRC]);
+				if (cplen > sizeof(l2flow_temp.l3.saddr.all))
+					cplen = sizeof(l2flow_temp.l3.saddr.all);
+				memcpy(&l2flow_temp.l3.saddr.all, nla_data(tb[L2FLOWA_IP_SRC]), cplen);
+			}
 
-			if(tb[L2FLOWA_IP_DST])
-				memcpy(&l2flow_temp.l3.daddr.all, nla_data(tb[L2FLOWA_IP_DST]), nla_len(tb[L2FLOWA_IP_DST]));
+			if(tb[L2FLOWA_IP_DST]) {
+				size_t cplen = nla_len(tb[L2FLOWA_IP_DST]);
+				if (cplen > sizeof(l2flow_temp.l3.daddr.all))
+					cplen = sizeof(l2flow_temp.l3.daddr.all);
+				memcpy(&l2flow_temp.l3.daddr.all, nla_data(tb[L2FLOWA_IP_DST]), cplen);
+			}
 
 			if(tb[L2FLOWA_IP_PROTO])
 				l2flow_temp.l3.proto= nla_get_u8(tb[L2FLOWA_IP_PROTO]);
@@ -619,6 +627,8 @@ static int abm_nl_init(void)
 		.input	  = abm_nl_rcv_skb,
 	};
 	abm_nl = netlink_kernel_create(&init_net, NETLINK_L2FLOW, &cfg);
+	if (!abm_nl)
+		return -ENOMEM;
 
 	return 0;
 }
@@ -989,7 +999,7 @@ static unsigned int abm_ebt_hook(void *priv,
 	if(abm_build_l2flow(skb, &l2flow_temp, ethertype) < 0)
 		goto exit0;
 
-	spin_lock(&abm_lock);
+	spin_lock_bh(&abm_lock);
 
 	if (hooknum == NF_BR_FORWARD) {
 		if((l2flow_entry = abm_l2flow_find(&l2flow_temp)) == NULL){
@@ -1056,7 +1066,7 @@ static unsigned int abm_ebt_hook(void *priv,
 		}
 	}
 exit1:
-	spin_unlock(&abm_lock);
+	spin_unlock_bh(&abm_lock);
 exit0:
 	return NF_ACCEPT;
 }
@@ -1521,29 +1531,42 @@ static int abm_init(void)
 	}
 	if((rc = abm_l2flow_table_init()) < 0){
 		ABM_PRINT(KERN_ERR, "Automatic bridging module error l2flow_table init rc = %d \n", rc);
-		return rc;
+		goto err_destroy_wq;
 	}
 	br_fdb_register_can_expire_cb(&abm_fdb_can_expire);
 	if((rc = abm_nl_init()) < 0){
 		ABM_PRINT(KERN_ERR, "Automatic bridging module error netlink init int rc = %d \n", rc);
-		return rc;
+		goto err_fdb_dereg;
 	}
 	if((rc = abm_proc_init()) < 0){
 		ABM_PRINT(KERN_ERR, "Automatic bridging module error can't create /proc file rc = %d \n", rc);
-		return rc;
+		goto err_nl_exit;
 	}
 	if((rc = abm_sysctl_init()) < 0){
 		ABM_PRINT(KERN_ERR, "Automatic bridging module error can't create sysctl rc = %d \n", rc);
-		return rc;
+		goto err_proc_fini;
 	}
 	if((rc = nf_register_net_hooks(&init_net, abm_ebt_ops, ARRAY_SIZE(abm_ebt_ops))) < 0){
 	ABM_PRINT(KERN_ERR, "Automatic bridging module error can't register hooks int rc = %d \n", rc);
-		return rc;
+		goto err_sysctl_exit;
 	}
 	register_brevent_notifier(&abm_br_notifier);
 	queue_delayed_work(kabm_wq, &abm_work_retransmit, abm_retransmit_time);
 	
 	return 0;
+
+err_sysctl_exit:
+	/* sysctl cleanup would go here if abm_sysctl_exit() existed */
+err_proc_fini:
+	abm_proc_fini();
+err_nl_exit:
+	abm_nl_exit();
+err_fdb_dereg:
+	br_fdb_deregister_can_expire_cb();
+	abm_l2flow_table_exit();
+err_destroy_wq:
+	destroy_workqueue(kabm_wq);
+	return rc;
 }
 
 /***************************************************************************

@@ -876,6 +876,7 @@ static int section_logging_option_hdlr(void *data, int argc, char **argv)
 		globalConf.log_level |= DEBUG_STDERR;
 
 		pthread_mutex_init(&globalConf.logMutex, NULL);
+		pthread_mutex_init(&globalConf.rtnl_pool_mutex, NULL);
 
 		setlinebuf(globalConf.logFile);
 	}

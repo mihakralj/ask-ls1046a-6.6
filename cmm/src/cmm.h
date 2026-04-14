@@ -235,7 +235,7 @@
         };
 
 #define CMM_MAX_NUM_THREADS 4
-#define CMM_MAX_64K_BUFF_SIZE 64 *1024
+#define CMM_MAX_64K_BUFF_SIZE (64 * 1024)
 #define CMM_16B_ALIGN 16
 
 	/***** Global structure *****/
@@ -247,7 +247,7 @@
 
 		int enable;						/*Forward engine can be programmed or not*/
 
-		int ff_enable;						/* Fast-forward enable/disable, all packets go through ACP but all control path is enabled */
+		volatile int ff_enable;						/* Fast-forward enable/disable — use __atomic builtins for cross-thread access */
 #ifdef C2000_DPI
 		int dpi_enable;						/* DPI enable/disable, CMM pushes connections to FPP normally if disabled */
 #endif
@@ -272,6 +272,7 @@
 		uint64_t   rtnl_buf_pools[CMM_MAX_NUM_THREADS];
 		uint64_t   rtnl_buf_pools_align[CMM_MAX_NUM_THREADS];
 		uint8_t	   cur_rtnl_bufs;
+		pthread_mutex_t rtnl_pool_mutex;		/* Protects rtnl_buf_pools_align[] and cur_rtnl_bufs (C11 fix) */
 
 		int *third_part_data;
 		int auto_bridge;

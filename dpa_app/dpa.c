@@ -362,17 +362,20 @@ static int get_port_info(struct cdx_fman_info *finfo)
 		//encode the type, speed, fm index and port index in device name
 		switch (cmodel.port[ii].type) {
 			case 0:
-				sprintf(port_info->name, "dpa-fman%d-oh@%d", 
+				snprintf(port_info->name, CDX_CTRL_PORT_NAME_LEN,
+					"dpa-fman%d-oh@%d",
 					port_info->fm_index, (port_info->index + 1));
 				port_info->type = 0;
 				break;
 			case 1:
-				sprintf(port_info->name, "dpa-fm%d-1G-eth%d", 
+				snprintf(port_info->name, CDX_CTRL_PORT_NAME_LEN,
+					"dpa-fm%d-1G-eth%d",
 					port_info->fm_index, port_info->index);
 				port_info->type = 1;
 				break;
 			case 2:
-				sprintf(port_info->name, "dpa-fm%d-10G-eth%d", 
+				snprintf(port_info->name, CDX_CTRL_PORT_NAME_LEN,
+					"dpa-fm%d-10G-eth%d", 
 					port_info->fm_index, port_info->index);
 				port_info->type = 10;
 				break;
@@ -532,13 +535,13 @@ static int get_table_info(struct cdx_fman_info *fman_info)
 				tblname = cmodel.htnode_name[ii];
 			/* parse table name assuming it is for a physical port
 			get fman instance, port speed and index & name */
-			if (sscanf(tblname, "fm%d/port/%dG/%d/ccnode/%s",
+			if (sscanf(tblname, "fm%d/port/%dG/%d/ccnode/%63s",
                         	&fm_idx, &speed, &port_id,
                                 &info->name[0]) != 4) {
 				/* parse table name assuming it is for an offline port
 				get fman instance, index & name */
                         	if (sscanf(tblname,
-                                	"fm%d/port/OFFLINE/%d/ccnode/%s",
+                                	"fm%d/port/OFFLINE/%d/ccnode/%63s",
                                        	&fm_idx, &port_id,
                                        	&info->name[0]) != 3) {
 					//neither of the two....	

@@ -16,7 +16,10 @@ TARGET = dpa_app
 all:	$(TARGET)
 
 LDFLAGS += -lpthread -lcli
+CFLAGS += -Wall -Wextra -Wno-unused-parameter -D_FORTIFY_SOURCE=2 -fstack-protector-strong
+ifndef DPAA_DEBUG
 CFLAGS += -DDPAA_DEBUG_ENABLE
+endif
 
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LDFLAGS)

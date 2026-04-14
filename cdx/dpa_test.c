@@ -75,12 +75,16 @@ int cdx_ioc_dpa_connadd(unsigned long args)
 		DPA_ERROR("%s::Read uspace args failed\n", __FUNCTION__);
 		return -EBUSY;
 	}
+	if (add_conn.num_conn == 0 || add_conn.num_conn > 4096) {
+		DPA_ERROR("%s::invalid num_conn %u\n", __FUNCTION__, add_conn.num_conn);
+		return -EINVAL;
+	}
 	retval = 0;
 	ct = NULL;
 	rt = NULL;
 	conn_info = (struct test_conn_info *) 
 		kzalloc ((sizeof(struct test_conn_info) * add_conn.num_conn),
-				0);
+				GFP_KERNEL);
 	if (!conn_info) {
 		DPA_ERROR("%s::mem alloc for conn info failed\n", 
 				__FUNCTION__);
@@ -95,12 +99,12 @@ int cdx_ioc_dpa_connadd(unsigned long args)
 		retval = -EIO;
 		goto err_ret;
 	}
-	ct = kzalloc((sizeof(struct _tCtEntry) * 2), 0);
+	ct = kzalloc((sizeof(struct _tCtEntry) * 2), GFP_KERNEL);
 	if (!ct) {
 		retval = -ENOMEM;	
 		goto err_ret;
 	}
-	rt = kzalloc((sizeof(RouteEntry) * 2), 0);
+	rt = kzalloc((sizeof(RouteEntry) * 2), GFP_KERNEL);
 	if (!rt) {
 		retval = -ENOMEM;	
 		goto err_ret;

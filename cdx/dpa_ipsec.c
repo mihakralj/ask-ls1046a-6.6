@@ -288,6 +288,12 @@ static enum qman_cb_dqrr_result ipsec_exception_pkt_handler(struct qman_portal *
 #ifdef UNIQUE_IPSEC_CP_FQID
 	net_dev = get_netdev_of_SA_by_fqid(dq->fqid, &sagd_pkt);
 #else
+	if (len < 2) {
+#ifdef DPA_IPSEC_DEBUG
+		DPAIPSEC_INFO("%s:: packet too short (len=%d), dropping\n", __func__, len);
+#endif
+		goto rel_fd;
+	}
 	memcpy(&sagd_pkt,(ptr+(len-2)),2);
 	net_dev = (struct net_device *) M_ipsec_get_sa_netdev(sagd_pkt );
 #endif /* UNIQUE_IPSEC_CP_FQID */
@@ -355,6 +361,10 @@ static enum qman_cb_dqrr_result ipsec_exception_pkt_handler(struct qman_portal *
 		skb = sg_fd_to_skb(priv, &dq->fd, &use_gro, percpu_bp_cnt, false);
 		percpu_priv->rx_sg++;
 	}
+	if (unlikely(!skb)) {
+		xfrm_state_put(x);
+		goto rel_fd;
+	}
 
 	(*percpu_bp_cnt)--;
 	if (unlikely(dpaa_eth_refill_bpools(dpa_bp, percpu_bp_cnt,
@@ -421,6 +431,7 @@ static enum qman_cb_dqrr_result ipsec_exception_pkt_handler(struct qman_portal *
 #if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
 pkt_drop:
 #endif
+	xfrm_state_put(x);
 	if (skb) 
 		dev_kfree_skb(skb);
 rel_fd:

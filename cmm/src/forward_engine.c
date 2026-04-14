@@ -1686,7 +1686,7 @@ int cmmFeFFControl(FCI_CLIENT* fci_handler, u_int8_t *cmd_buf, u_int16_t cmd_len
 
 	if(cmd->enable)
 	{
-		if(!globalConf.ff_enable)
+		if(!__atomic_load_n(&globalConf.ff_enable, __ATOMIC_ACQUIRE))
 		{
 			cmd->enable = 1;
 
@@ -1702,7 +1702,7 @@ int cmmFeFFControl(FCI_CLIENT* fci_handler, u_int8_t *cmd_buf, u_int16_t cmd_len
 			}
 			else
 			{
-				globalConf.ff_enable = 1;
+				__atomic_store_n(&globalConf.ff_enable, 1, __ATOMIC_RELEASE);
 				cmm_print(DEBUG_ERROR, "Fast-forward is enabled\n");
 			}
 		}
@@ -1713,7 +1713,7 @@ int cmmFeFFControl(FCI_CLIENT* fci_handler, u_int8_t *cmd_buf, u_int16_t cmd_len
 	}
 	else
 	{
-		if(globalConf.ff_enable)
+		if(__atomic_load_n(&globalConf.ff_enable, __ATOMIC_ACQUIRE))
 		{
 			cmd->enable = 0;
 
@@ -1729,7 +1729,7 @@ int cmmFeFFControl(FCI_CLIENT* fci_handler, u_int8_t *cmd_buf, u_int16_t cmd_len
 			}
 			else
 			{
-				globalConf.ff_enable = 0;
+				__atomic_store_n(&globalConf.ff_enable, 0, __ATOMIC_RELEASE);
 				cmm_print(DEBUG_ERROR, "Fast-forward is disabled\n");
 			}
 		}

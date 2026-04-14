@@ -360,9 +360,10 @@ static void cmmRouteDumpTable(char *output_device)
 			}
 		
 			if (temp->route.input_device_str[0]) {
-				strcpy(input_buf, temp->route.input_device_str);
+				snprintf(input_buf, sizeof(input_buf), "%s", temp->route.input_device_str);
 			} else {
-				strcpy(input_buf, "*");
+				input_buf[0] = '*';
+				input_buf[1] = '\0';
 			}
 		
 			if (temp->route.proto) {
