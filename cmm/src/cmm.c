@@ -156,6 +156,9 @@ void cmm_print_func(int level, const char *format, ...)
 
 	if (globalConf.logFile && (level & globalConf.log_level))
 	{
+		va_list args_log;
+		va_copy(args_log, args);
+
 		pthread_mutex_lock(&globalConf.logMutex);
 		if (!(level & DEBUG_NOTIMESTAMP))
 		{
@@ -169,8 +172,9 @@ void cmm_print_func(int level, const char *format, ...)
 			fprintf(globalConf.logFile, "%s: ", date);
 		}
 
-		vfprintf(globalConf.logFile, format, args);
+		vfprintf(globalConf.logFile, format, args_log);
 		pthread_mutex_unlock(&globalConf.logMutex);
+		va_end(args_log);
 	}
 
 	va_end(args);
@@ -292,11 +296,23 @@ int cmmCreateDaemonPidFile()
 	return 0;
 }
 /*****************************************************************
-* sig_term_hdlr
+* sig_term_hdlr — async-signal-safe: sets flag only
 *
 *
 ******************************************************************/
+static volatile sig_atomic_t cmm_term_flag = 0;
+
 static void sig_term_hdlr(int signum)
+{
+	cmm_term_flag = 1;
+}
+
+/*****************************************************************
+* cmm_cleanup_and_exit — called from main loop after SIGTERM flag
+*
+*
+******************************************************************/
+static void cmm_cleanup_and_exit(void)
 {
 	int ii;
 	int ret = 0;
@@ -518,10 +534,10 @@ int main (int argc, char ** argv)
 	sigprocmask(SIG_UNBLOCK, &block_mask, NULL);
 
 	/* Loop until sigterm is received */
-	while (1)
+	while (!cmm_term_flag)
 		pause();
 
-	cmm_print(DEBUG_INFO, "%s: exiting\n", __func__);
+	cmm_cleanup_and_exit();
 
 	return 0;
 

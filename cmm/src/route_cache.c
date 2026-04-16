@@ -220,6 +220,7 @@ found:
 static u_int32_t new_route_id(void)
 {
 	int offset, mask;
+	int attempts = 0;
 
 	for (;;)
 	{
@@ -230,6 +231,11 @@ static u_int32_t new_route_id(void)
 		mask = 1 << (route_id & 0x1f);
 		if (!(route_ids[offset] & mask))
 			break;
+
+		if (++attempts >= ROUTE_MAX_ID) {
+			cmm_print(DEBUG_ERROR, "%s: route ID space exhausted\n", __func__);
+			return 0;
+		}
 	}
 
 	route_ids[offset] |= mask;

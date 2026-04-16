@@ -142,11 +142,11 @@ void* M_ipsec_get_matched_natt_tunnel(PSAEntry sa)
 	{
 		slist_for_each(pEntry, entry, &sa_cache_by_h[i], list_h)
 		{
-			if (!IS_NATT_SA(sa))
-				continue;
 			/* This SA is under release process */
 			if (pEntry->flags & SA_FREE_HASH_ENTRY)
 				continue; 
+			if (!IS_NATT_SA(pEntry))
+				continue;
 #ifdef CONTROL_IPSEC_DEBUG
 			printk("%x:%x - %x:%x - %x:%x - %x:%x - %x:%x - %x:%x - %x:%x - %x:%x - %x:%x - %x:%x - %x:%x - %x:%x\n", \
 				pEntry->natt.sport,  sa->natt.sport, pEntry->natt.dport,  \
@@ -191,7 +191,7 @@ void* M_ipsec_sa_cache_lookup_by_spi(U32 *daddr, U32 spi, U8 proto, U8 family)
 				(pEntry->id.daddr.a6[1] == daddr[1]) &&
 				(pEntry->id.daddr.a6[2] == daddr[2]) &&
 				(pEntry->id.daddr.a6[3] == daddr[3])&&
-				(pEntry->family != family))
+				(pEntry->family == family))
 		{
 			pSA = pEntry;
 		}

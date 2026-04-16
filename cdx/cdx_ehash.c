@@ -51,7 +51,7 @@
 #define CDX_DPA_DPRINT(fmt, args...) do { } while(0)
 #endif
 
-#define PAD(val, padsize) ((val) % (padsize)) ? ((padsize) - ((val) % (padsize))) : 0
+#define PAD(val, padsize) (((val) % (padsize)) ? ((padsize) - ((val) % (padsize))) : 0)
 
 //db entry for reusing a hm chain
 #define TTL_HM_VALID            (1 << 0)
@@ -368,11 +368,9 @@ static int fill_key_info(PCtEntry entry, uint8_t *keymem, uint32_t port_id)
 			{
 				saddr = (unsigned char*)entry->Saddr_v6;
 				daddr = (unsigned char*)entry->Daddr_v6;
-				key_size = (sizeof(struct ipv6_tcpudp_key) + 1);;
-				for (i = 0; i < 16; i++)
-					key->ipv6_tcpudp_key.ipv6_saddr[i] = saddr[i];
-				for (i = 0; i < 16; i++)
-					key->ipv6_tcpudp_key.ipv6_daddr[i] = daddr[i];
+				key_size = (sizeof(struct ipv6_tcpudp_key) + 1);
+				memcpy(key->ipv6_tcpudp_key.ipv6_saddr, saddr, 16);
+				memcpy(key->ipv6_tcpudp_key.ipv6_daddr, daddr, 16);
 				key->ipv6_tcpudp_key.ipv6_protocol = entry->proto;
 				key->ipv6_tcpudp_key.ipv6_sport = entry->Sport;
 				key->ipv6_tcpudp_key.ipv6_dport = entry->Dport;
@@ -395,10 +393,8 @@ static int fill_key_info(PCtEntry entry, uint8_t *keymem, uint32_t port_id)
 				saddr = (unsigned char*)entry->Saddr_v6;
 				daddr = (unsigned char*)entry->Daddr_v6;
 				key_size = (sizeof(struct ipv6_tcpudp_key) + 1);
-				for (i = 0; i < 16; i++)
-					key->ipv6_tcpudp_key.ipv6_saddr[i] = saddr[i];
-				for (i = 0; i < 16; i++)
-					key->ipv6_tcpudp_key.ipv6_daddr[i] = daddr[i];
+				memcpy(key->ipv6_tcpudp_key.ipv6_saddr, saddr, 16);
+				memcpy(key->ipv6_tcpudp_key.ipv6_daddr, daddr, 16);
 
 				key->ipv6_tcpudp_key.ipv6_protocol = entry->proto;
 				key->ipv6_tcpudp_key.ipv6_sport = entry->Sport;
@@ -424,10 +420,8 @@ static int fill_key_info(PCtEntry entry, uint8_t *keymem, uint32_t port_id)
 				saddr = (unsigned char*)entry->Saddr_v6;
 				daddr = (unsigned char*)entry->Daddr_v6;
 				key_size = (sizeof(struct ipv6_tcpudp_key) + 1);
-				for (i = 0; i < 16; i++)
-					key->ipv6_tcpudp_key.ipv6_saddr[i] = saddr[i];
-				for (i = 0; i < 16; i++)
-					key->ipv6_tcpudp_key.ipv6_daddr[i] = daddr[i];
+				memcpy(key->ipv6_tcpudp_key.ipv6_saddr, saddr, 16);
+				memcpy(key->ipv6_tcpudp_key.ipv6_daddr, daddr, 16);
 
 				key->ipv6_tcpudp_key.ipv6_protocol = IPPROTOCOL_ESP;
 				key_size -= 4;

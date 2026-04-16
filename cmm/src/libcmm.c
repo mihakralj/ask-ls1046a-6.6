@@ -43,7 +43,7 @@ static int get_daemon_pid()
 	char buf[10];
 
 	fd = fopen(CMM_PID_FILE_PATH, "r");
-	if(fd > 0)
+	if(fd != NULL)
 	{
 		// Read the pid written in the pid file
 		if(fgets(buf, 10, fd) != NULL)

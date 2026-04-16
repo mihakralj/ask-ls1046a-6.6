@@ -325,7 +325,7 @@ static int get_port_info(struct cdx_fman_info *finfo)
 				cmodel.port[ii].name);
 #endif
 		//FM  name would be fm0, fm1 etc
-		sprintf(name, "fm%d", finfo->index);
+		snprintf(name, sizeof(name), "fm%d", finfo->index);
 		//look for fm name in the port name
 		if (strstr(cmodel.port[ii].name, name) == 0)
 			continue;
@@ -350,7 +350,7 @@ static int get_port_info(struct cdx_fman_info *finfo)
 	dist_info = (struct cdx_dist_info *)(port_info + ports);
 	//scan all ports associated with this fman
 	for (ii = 0; ii < cmodel.port_count; ii++) {
-		sprintf(name, "fm%d", finfo->index);
+		snprintf(name, sizeof(name), "fm%d", finfo->index);
 		if (strstr(cmodel.port[ii].name, name) == 0)
                         continue;
 		//fill all port related infor from model into cdx structures
@@ -424,7 +424,7 @@ static int update_port_dist_info(struct cdx_fman_info *finfo)
 	port_info = finfo->portinfo;
 	//update all ports associated with this fman
 	for (ii = 0; ii < cmodel.port_count; ii++) {
-		sprintf(name, "fm%d", finfo->index);
+		snprintf(name, sizeof(name), "fm%d", finfo->index);
 		if (strstr(cmodel.port[ii].name, name) == 0)
 			continue;
 		dist_info = port_info->dist_info;

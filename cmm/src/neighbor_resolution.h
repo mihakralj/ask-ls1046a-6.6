@@ -109,8 +109,12 @@ static inline u_int32_t HASH_NEIGHBOR(int family, const u_int32_t *ipaddr)
 static inline u_int32_t HASH_MAC(const u_int8_t *macaddr)
 {
 	u_int32_t key;
+	u_int32_t w;
+	u_int16_t h;
 
-	key = ((u_int32_t *)macaddr)[0] ^ ((u_int16_t *)macaddr)[2];
+	memcpy(&w, macaddr, 4);
+	memcpy(&h, macaddr + 4, 2);
+	key = w ^ h;
 
 	return (jhash_1word(key, 0x12345678) & (NEIGHBOR_HASH_TABLE_SIZE - 1));
 }

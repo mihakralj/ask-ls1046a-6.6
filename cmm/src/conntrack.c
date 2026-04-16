@@ -437,6 +437,7 @@ static struct ctTable *__cmmCtAdd(struct nf_conntrack *ct)
 	if (!Saddr || !Daddr || !SaddrReply || !DaddrReply)
 	{
 		cmm_print(DEBUG_ERROR, "%s: nfct_get_attr returned NULL for address\n", __func__);
+		free(newEntry);
 		goto err0;
 	}
 	

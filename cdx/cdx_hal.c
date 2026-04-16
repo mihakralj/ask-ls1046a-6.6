@@ -12,12 +12,18 @@
 
 #include "cdx.h"
 
+/*
+ * Single message buffer for FCI event notifications.
+ * All callers must hold ctrl->mutex — see cdx_ctrl.c command handler.
+ */
 HostMessage msg_buf;
 static int msg_buf_used = 0;
 
 
 HostMessage *msg_alloc(void)
 {
+	WARN_ON(!mutex_is_locked(&cdx_info->ctrl.mutex));
+
 	if (msg_buf_used)
 	{
 		printk(KERN_ERR "%s: failed\n", __func__);
@@ -59,8 +65,8 @@ out:
 
 void *Heap_Alloc(int size)
 {
-	/* FIXME we may want to use dma API's and use non cacheable memory */
-	return kmalloc(size, GFP_KERNEL);
+	gfp_t flags = in_interrupt() ? GFP_ATOMIC : GFP_KERNEL;
+	return kmalloc(size, flags);
 }
 
 
