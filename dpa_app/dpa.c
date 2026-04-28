@@ -567,13 +567,25 @@ static int get_table_info(struct cdx_fman_info *fman_info)
 					info->name);
 #endif
 			} else {
-				info->dpa_type = DPA_CLS_TBL_EXTERNAL_HASH;
-				info->num_keys =
-					cmodel.htnode[ii].maxNumOfKeys;
-				info->num_sets = 
-					(cmodel.htnode[ii].hashResMask + 1);
-				info->num_ways = 
-					(info->num_keys / info->num_sets);
+		info->dpa_type = DPA_CLS_TBL_EXTERNAL_HASH;
+		info->num_keys =
+		cmodel.htnode[ii].maxNumOfKeys;
+		/*
+		 * Upstream/kernel convention: low nibble of hashResMask is 0,
+		 * numOfSets = 1 << popcount(hashResMask >> 4).  See
+		 * sdk_fman/.../fm_cc.c:IcHashIndexedCheckParams and
+		 * NXP fmc FMCPCDReader.cpp:671.  Previously this read
+		 * (hashResMask + 1) which assumed a "count - 1" mask form
+		 * incompatible with the kernel validator (ASK41 fix).
+		 */
+		{
+			uint16_t _cm = (uint16_t)(cmodel.htnode[ii].hashResMask >> 4);
+			unsigned int _ones = 0;
+			while (_cm) { _ones++; _cm >>= 1; }
+			info->num_sets = (uint32_t)1 << _ones;
+		}
+		info->num_ways =
+		(info->num_keys / info->num_sets);
 				info->key_size = cmodel.htnode[ii].matchKeySize;
 				handle = cmodel.htnode_handle[ii];
 #ifdef DPA_C_DEBUG
