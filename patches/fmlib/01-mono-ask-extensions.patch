@@ -1,31 +1,28 @@
 From: Tomaz Zaman <tomaz@mono.si>
-Date: Mon, 12 Jan 2026 12:00:00 +0100
-Subject: [PATCH] fmlib: Add ASK timestamp and hash table extensions
+Date: Tue, 28 Apr 2026 21:00:00 +0000
+Subject: [PATCH] fmlib: ASK extensions (shared schemes, external/aging hashtables)
 
-Add FM_ReadTimeStamp() and FM_GetTimeStampIncrementPerUsec() functions
-for timestamp reading from FMan engine.
+Extend t_FmPcdKgSchemeParams with `bool shared` (used by CMM daemon and
+fmc shared-scheme replication) and t_FmPcdHashTableParams with:
+- agingSupport (unconditional)
+- externalHash + externalHashParams{dataMemId,dataLiodnOffs,missMonitorAddr}
+  gated under #if (DPAA_VERSION >= 11) — LS1046A: -DLS1043 path
 
-Add hash table type enumeration and extended t_FmPcdHashTableParams
-structure fields for IP reassembly table support.
-
-Add FM_PCD_Get_Sch_handle() function for scheme handle access.
-
-Add 'shared' field to t_FmPcdKgSchemeParams for shared scheme support.
-
-These extensions are required for the CMM daemon and fast path offload
-functionality on the Mono Gateway.
+The hashtable additions match the kernel UAPI struct already present in
+include/uapi/linux/fmd/Peripherals/fm_pcd_ioctls.h and are required by
+fmc to emit external/aging attributes from cdx_pcd.xml, pushing hash
+buckets off MURAM (384 KiB) into DDR-backed USDPAA memory.
 
 Upstream-Status: Inappropriate [vendor-specific extension]
 Signed-off-by: Tomaz Zaman <tomaz@mono.si>
 ---
-diff --git a/include/fmd/Peripherals/fm_ext.h b/include/fmd/Peripherals/fm_ext.h
-index 3607b86..e6db99a 100644
---- a/include/fmd/Peripherals/fm_ext.h
-+++ b/include/fmd/Peripherals/fm_ext.h
-@@ -581,6 +581,38 @@ t_Error FM_CtrlMonGetCounters(t_Handle h_Fm, uint8_t fmCtrlIndex, t_FmCtrlMon *p
+diff -urN a/include/fmd/Peripherals/fm_ext.h b/include/fmd/Peripherals/fm_ext.h
+--- a/include/fmd/Peripherals/fm_ext.h	2026-04-28 21:14:18.980971095 +0000
++++ b/include/fmd/Peripherals/fm_ext.h	2026-04-28 21:14:19.074971756 +0000
+@@ -581,6 +581,38 @@
  *//***************************************************************************/
  t_Error FM_ForceIntr (t_Handle h_Fm, e_FmExceptions exception);
-
+ 
 +/**************************************************************************//*
 + @Function      FM_ReadTimeStamp
 +
@@ -61,11 +58,10 @@ index 3607b86..e6db99a 100644
  /** @} */ /* end of lnx_usr_FM_runtime_control_grp group */
  /** @} */ /* end of lnx_usr_FM_lib_grp group */
  /** @} */ /* end of lnx_usr_FM_grp group */
-diff --git a/include/fmd/Peripherals/fm_pcd_ext.h b/include/fmd/Peripherals/fm_pcd_ext.h
-index 7f32680..81d2186 100644
---- a/include/fmd/Peripherals/fm_pcd_ext.h
-+++ b/include/fmd/Peripherals/fm_pcd_ext.h
-@@ -1717,6 +1717,7 @@ typedef struct t_FmPcdKgSchemeParams {
+diff -urN a/include/fmd/Peripherals/fm_pcd_ext.h b/include/fmd/Peripherals/fm_pcd_ext.h
+--- a/include/fmd/Peripherals/fm_pcd_ext.h	2026-04-28 21:14:18.981971102 +0000
++++ b/include/fmd/Peripherals/fm_pcd_ext.h	2026-04-28 21:14:19.093971889 +0000
+@@ -1717,6 +1717,7 @@
          uint8_t                         relativeSchemeId;       /**< if modify=FALSE:Partition relative scheme id */
          t_Handle                        h_Scheme;               /**< if modify=TRUE: a handle of the existing scheme */
      } id;
@@ -73,7 +69,7 @@ index 7f32680..81d2186 100644
      bool                                alwaysDirect;           /**< This scheme is reached only directly, i.e. no need
                                                                       for match vector; KeyGen will ignore it when matching */
      struct {                                                    /**< HL Relevant only if alwaysDirect = FALSE */
-@@ -1974,6 +1975,27 @@ typedef struct t_FmPcdCcNodeParams {
+@@ -1974,6 +1975,27 @@
  /**************************************************************************//**
   @Description   Parameters for defining a hash table
  *//***************************************************************************/
@@ -101,10 +97,20 @@ index 7f32680..81d2186 100644
  typedef struct t_FmPcdHashTableParams {
      uint16_t                    maxNumOfKeys;               /**< Maximum Number Of Keys that will (ever) be used in this Hash-table */
      e_FmPcdCcStatsMode          statisticsMode;             /**< If not e_FM_PCD_CC_STATS_MODE_NONE, the required structures for the
-@@ -1989,6 +2011,14 @@ typedef struct t_FmPcdHashTableParams {
-     uint8_t                     matchKeySize;               /**< Size of the exact match keys held by the hash buckets */
-
+@@ -1990,6 +2012,33 @@
+ 
      t_FmPcdCcNextEngineParams   ccNextEngineParamsForMiss;  /**< Parameters for defining the next engine when a key is not matched */
+ 
++    bool                        agingSupport;               /**< TRUE to enable aging support for all keys of this hash table.
++                                                                 Aging status of a key enables the application to monitor if the
++                                                                 key was accessed for a certain period of time. */
++
++#if (DPAA_VERSION >= 11)
++    bool                        externalHash;               /**< TRUE to allocate the hash bucket array in DDR via USDPAA instead
++                                                                 of the on-chip MURAM. Required when the table size exceeds the
++                                                                 available MURAM. */
++#endif /* (DPAA_VERSION >= 11) */
++
 +    uint32_t    table_type;     /* ip reassembly table */
 +    struct {
 +        uint32_t timeout_val;   //reassembly timeout
@@ -113,17 +119,25 @@ index 7f32680..81d2186 100644
 +        uint32_t min_frag_size; //min allowed frag size except last frag
 +        uint32_t max_sessions;  //max conn reassembly sessions
 +    };
-
++
++#if (DPAA_VERSION >= 11)
++    struct {
++        uint8_t                 dataMemId;                  /**< Memory partition ID for the external hash table buckets and contexts. */
++        uint16_t                dataLiodnOffs;              /**< LIODN offset for accessing the external hash table buckets and contexts. */
++        uintptr_t               missMonitorAddr;            /**< User-allocated miss monitor address. */
++    } externalHashParams;
++#endif /* (DPAA_VERSION >= 11) */
++
  } t_FmPcdHashTableParams;
-
-diff --git a/src/fm_lib.c b/src/fm_lib.c
-index 4de5168..907d5d4 100644
---- a/src/fm_lib.c
-+++ b/src/fm_lib.c
-@@ -317,6 +317,44 @@ t_Error  FM_GetApiVersion(t_Handle h_Fm, ioc_fm_api_version_t *p_version)
+ 
+ /**************************************************************************//**
+diff -urN a/src/fm_lib.c b/src/fm_lib.c
+--- a/src/fm_lib.c	2026-04-28 21:14:18.979971088 +0000
++++ b/src/fm_lib.c	2026-04-28 21:14:19.075971763 +0000
+@@ -317,6 +317,44 @@
      return E_OK;
  }
-
+ 
 +uint32_t FM_ReadTimeStamp(t_Handle h_Fm)
 +{
 +    t_Device    *p_Dev = (t_Device*) h_Fm;
@@ -165,10 +179,10 @@ index 4de5168..907d5d4 100644
  /********************************************************************************************/
  /*  FM_PCD FUNCTIONS                                                                        */
  /********************************************************************************************/
-@@ -624,6 +662,12 @@ t_Error FM_PCD_AllowHcUsage(t_Handle h_FmPcd, bool allow)
+@@ -624,6 +662,12 @@
      return E_OK;
  }
-
+ 
 +void *FM_PCD_Get_Sch_handle(t_Handle h_Scheme)
 +{
 +    t_Device *p_Dev = (t_Device*) h_Scheme;
