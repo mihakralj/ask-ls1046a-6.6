@@ -1,7 +1,14 @@
 [Unit]
 Description=CMM Connection Management Module for ASK Fast Path
-After=network.target systemd-modules-load.service systemd-sysctl.service
-Wants=systemd-modules-load.service
+# ask-modules-load.service is the oneshot that insmods cdx (which
+# synchronously spawns dpa_app via UMH_WAIT_PROC to apply PCD config and
+# build the BMan fragment buffer pool) and then insmods fci. cmm pushes
+# L2/L3 flows into the PCD hash tables dpa_app provisioned and talks to
+# fci via NETLINK_KEY=32, so it MUST start strictly after that oneshot.
+# A failure of ask-modules-load.service must propagate (Requires=, not
+# Wants=) so cmm does not start against a half-initialised fast-path.
+After=network.target ask-modules-load.service systemd-sysctl.service
+Requires=ask-modules-load.service
 ConditionPathExists=/dev/cdx_ctrl
 
 [Service]
