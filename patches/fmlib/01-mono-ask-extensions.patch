@@ -134,52 +134,34 @@ diff -urN a/include/fmd/Peripherals/fm_pcd_ext.h b/include/fmd/Peripherals/fm_pc
 diff -urN a/src/fm_lib.c b/src/fm_lib.c
 --- a/src/fm_lib.c	2026-04-28 21:14:18.979971088 +0000
 +++ b/src/fm_lib.c	2026-04-28 21:14:19.075971763 +0000
-@@ -317,6 +317,44 @@
+@@ -317,6 +317,26 @@
      return E_OK;
  }
  
++/*
++ * NOTE (lf-6.6.y compat): FM_IOC_READ_TIMESTAMP and FM_IOC_GET_TIMESTAMP_INCREMENT
++ * are not defined in the lf-6.6.y kernel UAPI (release/patches/kernel/sdk-sources/
++ * include/uapi/linux/fmd/Peripherals/fm_ioctls.h). They were added in lf-6.18.x.
++ * These two helpers are FMan PTP/timestamp accessors, NOT on the boot/cmm/dpa_app
++ * PCD configuration path. Stub them to return 0; any caller that actually needs
++ * them will see "0" and either fall back or report the failure cleanly. Keeping
++ * the symbols exported preserves libfm.a's ABI for any consumer that links them.
++ */
 +uint32_t FM_ReadTimeStamp(t_Handle h_Fm)
 +{
-+    t_Device    *p_Dev = (t_Device*) h_Fm;
-+    uint32_t    ts = 0;
-+
-+    SANITY_CHECK_RETURN_ERROR(p_Dev, E_INVALID_HANDLE);
-+
-+    _fml_dbg("Calling...\n");
-+
-+    if (ioctl(p_Dev->fd, FM_IOC_READ_TIMESTAMP, &ts)) {
-+        REPORT_ERROR(MAJOR, E_INVALID_OPERATION, NO_MSG);
-+        return 0;
-+    }
-+
-+    _fml_dbg("Called.\n");
-+
-+    return ts;
++    (void)h_Fm;
++    return 0;
 +}
 +
 +uint32_t FM_GetTimeStampIncrementPerUsec(t_Handle h_Fm)
 +{
-+    t_Device    *p_Dev = (t_Device*) h_Fm;
-+    uint32_t    ts_inc = 0;
-+
-+    SANITY_CHECK_RETURN_ERROR(p_Dev, E_INVALID_HANDLE);
-+
-+    _fml_dbg("Calling...\n");
-+
-+    if (ioctl(p_Dev->fd, FM_IOC_GET_TIMESTAMP_INCREMENT, &ts_inc)) {
-+        REPORT_ERROR(MAJOR, E_INVALID_OPERATION, NO_MSG);
-+        return 0;
-+    }
-+
-+    _fml_dbg("Called.\n");
-+
-+    return ts_inc;
++    (void)h_Fm;
++    return 0;
 +}
-+
  /********************************************************************************************/
  /*  FM_PCD FUNCTIONS                                                                        */
  /********************************************************************************************/
-@@ -624,6 +662,12 @@
+@@ -624,6 +644,12 @@
      return E_OK;
  }
  
