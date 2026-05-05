@@ -982,7 +982,15 @@ int dpa_get_iface_info_by_ipaddress(int sa_family, uint32_t  *daddr, uint32_t * 
 	while(iface_info) {
 		if (iface_info->if_flags & (IF_TYPE_ETHERNET | IF_TYPE_PPPOE | IF_TYPE_VLAN | IF_TYPE_WLAN)){
 
-			device = dev_get_by_name(&init_net, iface_info->name);
+			/* ASK audit P1.01 (B13): dpa_devlist_lock is held here;
+			 * dev_get_by_name() may sleep (rtnl/dev_base_lock), which
+			 * is illegal in atomic context. Use the RCU variant and
+			 * mirror the original refcounted semantics via dev_hold(). */
+			rcu_read_lock();
+			device = dev_get_by_name_rcu(&init_net, iface_info->name);
+			if (device)
+				dev_hold(device);
+			rcu_read_unlock();
 			if (!device)
 			{
 				printk("%s:: Could not find device : %s\n",__FUNCTION__, iface_info->name);
