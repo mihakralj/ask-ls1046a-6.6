@@ -322,7 +322,7 @@ int dpa_add_oh_if(char *name)
 		DPA_ERROR("%s::invalid name %s\n", __FUNCTION__, name);
 		return FAILURE;
 	}
-	strncpy(&info.port_name[0], name, IF_NAME_SIZE);
+	strscpy(&info.port_name[0], name, IF_NAME_SIZE);
 	info.port_name[IF_NAME_SIZE - 1] = '\0';
 
 	if (sprintf(oh_iface_name, "oh%d", port_idx-1) < 0) {
@@ -344,7 +344,7 @@ int dpa_add_oh_if(char *name)
 		return FAILURE;
 	}
 	memset(iface_info, 0, sizeof(struct dpa_iface_info));
-	strncpy(&iface_info->name[0], name, IF_NAME_SIZE);
+	strscpy(&iface_info->name[0], name, IF_NAME_SIZE);
 	iface_info->name[IF_NAME_SIZE - 1] = '\0';
 
 	iface_info->if_flags = IF_TYPE_OFPORT;	

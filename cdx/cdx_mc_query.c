@@ -55,13 +55,13 @@ static int MC4_Get_Hash_Snapshot(int mc4_hash_index, int mc4_tot_entries, PMC4Co
 		//pMC4Snapshot->src_addr_mask	= pMC4Entry->mcdest.src_mask_len;
 		pMC4Snapshot->dst_addr 		= pMcastGrpInfo->ipv4_daddr;
 		//pMC4Snapshot->queue = pMC4Entry->mcdest.queue_base;
-		strncpy((char*)pMC4Snapshot->input_device_str,
+		strscpy((char*)pMC4Snapshot->input_device_str,
 				pMcastGrpInfo->ucIngressIface,IF_NAME_SIZE-1);
 		for(i = 0,j = 0; j < MC_MAX_LISTENERS_PER_GROUP; j++) //pMcastGrpInfo->uiListenerCnt; j++)
 		{
 			if (!pMcastGrpInfo->members[j].bIsValidEntry)
 				continue;
-			strncpy((char *)pMC4Snapshot->output_list[i].output_device_str,
+			strscpy((char *)pMC4Snapshot->output_list[i].output_device_str,
 					pMcastGrpInfo->members[j].if_info, IF_NAME_SIZE-1);
 #if 0
 			pMC4Snapshot->output_list[i].timer = pMC4Entry->mcdest.listeners[j].timer;
@@ -223,13 +223,13 @@ static int MC6_Get_Hash_Snapshot(int mc6_hash_index, int mc6_tot_entries, PMC6Co
 		//pMC6Snapshot->src_mask_len	= pMC6Entry->mcdest.src_mask_len;
 		memcpy(pMC6Snapshot->dst_addr, pMcastGrpInfo->ipv6_daddr, IPV6_ADDRESS_LENGTH);
 		//pMC6Snapshot->queue = pMC6Entry->mcdest.queue_base;
-		strncpy((char*)pMC6Snapshot->input_device_str,
+		strscpy((char*)pMC6Snapshot->input_device_str,
 				pMcastGrpInfo->ucIngressIface,IF_NAME_SIZE-1);
 		for(i = 0,j = 0; j < MC_MAX_LISTENERS_PER_GROUP; j++) //pMcastGrpInfo->uiListenerCnt; j++)
 		{
 			if (!pMcastGrpInfo->members[j].bIsValidEntry)
 				continue;
-			strncpy((char *)pMC6Snapshot->output_list[i].output_device_str,
+			strscpy((char *)pMC6Snapshot->output_list[i].output_device_str,
 					pMcastGrpInfo->members[j].if_info, IF_NAME_SIZE-1);
 #if 0
 			pMC6Snapshot->output_list[i].timer = pMC6Entry->mcdest.listeners[j].timer;

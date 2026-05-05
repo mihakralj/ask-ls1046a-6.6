@@ -252,9 +252,9 @@ static int l2flow_update(struct L2Flow_entry *entry, char *input_itf, char *outp
 	l2flow_remove(entry);
 
 	/*Update the input output interface names. */
-	strncpy(&new_entry->out_ifname[0], output_itf, IF_NAME_SIZE);
+	strscpy(&new_entry->out_ifname[0], output_itf, IF_NAME_SIZE);
 	new_entry->out_ifname[IF_NAME_SIZE - 1] = '\0';
-	strncpy(&new_entry->in_ifname[0], input_itf, IF_NAME_SIZE);
+	strscpy(&new_entry->in_ifname[0], input_itf, IF_NAME_SIZE);
 	new_entry->in_ifname[IF_NAME_SIZE - 1] = '\0';
 	new_entry->last_l2flow_timer = ct_timer;
 #ifdef CONTROL_BRIDGE_DEBUG

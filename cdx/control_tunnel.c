@@ -258,7 +258,7 @@ static int TNL_handle_CREATE(U16 *p, U16 Length)
 		goto err0;
 	}
 
-	strncpy(pTunnelEntry->tnl_name, cmd.name, sizeof(pTunnelEntry->tnl_name) - 1);
+	strscpy(pTunnelEntry->tnl_name, cmd.name, sizeof(pTunnelEntry->tnl_name) - 1);
 
 	switch (cmd.mode)
 	{

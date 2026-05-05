@@ -151,7 +151,7 @@ static void M_tx_port_update(PPortUpdateCommand cmd)
 {
 	char *if_name = get_onif_name(phy_port[cmd->portid].itf.index);
 
-	strncpy(if_name, cmd->ifname, INTERFACE_NAME_LENGTH);
+	strscpy(if_name, cmd->ifname, INTERFACE_NAME_LENGTH);
 	if_name[INTERFACE_NAME_LENGTH - 1] = '\0';
 }
 

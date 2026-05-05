@@ -86,7 +86,7 @@ int GetMcastGrpId( struct mcast_group_info *pMcastGrpInfo,
 					&& (tmp->ipv4_saddr == pMcastGrpInfo->ipv4_saddr))
 			{
 				if (ingress_iface)
-					strncpy(ingress_iface,tmp->ucIngressIface, IF_NAME_SIZE);
+					strscpy(ingress_iface,tmp->ucIngressIface, IF_NAME_SIZE);
 				spin_unlock(&mc4_spinlocks[uiHash]);
 				return tmp->grpid;
 			}
@@ -111,7 +111,7 @@ int GetMcastGrpId( struct mcast_group_info *pMcastGrpInfo,
 					&& !IPV6_CMP(tmp->ipv6_saddr, pMcastGrpInfo->ipv6_saddr))   
 			{
 				if (ingress_iface)
-					strncpy(ingress_iface,tmp->ucIngressIface, IF_NAME_SIZE);
+					strscpy(ingress_iface,tmp->ucIngressIface, IF_NAME_SIZE);
 				spin_unlock(&mc6_spinlocks[uiHash]);
 				return tmp->grpid;
 			}
@@ -330,12 +330,12 @@ static int cdx_add_mcast_table_entry(void *mcast_cmd,
 	if(pMcastGrpInfo->mctype == 0)
 	{
 		mcast4_group = (PMC4Command)(mcast_cmd);
-		strncpy(ucInterface,mcast4_group->input_device_str,IF_NAME_SIZE-1);
+		strscpy(ucInterface,mcast4_group->input_device_str,IF_NAME_SIZE-1);
 	}
 	else
 	{
 		mcast6_group = (PMC6Command)(mcast_cmd);
-		strncpy(ucInterface,mcast6_group->input_device_str,IF_NAME_SIZE-1);
+		strscpy(ucInterface,mcast6_group->input_device_str,IF_NAME_SIZE-1);
 	}
 
 	pRtEntry = kzalloc((sizeof(RouteEntry)), 0);
@@ -476,7 +476,7 @@ static int cdx_create_mcast_group(void *mcast_cmd, int bIsIPv6)
 	}
 
 	pMcastGrpInfo->grpid = -1; 
-	strncpy(pMcastGrpInfo->ucIngressIface, pInIface, IF_NAME_SIZE-1);
+	strscpy(pMcastGrpInfo->ucIngressIface, pInIface, IF_NAME_SIZE-1);
 
 	if((uiNoOfListeners) > MC_MAX_LISTENERS_PER_GROUP)
 	{
@@ -555,7 +555,7 @@ static int cdx_create_mcast_group(void *mcast_cmd, int bIsIPv6)
 			goto err_ret;
 		}
 		pMcastGrpInfo->members[member_id].bIsValidEntry = 1;
-		strncpy(pMcastGrpInfo->members[member_id].if_info, pListener->output_device_str,IF_NAME_SIZE-1);
+		strscpy(pMcastGrpInfo->members[member_id].if_info, pListener->output_device_str,IF_NAME_SIZE-1);
 		pMcastGrpInfo->members[member_id].member_id = member_id;
 		pMcastGrpInfo->members[member_id].tbl_entry= tbl_entry;
 		pMcastGrpInfo->uiListenerCnt++; 
@@ -662,7 +662,7 @@ int cdx_update_mcast_group(void *mcast_cmd, int bIsIPv6)
 				mcast6_group->dst_addr[0], mcast6_group->dst_addr[1],mcast6_group->dst_addr[2],
 				mcast6_group->dst_addr[3]);
 	}
-	strncpy(pMcastGrpInfo->ucIngressIface, pInIface, IF_NAME_SIZE-1);
+	strscpy(pMcastGrpInfo->ucIngressIface, pInIface, IF_NAME_SIZE-1);
 
 	if((pTempGrpInfo = GetMcastGrp(pMcastGrpInfo)) == NULL)
 	{
@@ -753,7 +753,7 @@ int cdx_update_mcast_group(void *mcast_cmd, int bIsIPv6)
 			spin_lock(&mc6_spinlocks[uiHash]);
 		}
 		pMcastGrpInfo->members[member_id].bIsValidEntry = 1;
-		strncpy(pMcastGrpInfo->members[member_id].if_info, pListener->output_device_str,IF_NAME_SIZE-1);
+		strscpy(pMcastGrpInfo->members[member_id].if_info, pListener->output_device_str,IF_NAME_SIZE-1);
 		pMcastGrpInfo->members[member_id].member_id = member_id;
 		pMcastGrpInfo->members[member_id].tbl_entry= tbl_entry;
 		pMcastGrpInfo->uiListenerCnt++; 
@@ -818,7 +818,7 @@ int cdx_delete_mcast_group_member( void *mcast_cmd, int bIsIPv6)
 		pMcastGrpInfo->ipv4_daddr = mcast4_group->dst_addr;
 		pMcastGrpInfo->mctype  = 0;
 		uiNoOfListeners = mcast4_group->num_output;
-		strncpy(pMcastGrpInfo->ucIngressIface,
+		strscpy(pMcastGrpInfo->ucIngressIface,
 				mcast4_group->input_device_str, IF_NAME_SIZE-1);
 		DPA_INFO("%s(%d) listeners %d, Src IP addr 0x%x,Dst IP addr 0x%x\n",
 				__FUNCTION__,__LINE__, uiNoOfListeners, mcast4_group->src_addr,
@@ -831,7 +831,7 @@ int cdx_delete_mcast_group_member( void *mcast_cmd, int bIsIPv6)
 		memcpy(pMcastGrpInfo->ipv6_daddr,mcast6_group->dst_addr, IPV6_ADDRESS_LENGTH);
 		pMcastGrpInfo->mctype  = 1;
 		uiNoOfListeners = mcast6_group->num_output;
-		strncpy(pMcastGrpInfo->ucIngressIface,
+		strscpy(pMcastGrpInfo->ucIngressIface,
 				mcast6_group->input_device_str, IF_NAME_SIZE-1);
 		DPA_INFO("%s(%d) listeners %d, Src IPv6 addr 0x%x.%x.%x.%x,Dst IPv6 addr 0x%x.%x.%x.%x\n",
 				__FUNCTION__,__LINE__, uiNoOfListeners, mcast6_group->src_addr[0], mcast6_group->src_addr[1],

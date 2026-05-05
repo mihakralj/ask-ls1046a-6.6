@@ -49,7 +49,7 @@ POnifDesc add_onif(U8 *input_itf_name, struct _itf *itf, struct _itf *phys_itf, 
 		if ((gOnif_DB[i].flags & ENTRY_VALID) == 0)
 		{
 			gOnif_DB[i].itf = itf;
-			strncpy((char*)gOnif_DB[i].name, (char*)input_itf_name, IF_NAME_SIZE);
+			strscpy((char*)gOnif_DB[i].name, (char*)input_itf_name, IF_NAME_SIZE);
 			gOnif_DB[i].name[IF_NAME_SIZE - 1] = '\0';
 
 			itf->phys = phys_itf;

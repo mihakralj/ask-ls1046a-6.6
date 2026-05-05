@@ -213,12 +213,12 @@ static int PPPoE_Handle_Relay_Entry(U16 *p, U16 Length)
 			COPY_MACADDR(pEntry->hw_entry.SrcMAC,cmd->ipif_mac); /* param source mac for the paired session */
 			COPY_MACADDR(pRelayEntry->hw_entry.SrcMAC,cmd->opif_mac); /* param source mac for the paired session */
 
-			strncpy(&pEntry->hw_entry.in_ifname[0],&cmd->ipifname[0], IF_NAME_SIZE);
+			strscpy(&pEntry->hw_entry.in_ifname[0],&cmd->ipifname[0], IF_NAME_SIZE);
 			pEntry->hw_entry.in_ifname[IF_NAME_SIZE - 1] = '\0';
 			DPA_INFO("\r\n incoming interface = %s",cmd->ipifname);
 			DPA_INFO("\r\n %s",pEntry->hw_entry.in_ifname);
 
-			strncpy(&pRelayEntry->hw_entry.in_ifname[0],&cmd->opifname[0], IF_NAME_SIZE);
+			strscpy(&pRelayEntry->hw_entry.in_ifname[0],&cmd->opifname[0], IF_NAME_SIZE);
 			pRelayEntry->hw_entry.in_ifname[IF_NAME_SIZE - 1] = '\0';
 			DPA_INFO("\r\n outgoing interface = %s",cmd->opifname);
 			DPA_INFO("\r\n %s",pRelayEntry->hw_entry.in_ifname);
