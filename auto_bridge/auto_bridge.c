@@ -556,19 +556,31 @@ type = nlh->nlmsg_type;
 			if(tb[L2FLOWA_PPP_S_ID])
 				l2flow_temp.session_id = nla_get_u16(tb[L2FLOWA_PPP_S_ID]);
 
-			if(tb[L2FLOWA_IP_SRC]) {
-				size_t cplen = nla_len(tb[L2FLOWA_IP_SRC]);
-				if (cplen > sizeof(l2flow_temp.l3.saddr.all))
-					cplen = sizeof(l2flow_temp.l3.saddr.all);
-				memcpy(&l2flow_temp.l3.saddr.all, nla_data(tb[L2FLOWA_IP_SRC]), cplen);
-			}
+/* ASK-edit (audit-b3 / AB-01): nla_len() is attacker-controlled
+ * (validated only against the overall netlink message length, up
+ * to ~64 KB). l3.{saddr,daddr}.all is a fixed 16-byte buffer.
+ * Valid IP-attribute payloads are EXACTLY 4 bytes (IPv4) or 16
+ * bytes (IPv6) -- anything else is rejected as -EINVAL and the
+ * entry dropped, matching the existing -EAGAIN drop pattern
+ * earlier in this handler. Previous defensive code merely
+ * truncated, which silently let through malformed payloads. */
+if(tb[L2FLOWA_IP_SRC]) {
+int alen = nla_len(tb[L2FLOWA_IP_SRC]);
+if (alen != 4 && alen != 16) {
+err = -EINVAL;
+goto out;
+}
+memcpy(&l2flow_temp.l3.saddr.all, nla_data(tb[L2FLOWA_IP_SRC]), alen);
+}
 
-			if(tb[L2FLOWA_IP_DST]) {
-				size_t cplen = nla_len(tb[L2FLOWA_IP_DST]);
-				if (cplen > sizeof(l2flow_temp.l3.daddr.all))
-					cplen = sizeof(l2flow_temp.l3.daddr.all);
-				memcpy(&l2flow_temp.l3.daddr.all, nla_data(tb[L2FLOWA_IP_DST]), cplen);
-			}
+if(tb[L2FLOWA_IP_DST]) {
+int alen = nla_len(tb[L2FLOWA_IP_DST]);
+if (alen != 4 && alen != 16) {
+err = -EINVAL;
+goto out;
+}
+memcpy(&l2flow_temp.l3.daddr.all, nla_data(tb[L2FLOWA_IP_DST]), alen);
+}
 
 			if(tb[L2FLOWA_IP_PROTO])
 				l2flow_temp.l3.proto= nla_get_u8(tb[L2FLOWA_IP_PROTO]);
