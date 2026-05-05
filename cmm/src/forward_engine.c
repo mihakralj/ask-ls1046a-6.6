@@ -1595,7 +1595,7 @@ int cmmCt6QueryProcess(char ** keywords, int tabStart, daemon_handle_t daemon_ha
                     len += snprintf(output_buf+len,256-len,"%x:", 
 						ctCmd->sa_reply_handle[i]);
 		len +=  snprintf(output_buf+len,256-len,") ");
-	        cmm_print(DEBUG_STDOUT,output_buf);
+	        cmm_print(DEBUG_STDOUT, "%s\n", output_buf);
 	        len = 0;	
             }
             count++;

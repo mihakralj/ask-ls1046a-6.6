@@ -297,7 +297,8 @@
 	extern struct cmm_global globalConf;
 
 	int cmmIsDaemonRunning(void);
-	void cmm_print_func(int level, const char *format, ...);
+	void cmm_print_func(int level, const char *format, ...)
+		__attribute__((format(printf, 2, 3)));
 
 	#define MAC_ADDRSTRLEN	18
 	const char *mac_ntop(const void *mac, char *buf, size_t len);
