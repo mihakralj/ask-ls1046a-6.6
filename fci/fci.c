@@ -460,13 +460,26 @@ err:
  */
 static void __fci_fe_inbound_data(struct sk_buff *skb)
 {
-	struct nlmsghdr *nlh = (struct nlmsghdr *)skb->data;
-	struct nlmsghdr *rep;
-	struct sk_buff *nskb;
-	FCI_MSG *fci_msg, *fci_rep;
-	int rc;
+struct nlmsghdr *nlh = (struct nlmsghdr *)skb->data;
+struct nlmsghdr *rep;
+struct sk_buff *nskb;
+FCI_MSG *fci_msg, *fci_rep;
+int rc;
 
-	FCI_PRINTK(FCI_INBOUND, "FCI: %s\n", __func__);
+/* ASK-edit (audit-b2 / F-02): NETLINK_FF has no per-protocol capability
+ * wiring; the inbound handler is reachable from any task that can
+ * socket(AF_NETLINK, SOCK_RAW, NETLINK_FF). Every command dispatched
+ * from here reconfigures the fast-path data plane (5-tuple offload,
+ * conntrack hooks, IPsec SA entries) via cdx. Drop unauthorized
+ * senders silently and bump rx_msg_err to preserve telemetry.
+ * netlink_capable() checks the sender's creds (not current task),
+ * which is the correct semantic in the deferred softirq dispatch path. */
+if (!netlink_capable(skb, CAP_NET_ADMIN)) {
+this_fci->stats.rx_msg_err++;
+return;
+}
+
+FCI_PRINTK(FCI_INBOUND, "FCI: %s\n", __func__);
 
 	/* B4 F-01: validate nlmsg header before dereferencing payload. */
 	if (skb->len < NLMSG_HDRLEN || !NLMSG_OK(nlh, skb->len)) {
