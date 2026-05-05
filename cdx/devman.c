@@ -2033,7 +2033,7 @@ int dpa_add_eth_if(char *name, struct _itf *itf, struct _itf *phys_itf)
 	}
 	//ethernet/physical iface type
 	iface_info = (struct dpa_iface_info *)
-		kzalloc(sizeof(struct dpa_iface_info), 0);  
+		kzalloc(sizeof(struct dpa_iface_info), GFP_KERNEL);  
 	if (!iface_info) {
 		DPA_ERROR("%s::no mem for eth dev info size %d\n", 
 				__FUNCTION__, 
@@ -2190,7 +2190,7 @@ int dpa_add_pppoe_if(char *name, struct _itf *itf, struct _itf *phys_itf,
 	}
 
 	iface_info = (struct dpa_iface_info *)
-		kzalloc(sizeof(struct dpa_iface_info), 0);  
+		kzalloc(sizeof(struct dpa_iface_info), GFP_KERNEL);  
 	if (!iface_info) {
 		DPA_ERROR("%s::no mem for pppoe dev info size %d\n", 
 				__FUNCTION__, 
@@ -2276,7 +2276,7 @@ int dpa_add_vlan_if(char *name, struct _itf *itf, struct _itf *phys_itf, uint16_
 
 	//ethernet/physical iface type
 	iface_info = (struct dpa_iface_info *)
-		kzalloc(sizeof(struct dpa_iface_info), 0);  
+		kzalloc(sizeof(struct dpa_iface_info), GFP_KERNEL);  
 	if (!iface_info) {
 		DPA_ERROR("%s::no mem for eth dev info size %d\n", 
 				__FUNCTION__, 
@@ -2361,7 +2361,7 @@ int dpa_add_wlan_if(char *name, struct _itf *itf, uint32_t vap_id, unsigned char
 
 	//ethernet/physical iface type
 	iface_info = (struct dpa_iface_info *)
-		kzalloc(sizeof(struct dpa_iface_info), 0);
+		kzalloc(sizeof(struct dpa_iface_info), GFP_KERNEL);
 	if (!iface_info) {
 		DPA_ERROR("%s::no mem for eth dev info size %d\n",
 				__FUNCTION__,
@@ -2614,7 +2614,7 @@ int dpa_add_tunnel_if(itf_t *itf, itf_t *phys_itf, PTnlEntry pTunnelEntry)
 	}
 #endif
 	iface_info = (struct dpa_iface_info *)
-		kzalloc(sizeof(struct dpa_iface_info), 0);  
+		kzalloc(sizeof(struct dpa_iface_info), GFP_KERNEL);  
 	if (!iface_info) {
 		DPA_ERROR("%s::no mem for tunnel dev info size %d\n", 
 				__FUNCTION__, 
@@ -2817,7 +2817,7 @@ static int cdxdrv_create_pcd_fqs(struct dpa_iface_info *iface_info)
 #endif
 		for (jj = 0; jj < dist_info->count; jj++) {
 			if (find_pcd_fq_info(fqid)) {
-				dpa_fq = kzalloc(sizeof(struct dpa_fq), 0);
+				dpa_fq = kzalloc(sizeof(struct dpa_fq), GFP_KERNEL);
 				if (!dpa_fq) {
 					DPA_ERROR("%s::unable to alloc mem for fqid %d\n",
 							__FUNCTION__, fqid);

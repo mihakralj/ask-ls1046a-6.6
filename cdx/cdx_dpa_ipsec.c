@@ -2476,7 +2476,7 @@ int  cdx_ipsec_add_classification_table_entry(PSAEntry sa)
 	printk("%s:: direction %d\n", __FUNCTION__, sa->direction);
 #endif
 
-	info = kzalloc(sizeof(struct ins_entry_info), 0);
+	info = kzalloc(sizeof(struct ins_entry_info), GFP_KERNEL);
 	if (!info) {
 		DPA_ERROR("%s::unable to alloc mem for ins_info\n", __FUNCTION__);
 		//remove shared desc here??? TBD

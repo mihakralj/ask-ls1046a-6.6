@@ -581,7 +581,7 @@ static int create_ipsec_pcd_fqs(struct ipsec_info *info, uint32_t schedule)
 			}
 
 			/* create FQ for exception packets from ipsec ofline  port */
-			dpa_fq = kzalloc((sizeof(struct dpa_fq)),1);
+			dpa_fq = kzalloc((sizeof(struct dpa_fq)), GFP_ATOMIC);
 			if (!dpa_fq) {
 				DPAIPSEC_ERROR("%s::unable to alloc mem for dpa_fq\n", __FUNCTION__) ;
 				return FAILURE;
@@ -1022,7 +1022,7 @@ int cdx_init_skb_2bfreed_bpool(void)
 	struct port_bman_pool_info parent_pool_info;
 
 	// allocate memory for bpool
-	bp = kzalloc(sizeof(struct dpa_bp), 0);
+	bp = kzalloc(sizeof(struct dpa_bp), GFP_KERNEL);
 	if (unlikely(bp == NULL)) {
 		DPAIPSEC_ERROR("%s(%d)::failed to mem for non_recyclable SKB free bman pool\n",
 				__FUNCTION__,__LINE__);
@@ -1058,7 +1058,7 @@ int cdx_init_scatter_gather_bpool(void)
 	struct port_bman_pool_info parent_pool_info;
 	int ret =0;
 
-	bp = kzalloc(sizeof(struct dpa_bp), 0);
+	bp = kzalloc(sizeof(struct dpa_bp), GFP_KERNEL);
 	if (unlikely(bp == NULL)) {
 		DPAIPSEC_ERROR("%s::failed to allocate mem for SG bman pool\n", 
 				__FUNCTION__);
@@ -1106,7 +1106,7 @@ static int add_ipsec_bpool(struct ipsec_info *info)
 	printk (KERN_INFO"\n ################## %s", 
 			__FUNCTION__);
 
-	bp = kzalloc(sizeof(struct dpa_bp), 0);
+	bp = kzalloc(sizeof(struct dpa_bp), GFP_KERNEL);
 	if (unlikely(bp == NULL)) {
 		DPAIPSEC_ERROR("%s::failed to allocate mem for bman pool for ipsec\n", 
 				__FUNCTION__);
