@@ -359,8 +359,10 @@ skip_fill:
 				ackstatus = ERR_UNKNOWN_INTERFACE;
 				goto func_ret;
 			}
-			strcpy(&l2flow_entry->out_ifname[0], pcmd->output_name);
-			strcpy(&l2flow_entry->in_ifname[0], pcmd->input_name);
+			strscpy(&l2flow_entry->out_ifname[0], pcmd->output_name,
+				sizeof(l2flow_entry->out_ifname));
+			strscpy(&l2flow_entry->in_ifname[0], pcmd->input_name,
+				sizeof(l2flow_entry->in_ifname));
 			memcpy(&l2flow_entry->l2flow, &l2flow, sizeof(struct L2Flow));
 			l2flow_entry->last_l2flow_timer = ct_timer;
 			//TODO: add mark / qos code back in
