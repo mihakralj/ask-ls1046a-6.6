@@ -494,12 +494,23 @@ err:
 ****************************************************************************/
 static int abm_nl_rcv_msg(struct sk_buff *skb, struct nlmsghdr *nlh ,struct netlink_ext_ack *ext )
 {
-	int type, err = 0;
-	struct l2flow l2flow_temp;
-	struct l2flow_msg *l2flow_msg;
-	struct nlattr *tb[L2FLOWA_MAX + 1];
+int type, err = 0;
+struct l2flow l2flow_temp;
+struct l2flow_msg *l2flow_msg;
+struct nlattr *tb[L2FLOWA_MAX + 1];
 
-	type = nlh->nlmsg_type;
+/* ASK-edit (audit-b2 / AB-02): L2FLOW_MSG_ENTRY programs the bridge
+ * fast-path (frames bypass the Linux bridge stack via FMan offload).
+ * NETLINK_L2FLOW has no per-protocol capability wiring, so the
+ * handler is reachable by any task that can open a NETLINK_RAW
+ * socket. netlink_capable() consults the sender's creds (not
+ * current task) — required because we are in the deferred
+ * netlink_rcv_skb dispatch path. -EPERM is propagated back to
+ * userspace as NLMSG_ERROR by netlink_rcv_skb. */
+if (!netlink_capable(skb, CAP_NET_ADMIN))
+return -EPERM;
+
+type = nlh->nlmsg_type;
 
 	if(type >= L2FLOW_MSG_MAX){
 		err = -EAGAIN;
