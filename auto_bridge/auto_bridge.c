@@ -107,6 +107,8 @@ static void abm_do_work_send_msg(struct work_struct *work)
 	if (!netlink_has_listeners(abm_nl, L2FLOW_NL_GRP)){
 		return;
 	}
+	LIST_HEAD(local_rtevent_list);
+
 	spin_lock_bh(&abm_lock);
 	//TODO : Need to limit the number of messages to sent while holding the lock.
 	list_for_each_safe(entry, tmp, &l2flow_list_msg_to_send){
@@ -134,19 +136,25 @@ static void abm_do_work_send_msg(struct work_struct *work)
 		}
 	}
 
-	list_for_each_safe(entry, tmp, &bridge_list_rtevent){
+	/* AB-07 (B8): rtnl_lock() is a sleeping mutex; cannot be taken under
+	 * spin_lock_bh(). Splice bridge_list_rtevent into a local list under
+	 * the spinlock, drop the spinlock, then iterate with rtnl_lock().
+	 */
+	list_splice_init(&bridge_list_rtevent, &local_rtevent_list);
+
+	spin_unlock_bh(&abm_lock);
+
+	list_for_each_safe(entry, tmp, &local_rtevent_list){
 		brtable_entry = container_of(entry, struct br_event_table, list_rtevent);
 		if (brtable_entry->brdev)
 		{
 			rtnl_lock();
-			rtmsg_ifinfo(RTM_NEWLINK, brtable_entry->brdev, 0, GFP_ATOMIC, 0, NULL);
+			rtmsg_ifinfo(RTM_NEWLINK, brtable_entry->brdev, 0, GFP_KERNEL, 0, NULL);
 			rtnl_unlock();
 		}
 		list_del(&brtable_entry->list_rtevent);
 		kmem_cache_free(brroute_cache, brtable_entry);
 	}
-
-	spin_unlock_bh(&abm_lock);
 }
 
 /***************************************************************************
