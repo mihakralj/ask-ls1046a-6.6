@@ -370,7 +370,7 @@ static enum qman_cb_dqrr_result ipsec_exception_pkt_handler(struct qman_portal *
 	if (unlikely(dpaa_eth_refill_bpools(dpa_bp, percpu_bp_cnt,
 			THRESHOLD_IPSEC_BPOOL_REFILL))) {
 		//if we cant refill give this up
-		goto pkt_drop;
+		goto pkt_drop_xfrm;
 	}
 
 
@@ -398,7 +398,7 @@ static enum qman_cb_dqrr_result ipsec_exception_pkt_handler(struct qman_portal *
 	if (!sp)
 	{
 		DPAIPSEC_ERROR("No sec_path. Dropping pkt\n");
-		goto pkt_drop;
+		goto pkt_drop_xfrm;
 	}
 
 	sp->xvec[0] = x;
@@ -428,6 +428,11 @@ static enum qman_cb_dqrr_result ipsec_exception_pkt_handler(struct qman_portal *
 	else if ( (netif_receive_skb(skb) == NET_RX_DROP)) /* (netif_rx(skb) != NET_RX_SUCCESS) */
 		DPAIPSEC_ERROR("%s::packet dropped\n", __FUNCTION__);
 	return qman_cb_dqrr_consume;
+pkt_drop_xfrm:
+	/* B5 P0.06: release xfrm_state ref taken by xfrm_state_lookup_byhandle
+	 * before sp->xvec[0] = x transfers ownership to the skb.
+	 */
+	xfrm_state_put(x);
 #if defined(CONFIG_INET_IPSEC_OFFLOAD) || defined(CONFIG_INET6_IPSEC_OFFLOAD)
 pkt_drop:
 #endif
@@ -661,7 +666,7 @@ static int create_ipsec_fqs(struct dpa_ipsec_sainfo *ipsecsa_info, uint32_t sche
 	uint32_t fqids_base;
 #endif /* UNIQUE_IPSEC_CP_FQID */
 	int to_sec_fq = 0;
-	uint8_t sa_id_name[8]="";
+	uint8_t sa_id_name[12]="";
 
 	//get cpu portal channel info
 #ifdef UNIQUE_IPSEC_CP_FQID
@@ -713,7 +718,7 @@ static int create_ipsec_fqs(struct dpa_ipsec_sainfo *ipsecsa_info, uint32_t sche
 	}
 #endif /* UNIQUE_IPSEC_CP_FQID */
 
-	sprintf(sa_id_name, "0x%x", handle);
+	snprintf((char *)sa_id_name, sizeof(sa_id_name), "0x%x", handle);
 	if (cdx_create_dir_in_procfs(&ipsecsa_info->sa_proc_entry, sa_id_name, SA_DIR)) {
 		DPAIPSEC_ERROR("%s:: create pcd proc entry failed %s\n", 
 				__FUNCTION__, sa_id_name);
