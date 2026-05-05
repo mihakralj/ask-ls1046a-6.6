@@ -570,6 +570,8 @@ static int get_eth_iface_info(struct dpa_iface_info *iface_info,
 	eth_info->num_pools = (int)priv->bp_count;
 	if (eth_info->num_pools > MAX_PORT_BMAN_POOLS) {
 		DPA_ERROR("%s::invalid num pools value\n", __FUNCTION__);
+		/* B5 P0.07: drop netdev ref taken by dev_get_by_name */
+		dev_put(device);
 		return FAILURE;
 	}
 	bp = priv->dpa_bp;
@@ -591,6 +593,8 @@ static int get_eth_iface_info(struct dpa_iface_info *iface_info,
 				&eth_info->tx_wq)) {
 		DPA_ERROR("%s::dpa_get_tx_chnl_info failed\n", 
 				__FUNCTION__);
+		/* B5 P0.07: drop netdev ref taken by dev_get_by_name */
+		dev_put(device);
 		return FAILURE;
 	}
 	return SUCCESS;
