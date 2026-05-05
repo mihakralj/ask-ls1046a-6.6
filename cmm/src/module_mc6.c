@@ -160,8 +160,8 @@ int cmmMc6QueryProcess(char ** keywords, int tabStart, daemon_handle_t daemon_ha
 
                 for ( i = 0; i < listner_count; i++)
 		{
-	            len += sprintf(output_buf + len, "output interface:  ");
-                    len += sprintf(output_buf + len, "%s  ", mc6_listener[i].output_device_str);
+	            len += snprintf(output_buf + len, sizeof(output_buf + len), "output interface:  ");
+                    len += snprintf(output_buf + len, sizeof(output_buf + len), "%s  ", mc6_listener[i].output_device_str);
 		    cmm_print (DEBUG_STDOUT,output_buf);
                     if(mc6_listener[i].uc_bit)
                            cmm_print(DEBUG_STDOUT,"UC MAC is %02x:%02x:%02x:%02x:%02x:%02x  ",mc6_listener[i].uc_mac[0],mc6_listener[i].uc_mac[1],mc6_listener[i].uc_mac[2],mc6_listener[i].uc_mac[3],mc6_listener[i].uc_mac[4],mc6_listener[i].uc_mac[5]);
@@ -303,7 +303,7 @@ int cmmMcParseListener(char ** keywords, int *cpt, cmmd_mc6_listener_t * listene
 				cmm_print(DEBUG_STDERR, "Error : interface name %s limited to %d characters\n", keywords[*cpt], (IFNAMSIZ - 1));
 				return 1;
 			}
-			strcpy(listener->new_output_device_str, keywords[*cpt]);
+			strscpy(listener->new_output_device_str, keywords[*cpt], sizeof(listener->new_output_device_str));
 			listener->Ifbit = 1;	
 		}
 		else
@@ -352,8 +352,8 @@ int cmmMc6SetProcess(char ** keywords, int tabStart, daemon_handle_t daemon_hand
 			cmm_print(DEBUG_STDERR, "Error : interface name %s limited to %d characters\n", keywords[cpt], (IFNAMSIZ - 1));
 			goto help;
 		}
-		strcpy(interfaceName, keywords[cpt]);
-		strcpy(entryCmd->input_device_str, interfaceName);
+		strscpy(interfaceName, keywords[cpt], sizeof(interfaceName));
+		strscpy(entryCmd->input_device_str, interfaceName, sizeof(entryCmd->input_device_str));
 	   
                 if(!keywords[++cpt])
 		  goto help;
@@ -373,8 +373,8 @@ int cmmMc6SetProcess(char ** keywords, int tabStart, daemon_handle_t daemon_hand
 			cmm_print(DEBUG_STDERR, "Error : interface name %s limited to 10 characters\n", keywords[cpt]);
 			goto help;
 		}
-		strcpy(interfaceName, keywords[cpt]);
-		strcpy(listener->output_device_str,interfaceName);
+		strscpy(interfaceName, keywords[cpt], sizeof(interfaceName));
+		strscpy(listener->output_device_str, interfaceName, sizeof(listener->output_device_str));
 	}
 	else if(strcasecmp(keywords[cpt], "reset") == 0)
 	{
@@ -466,7 +466,7 @@ int cmmMc6SetProcess(char ** keywords, int tabStart, daemon_handle_t daemon_hand
 
 	while(keywords[cpt])
 	{
-		strcpy(((cmmd_mc6_listener_t *)listener + listenerCnt)->output_device_str,interfaceName);
+		strscpy(((cmmd_mc6_listener_t *)listener + listenerCnt)->output_device_str, interfaceName, sizeof(((cmmd_mc6_listener_t *)listener + listenerCnt)->output_device_str));
 		if (strncasecmp(keywords[cpt], "listener",strlen(keywords[cpt])) == 0) //May be a case of multiple listeners, parse differently
 		{
 			++cpt;

@@ -156,8 +156,8 @@ int cmmMc4QueryProcess(char ** keywords, int tabStart, daemon_handle_t daemon_ha
 
                 for ( i = 0; i < listener_count; i++)
 		{
-	            len += sprintf(output_buf + len, "output interface:  ");
-                    len += sprintf(output_buf + len, "%s  ", mc4_listener[i].output_device_str);
+	            len += snprintf(output_buf + len, sizeof(output_buf + len), "output interface:  ");
+                    len += snprintf(output_buf + len, sizeof(output_buf + len), "%s  ", mc4_listener[i].output_device_str);
 		    cmm_print (DEBUG_STDOUT,output_buf);
                     if(mc4_listener[i].uc_bit)
                            cmm_print(DEBUG_STDOUT,"UC MAC is %02x:%02x:%02x:%02x:%02x:%02x  ",mc4_listener[i].uc_mac[0],mc4_listener[i].uc_mac[1],mc4_listener[i].uc_mac[2],mc4_listener[i].uc_mac[3],mc4_listener[i].uc_mac[4],mc4_listener[i].uc_mac[5]);
@@ -246,8 +246,8 @@ int cmmMc4SetProcess(char ** keywords, int tabStart, daemon_handle_t daemon_hand
 			cmm_print(DEBUG_STDERR, "Error : interface name %s limited to %d characters\n", keywords[cpt], (IFNAMSIZ - 1));
 			goto help;
 		}
-		strcpy(interfaceName, keywords[cpt]);
-		strcpy(entryCmd->input_device_str, interfaceName);
+		strscpy(interfaceName, keywords[cpt], sizeof(interfaceName));
+		strscpy(entryCmd->input_device_str, interfaceName, sizeof(entryCmd->input_device_str));
 	   
                 if(!keywords[++cpt])
 		  goto help;
@@ -266,8 +266,8 @@ int cmmMc4SetProcess(char ** keywords, int tabStart, daemon_handle_t daemon_hand
 			cmm_print(DEBUG_STDERR, "Error : interface name %s limited to %d characters\n", keywords[cpt], (IFNAMSIZ - 1));
 			goto help;
 		}
-		strcpy(interfaceName, keywords[cpt]);
-		strcpy(listener->output_device_str, interfaceName);
+		strscpy(interfaceName, keywords[cpt], sizeof(interfaceName));
+		strscpy(listener->output_device_str, interfaceName, sizeof(listener->output_device_str));
 	}
 	else if(strcasecmp(keywords[cpt], "reset") == 0)
 	{
@@ -335,7 +335,7 @@ int cmmMc4SetProcess(char ** keywords, int tabStart, daemon_handle_t daemon_hand
 
 	while(keywords[cpt])
 	{
-		strcpy(((cmmd_mc4_listener_t *)listener + listenerCnt)->output_device_str,interfaceName);
+		strscpy(((cmmd_mc4_listener_t *)listener + listenerCnt)->output_device_str, interfaceName, sizeof(((cmmd_mc4_listener_t *)listener + listenerCnt)->output_device_str));
 		if (strncasecmp(keywords[cpt], "listener",strlen(keywords[cpt])) == 0) //May be a case of multiple listeners, parse differently
 		{
 			++cpt;
