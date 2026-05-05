@@ -468,7 +468,7 @@ void hw_ct_get_active(struct hw_ct *ct)
 /* delete classif entry from table */
 int delete_entry_from_classif_table(PCtEntry entry)
 {
-	if (!entry)
+	if (!entry || !entry->ct)
 	{
 		DPA_ERROR("%s:: Ct entry is NULL\n", __FUNCTION__);
 		return FAILURE;
@@ -497,7 +497,12 @@ int delete_pppoe_relay_entry_from_classif_table(pPPPoE_Info entry)
 {
 	struct hw_ct *ct;
 
+	/* B5 P0.03: NULL-guard entry and ct before deref */
+	if (!entry)
+		return FAILURE;
 	ct = entry->hw_entry.ct;
+	if (!ct)
+		return FAILURE;
 
 	CDX_DPA_DPRINT("\n");
 	if(ExternalHashTableDeleteKey(ct->td,ct->index, ct->handle))
