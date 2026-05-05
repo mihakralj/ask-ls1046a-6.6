@@ -642,6 +642,17 @@ DPA_ERROR("%s::Read uspace args failed\n",
 __FUNCTION__);
 return -EBUSY;
 }
+
+/* B3/cdx-P0.02: bound num_fmans before using it as a multiplier in
+ * kzalloc/copy_from_user. The largest LS-series SoC in this family
+ * has 2 FMan instances; a hard cap of 8 leaves headroom while
+ * preventing both (a) heap exhaustion via huge allocs and (b)
+ * size_t multiplication wrap into a small alloc followed by a large
+ * copy_from_user. */
+if (params.num_fmans == 0 || params.num_fmans > 8) {
+DPA_ERROR("%s::num_fmans %u out of range\n", __FUNCTION__, params.num_fmans);
+return -EINVAL;
+}
 mem_size = (sizeof(struct cdx_fman_info) * params.num_fmans);
 fman_info = kzalloc(mem_size, GFP_KERNEL);
 if (!fman_info) {
