@@ -170,7 +170,7 @@ int cmmQmFFRateQueryProcess(char ** keywords, int tabStart, daemon_handle_t daem
                 goto help;
 
 	memset(pFFRateCmd, 0, sizeof(fpp_qm_ff_rate_cmd_t));
-	strncpy((char *)(&pFFRateCmd->interface[0]),(keywords[cpt]), IFNAMSIZ);
+	strscpy((char *)(&pFFRateCmd->interface[0]),(keywords[cpt]), IFNAMSIZ);
 	if (keywords[++cpt]) {
 		if (strcmp(keywords[cpt], "reset") == 0) {
 			pFFRateCmd->clear = 1;		
@@ -1404,7 +1404,7 @@ static int qm_ffrate_cfg(char **keywords, int cpt, daemon_handle_t daemon_handle
 		cmm_print(DEBUG_STDERR, "Error : invalid interface name %s \n", keywords[cpt]);
 		return QM_ERROR;
 	}
-	strncpy((char *)&ffRateCmd.interface[0], keywords[cpt], IFNAMSIZ);
+	strscpy((char *)&ffRateCmd.interface[0], keywords[cpt], IFNAMSIZ);
 
 	if((!keywords[cpt + 1]) || (strcasecmp(keywords[++cpt], "cir") != 0))  {
 		cmm_print(DEBUG_STDERR, "Error : invalid keyword. It expects cir parameter and its value.\n");

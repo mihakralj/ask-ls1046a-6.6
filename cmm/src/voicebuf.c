@@ -307,7 +307,7 @@ int cmmVoiceBufSetProcess(int argc, char *argv[], daemon_handle_t daemon_handle)
 		cmd.frame_size = tmp;
 
 		i++;
-		strncpy(cmd.filename, argv[i], CMMD_VOICE_FILE_MAX_NAMESIZE);
+		strscpy(cmd.filename, argv[i], CMMD_VOICE_FILE_MAX_NAMESIZE);
 		STR_TRUNC_END(cmd.filename, CMMD_VOICE_FILE_MAX_NAMESIZE);
 
 		rc = cmmSendToDaemon(daemon_handle, CMMD_CMD_VOICE_FILE_LOAD, &cmd, sizeof(cmd), rxbuf.rcvBuffer);

@@ -430,7 +430,7 @@ int main (int argc, char ** argv)
 
 			case 'f':	// Specify configuration file
 				//Get the argument
-				strncpy(confFilePath, optarg, 512);
+				strscpy(confFilePath, optarg, 512);
 				confFilePath[512] = '\0';
 				break;
 

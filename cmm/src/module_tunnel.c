@@ -201,7 +201,7 @@ static int tunnel_parse_cmd(int argc, char ** keywords, daemon_handle_t daemon_h
 				return tunnel_print_usage();
 			}
 		}
-		strncpy(cmmtd_cmd.name, tnl_name, sizeof(cmmtd_cmd.name));
+		strscpy(cmmtd_cmd.name, tnl_name, sizeof(cmmtd_cmd.name));
 		STR_TRUNC_END(cmmtd_cmd.name, sizeof(cmmtd_cmd.name));
 		cmmtd_cmd.ipsec = ipsec;
 		cmmtd_cmd.tunnel_type = tnl_type;
@@ -231,7 +231,7 @@ static int tunnel_parse_cmd(int argc, char ** keywords, daemon_handle_t daemon_h
 			struct tunnel_info *pInfo;
 
  			cmm_print(DEBUG_STDOUT, "Details for tunnel %s\n", tnl_name);
-			strncpy(cmmtd_cmd.name, tnl_name, sizeof(cmmtd_cmd.name));
+			strscpy(cmmtd_cmd.name, tnl_name, sizeof(cmmtd_cmd.name));
 			STR_TRUNC_END(cmmtd_cmd.name, sizeof(cmmtd_cmd.name));
 
 			/* Send CMD_CMMTD_TUNNEL_SHOW to Deamon !*/
@@ -262,7 +262,7 @@ static int tunnel_parse_cmd(int argc, char ** keywords, daemon_handle_t daemon_h
 			return tunnel_print_usage();
 		else
 		{
-			strncpy(cmmtd_cmd.name, tnl_name, sizeof(cmmtd_cmd.name));
+			strscpy(cmmtd_cmd.name, tnl_name, sizeof(cmmtd_cmd.name));
 			STR_TRUNC_END(cmmtd_cmd.name, sizeof(cmmtd_cmd.name));
 
 			/* Send CMD_CMMTD_TUNNEL_DEL to Deamon !*/
@@ -1658,7 +1658,7 @@ int cmm4rdIdConvSetProcess(char ** keywords, int tabStart, int argc, daemon_hand
 	if(strcasecmp(keywords[tabStart++],"interface") != 0)
 		goto usage;
 
-	strncpy((char*)pIdConvCmd->name, keywords[tabStart++],IFNAMSIZ);
+	strscpy((char*)pIdConvCmd->name, keywords[tabStart++],IFNAMSIZ);
 	if(strcasecmp(keywords[tabStart++],"enable") == 0)
 		 pIdConvCmd->IdConvStatus = 1;
 	

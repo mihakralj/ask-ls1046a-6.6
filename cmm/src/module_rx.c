@@ -1213,7 +1213,7 @@ int cmmRxSetProcess(char ** keywords, int tabStart, daemon_handle_t daemon_handl
 			bridgeEnableCmd.enable_flag = 1;
 			bridgeEnableCmd.interface = 0xffff;
 		
-			strncpy (&bridgeEnableCmd.input_name[0], pinterface, sizeof(bridgeEnableCmd.input_name));
+			strscpy(&bridgeEnableCmd.input_name[0], pinterface, sizeof(bridgeEnableCmd.input_name));
 			STR_TRUNC_END(bridgeEnableCmd.input_name, sizeof(bridgeEnableCmd.input_name));
 		}
 		else if(strcasecmp(keywords[cpt], "off") == 0)
@@ -1224,14 +1224,14 @@ int cmmRxSetProcess(char ** keywords, int tabStart, daemon_handle_t daemon_handl
 			memset(&bridgeEnableCmd, 0, sizeof(bridgeEnableCmd));
 			bridgeEnableCmd.enable_flag = 0;
 			bridgeEnableCmd.interface = 0xffff;
-			strncpy (&bridgeEnableCmd.input_name[0], pinterface, sizeof(bridgeEnableCmd.input_name));
+			strscpy(&bridgeEnableCmd.input_name[0], pinterface, sizeof(bridgeEnableCmd.input_name));
 			STR_TRUNC_END(bridgeEnableCmd.input_name, sizeof(bridgeEnableCmd.input_name));
 		}
 		else if(strcasecmp(keywords[cpt], "add") == 0)
 		{
 			cmdToSend |= CMD_BIT(FPP_CMD_RX_L2BRIDGE_ADD);
 			memset(&bridgeAddCmd, 0, sizeof(bridgeAddCmd));
-			strncpy(bridgeAddCmd.input_name, pinterface, sizeof(bridgeAddCmd.input_name));
+			strscpy(bridgeAddCmd.input_name, pinterface, sizeof(bridgeAddCmd.input_name));
 			STR_TRUNC_END(bridgeAddCmd.input_name, sizeof(bridgeAddCmd.input_name));
 			bridgeAddCmd.input_interface = 0xffff;
 			bridgeAddCmd.input_svlan = 0xffff;
@@ -1361,9 +1361,9 @@ int cmmRxSetProcess(char ** keywords, int tabStart, daemon_handle_t daemon_handl
 					bridgeAddCmd.input_interface  = 0xFFFF;
 					bridgeAddCmd.output_svlan = 0xFFFF;
 					bridgeAddCmd.output_cvlan = 0xFFFF;
-					strncpy(bridgeAddCmd.output_name, keywords[cpt], sizeof(bridgeAddCmd.output_name));
+					strscpy(bridgeAddCmd.output_name, keywords[cpt], sizeof(bridgeAddCmd.output_name));
 					STR_TRUNC_END(bridgeAddCmd.output_name,sizeof(bridgeAddCmd.output_name));
-					strncpy(bridgeAddCmd.input_name, pinterface, sizeof(bridgeAddCmd.input_name));
+					strscpy(bridgeAddCmd.input_name, pinterface, sizeof(bridgeAddCmd.input_name));
 					STR_TRUNC_END(bridgeAddCmd.input_name,sizeof(bridgeAddCmd.input_name));
 				}
 				else if(strcasecmp(keywords[cpt], "qmod") == 0)
@@ -1388,7 +1388,7 @@ int cmmRxSetProcess(char ** keywords, int tabStart, daemon_handle_t daemon_handl
 		{
 			cmdToSend |= CMD_BIT(FPP_CMD_RX_L2BRIDGE_REMOVE);
 			memset(&bridgeRemoveCmd, 0, sizeof(bridgeRemoveCmd));
-			strncpy(bridgeRemoveCmd.input_name, pinterface, sizeof(bridgeRemoveCmd.input_name));
+			strscpy(bridgeRemoveCmd.input_name, pinterface, sizeof(bridgeRemoveCmd.input_name));
 			STR_TRUNC_END(bridgeRemoveCmd.input_name,sizeof(bridgeRemoveCmd.input_name));
 			bridgeRemoveCmd.input_interface = 0xffff;
 			bridgeRemoveCmd.input_svlan = 0xffff;
@@ -1674,7 +1674,7 @@ static int parse_interface_qinq(char *pstring, unsigned short *pinterface_number
 
 	*psvlan_id = 0xFFFF;
 	*pcvlan_id = 0xFFFF;
-	strncpy(interface, pstring, sizeof(interface) - 1);
+	strscpy(interface, pstring, sizeof(interface) - 1);
 	STR_TRUNC_END(interface, sizeof(interface));
 
 	pperiod = strchr(interface, '.');

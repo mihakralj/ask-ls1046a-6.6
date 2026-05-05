@@ -398,7 +398,7 @@ int cmmStatShowProcess(char ** keywords, int tabStart, daemon_handle_t daemon_ha
 		{
 			if(!keywords[++cpt])
 				goto help;
-			strncpy(tunnelStatusCmd.if_name, keywords[cpt], sizeof(tunnelStatusCmd.if_name) - 1);
+			strscpy(tunnelStatusCmd.if_name, keywords[cpt], sizeof(tunnelStatusCmd.if_name) - 1);
 			if(!keywords[++cpt])
 				goto help;
 		}

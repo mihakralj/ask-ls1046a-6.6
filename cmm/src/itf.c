@@ -601,7 +601,7 @@ static void __itf_update(struct interface_table *ctx, struct interface *itf, str
 		attr = cmm_get_rtattr(RTA_DATA(attr), RTA_PAYLOAD(attr), IFLA_INFO_KIND);
 		if (attr)
 		{
-			strncpy(itf->link_kind, RTA_DATA(attr), sizeof(itf->link_kind) - 1);
+			strscpy(itf->link_kind, RTA_DATA(attr), sizeof(itf->link_kind) - 1);
 			itf->link_kind[sizeof(itf->link_kind) - 1] = '\0';
 		}
 #ifdef VLAN_FILTER
@@ -1640,7 +1640,7 @@ int itf_name_update(FCI_CLIENT *fci_handle, struct gemac_port *port)
 	int ret;
 
 	cmd.port_id = port->port_id;
-	strncpy(cmd.ifname, port->ifname, sizeof(cmd.ifname));
+	strscpy(cmd.ifname, port->ifname, sizeof(cmd.ifname));
 	cmd.ifname[sizeof(cmd.ifname) - 1] = '\0';
 
 	cmm_print(DEBUG_INFO, "%s: port mapping %d <=> %s\n", __func__, cmd.port_id, cmd.ifname);

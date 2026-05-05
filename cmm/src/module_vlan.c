@@ -284,7 +284,7 @@ int vlanAddProcess(daemon_handle_t daemon_handle, int argc, char *argv[])
 
 	cmd.action = CMMD_ACTION_REGISTER;
 	cmd.vlan_id = 0;
-	strncpy(cmd.vlan_ifname, argv[0], IFNAMSIZ);
+	strscpy(cmd.vlan_ifname, argv[0], IFNAMSIZ);
 	STR_TRUNC_END(cmd.vlan_ifname, IFNAMSIZ);
 	cmd.vlan_phy_ifname[0] = 0;
 
@@ -313,7 +313,7 @@ int vlanDeleteProcess(daemon_handle_t daemon_handle, int argc, char *argv[])
 
 	cmd.action = CMMD_ACTION_DEREGISTER;
 	cmd.vlan_id = 0;
-	strncpy(cmd.vlan_ifname, argv[0], IFNAMSIZ);
+	strscpy(cmd.vlan_ifname, argv[0], IFNAMSIZ);
 	STR_TRUNC_END(cmd.vlan_ifname, IFNAMSIZ);
 	cmd.vlan_phy_ifname[0] = 0;
 

@@ -437,11 +437,11 @@ static int relay_parse_cmd(int argc, char ** keywords, daemon_handle_t daemon_ha
 		return relay_print_usage();
 	
 	keywords++;
-	strncpy(cmd.ipifname, *keywords, sizeof(cmd.ipifname));
+	strscpy(cmd.ipifname, *keywords, sizeof(cmd.ipifname));
 	STR_TRUNC_END(cmd.ipifname, sizeof(cmd.ipifname));
 
 	keywords++;
-	strncpy(cmd.opifname, *keywords, sizeof(cmd.opifname));
+	strscpy(cmd.opifname, *keywords, sizeof(cmd.opifname));
 	STR_TRUNC_END(cmd.opifname, sizeof(cmd.opifname));
 
 	keywords++;

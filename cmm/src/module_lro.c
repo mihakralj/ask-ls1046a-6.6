@@ -37,7 +37,7 @@ int lro_interface_add(char *ifname)
 
 		cmm_print(DEBUG_INFO, "%s: lro interface added\n", ifname);
 
-		strncpy(lro_itf[i].ifname, ifname, IFNAMSIZ);
+		strscpy(lro_itf[i].ifname, ifname, IFNAMSIZ);
 		STR_TRUNC_END(lro_itf[i].ifname, IFNAMSIZ);
 
 		lro_itf[i].used = 1;
